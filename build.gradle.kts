@@ -1,4 +1,9 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget.Companion.fromTarget
+import org.jetbrains.kotlin.konan.target.HostManager
+//import sun.jvmstat.monitor.MonitoredVmUtil.commandLine
+import org.gradle.process.ExecSpec
+import org.gradle.api.tasks.Exec
+import org.gradle.api.GradleException
 
 /*
  * Copyright 2020 Realm Inc.
@@ -19,7 +24,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget.Companion.fromTarget
 
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}")
@@ -121,7 +126,8 @@ tasks {
     register<GradleBuild>("mavenCentralUpload") {
         description = "Push all Realm artifacts to Maven Central"
         group = "Publishing"
-        buildFile = file("${rootDir}/packages/build.gradle.kts")
+//        buildFile = file("${rootDir}/packages/build.gradle.kts")
+        dir = file("${rootDir}/packages")  // use dir instead of buildFile
         tasks = listOf("publishToSonatype")
         copyProperties(this)
     }
@@ -153,23 +159,56 @@ tasks {
         }
     }
 
-    val uploadDebugSymbols by register("uploadDebugSymbols", Task::class) {
-        dependsOn.addAll(listOf(archiveDebugSymbols, verifyS3Access))
-        doLast {
-            exec {
-                val s3AccessKey = getPropertyValue("REALM_S3_ACCESS_KEY")
-                val s3SecretKey = getPropertyValue("REALM_S3_SECRET_KEY")
-                workingDir = File("${buildDir}/outputs/s3/")
-                commandLine = listOf(
-                        "s3cmd",
-                        "--access_key=${s3AccessKey}",
-                        "--secret_key=${s3SecretKey}",
-                        "put",
-                        "realm-kotlin-jni-libs-unstripped-${currentVersion}.zip",
-                        "s3://static.realm.io/downloads/kotlin/"
-                )
-            }
-        }
+//    val uploadDebugSymbols by register("uploadDebugSymbols", Task::class) {
+//        dependsOn.addAll(listOf(archiveDebugSymbols, verifyS3Access))
+//        doLast {
+//            exec {
+//                val s3AccessKey = getPropertyValue("REALM_S3_ACCESS_KEY")
+//                val s3SecretKey = getPropertyValue("REALM_S3_SECRET_KEY")
+//                workingDir = File("${buildDir}/outputs/s3/")
+//                commandLine = listOf(
+//                        "s3cmd",
+//                        "--access_key=${s3AccessKey}",
+//                        "--secret_key=${s3SecretKey}",
+//                        "put",
+//                        "realm-kotlin-jni-libs-unstripped-${currentVersion}.zip",
+//                        "s3://static.realm.io/downloads/kotlin/"
+//                )
+//            }
+//        }
+//    }
+
+    val uploadDebugSymbols = register<org.gradle.api.tasks.Exec>("uploadDebugSymbols") {
+        // 1. Task Dependencies (no change needed here)
+        dependsOn(listOf(
+            named("archiveDebugSymbols"), // Assuming these are tasks and using tasks.named for lazy access
+            named("verifyS3Access")
+        ))
+
+        // 2. Execution Configuration (replaces the 'doLast' block's content)
+        // The workingDir and commandLine properties are available directly on the Exec task type.
+        workingDir = project.layout.buildDirectory.dir("outputs/s3").get().asFile
+
+        // Access properties lazily using project.providers.gradleProperty for Configuration Cache safety.
+        val s3AccessKey = project.providers.gradleProperty("REALM_S3_ACCESS_KEY")
+        val s3SecretKey = project.providers.gradleProperty("REALM_S3_SECRET_KEY")
+
+        // You should use currentVersion as a property provider if possible, but
+        // assuming it is a resolved value (like a String) for now.
+        val currentVersion: String by project // Ensure this is accessible and defined at configuration time
+
+        commandLine(
+            "s3cmd",
+            s3AccessKey.map { "--access_key=${it}" }, // Use map to construct argument lazily
+            s3SecretKey.map { "--secret_key=${it}" }, // Use map to construct argument lazily
+            "put",
+            "realm-kotlin-jni-libs-unstripped-${currentVersion}.zip",
+            "s3://static.realm.io/downloads/kotlin/"
+        )
+
+        // Set commandLine to be of type List<Any> to accommodate both Strings and Providers
+        @Suppress("UNCHECKED_CAST")
+        commandLine as List<Any>
     }
 
     val updateS3VersionFile by register("updateS3VersionFile", Exec::class) {
@@ -227,8 +266,13 @@ tasks {
              }
          }
 
+         // 🧠 Skip iOS/macOS targets if not running on macOS host
+         val effectiveTargets = (userTargets ?: availableTargets).filterNot {
+             !HostManager.hostIsMac && (it.startsWith("ios", ignoreCase = true) || it.startsWith("macos", ignoreCase = true))
+         }.toSet()
+
          // Configure which platforms publications we do want to publish
-         val publicationTargets = (userTargets ?: availableTargets).let {
+         val publicationTargets = (effectiveTargets).let {
              when (isMainHost) {
                  true -> it + mainHostTarget
                  false -> it - mainHostTarget
@@ -243,15 +287,12 @@ tasks {
                          ":packages:cinterop:publishIosSimulatorArm64PublicationToTestRepository",
                          ":packages:library-base:publishIosArm64PublicationToTestRepository",
                          ":packages:library-base:publishIosSimulatorArm64PublicationToTestRepository",
-//                         ":packages:library-sync:publishIosArm64PublicationToTestRepository",
-//                         ":packages:library-sync:publishIosSimulatorArm64PublicationToTestRepository",
                      )
                  }
                  "iosX64" -> {
                      dependsOn(
                          ":packages:cinterop:publishIosX64PublicationToTestRepository",
                          ":packages:library-base:publishIosX64PublicationToTestRepository",
-//                         ":packages:library-sync:publishIosX64PublicationToTestRepository",
                      )
                  }
                  "jvm" -> {
@@ -259,21 +300,18 @@ tasks {
                          ":packages:jni-swig-stub:publishAllPublicationsToTestRepository",
                          ":packages:cinterop:publishJvmPublicationToTestRepository",
                          ":packages:library-base:publishJvmPublicationToTestRepository",
-//                         ":packages:library-sync:publishJvmPublicationToTestRepository",
                      )
                  }
                  "macosX64" -> {
                      dependsOn(
                          ":packages:cinterop:publishMacosX64PublicationToTestRepository",
                          ":packages:library-base:publishMacosX64PublicationToTestRepository",
-//                         ":packages:library-sync:publishMacosX64PublicationToTestRepository",
                      )
                  }
                  "macosArm64" -> {
                      dependsOn(
                          ":packages:cinterop:publishMacosArm64PublicationToTestRepository",
                          ":packages:library-base:publishMacosArm64PublicationToTestRepository",
-//                         ":packages:library-sync:publishMacosArm64PublicationToTestRepository",
                      )
                  }
                  "android" -> {
@@ -281,14 +319,12 @@ tasks {
                          ":packages:jni-swig-stub:publishAllPublicationsToTestRepository",
                          ":packages:cinterop:publishAndroidReleasePublicationToTestRepository",
                          ":packages:library-base:publishAndroidReleasePublicationToTestRepository",
-//                         ":packages:library-sync:publishAndroidReleasePublicationToTestRepository",
                      )
                  }
                  "metadata" -> {
                      dependsOn(
                          ":packages:cinterop:publishKotlinMultiplatformPublicationToTestRepository",
                          ":packages:library-base:publishKotlinMultiplatformPublicationToTestRepository",
-//                         ":packages:library-sync:publishKotlinMultiplatformPublicationToTestRepository",
                      )
                  }
                  "compilerPlugin" -> {

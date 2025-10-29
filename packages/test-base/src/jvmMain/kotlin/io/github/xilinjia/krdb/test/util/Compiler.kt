@@ -33,6 +33,7 @@ object Compiler {
             messageOutputStream = System.out
             @Suppress("deprecation")
             componentRegistrars = plugins
+//            compilerPluginRegistrars = plugins
             inheritClassPath = true
             kotlincArguments = listOf("-Xjvm-default=all-compatibility")
         }.compile()

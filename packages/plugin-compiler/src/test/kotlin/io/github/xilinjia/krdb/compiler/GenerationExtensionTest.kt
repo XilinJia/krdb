@@ -393,6 +393,7 @@ class GenerationExtensionTest {
             sources = inputs.fileMap.values.map { SourceFile.fromPath(it) }
             messageOutputStream = System.out
             componentRegistrars = plugins
+//            compilerPluginRegistrars = plugins
             inheritClassPath = true
             kotlincArguments = listOf(
                 "-Xjvm-default=all-compatibility",

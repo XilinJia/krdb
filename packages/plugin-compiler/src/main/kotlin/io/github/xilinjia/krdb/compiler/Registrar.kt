@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.com.intellij.mock.MockProject
 import org.jetbrains.kotlin.com.intellij.openapi.extensions.LoadingOrder
+import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrarAdapter
@@ -45,6 +46,7 @@ import org.jetbrains.kotlin.resolve.extensions.SyntheticResolveExtension
  *
  * The [RealmObjectCompanion] holds static information about the schema (members, primary key, etc.)
  * and utility methods for constructing objects, etc.
+ * new class created by Xilin Jia 10/2025
  */
 @Suppress("deprecation")
 @AutoService(org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar::class)
@@ -55,8 +57,8 @@ import org.jetbrains.kotlin.resolve.extensions.SyntheticResolveExtension
 //  - https://youtrack.jetbrains.com/issue/KT-55300
 class Registrar : org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar {
     override fun registerProjectComponents(
-        project: MockProject,
-        configuration: CompilerConfiguration
+            project: MockProject,
+            configuration: CompilerConfiguration
     ) {
         messageCollector =
             configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
@@ -101,3 +103,31 @@ class Registrar : org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar {
 
     override val supportsK2: Boolean = true
 }
+
+//@AutoService(org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar::class)
+//@OptIn(ExperimentalCompilerApi::class)
+//class Registrar : CompilerPluginRegistrar() {
+//
+//    override val supportsK2: Boolean = true
+//
+//    @OptIn(ExperimentalCompilerApi::class)
+//    override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
+//        messageCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
+//        SchemaCollector.properties.clear()
+//
+//        // SyntheticResolve extensions
+//        SyntheticResolveExtension.registerExtension(RealmModelSyntheticCompanionExtension())
+//        SyntheticResolveExtension.registerExtension(RealmModelSyntheticMethodsExtension())
+//
+//        // IR extensions
+//        IrGenerationExtension.registerExtension(RealmModelLoweringExtension())
+//
+//        // FIR K2 extensions
+//        FirExtensionRegistrarAdapter.registerExtension(RealmModelRegistrar())
+//
+//        // Optional bundleId dependent IR extension
+//        configuration.get(bundleIdConfigurationKey)?.let { bundleId ->
+//            IrGenerationExtension.registerExtension(SyncLoweringExtension(bundleId))
+//        }
+//    }
+//}

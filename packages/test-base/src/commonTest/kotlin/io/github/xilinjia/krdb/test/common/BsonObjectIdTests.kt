@@ -26,13 +26,13 @@ import io.github.xilinjia.krdb.query.find
 import io.github.xilinjia.krdb.test.platform.PlatformUtils
 import io.github.xilinjia.krdb.test.util.use
 import io.github.xilinjia.krdb.types.RealmInstant
-import kotlinx.datetime.Clock
 import org.mongodb.kbson.ObjectId
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.time.ExperimentalTime
 
 class BsonObjectIdTests {
 
@@ -126,9 +126,10 @@ class BsonObjectIdTests {
         }
     }
 
+    @OptIn(ExperimentalTime::class)
     @Test
     fun queries() = runBlocking {
-        val timestamp = Clock.System.now().toEpochMilliseconds()
+        val timestamp = kotlin.time.Clock.System.now().toEpochMilliseconds()
         val objectId1 = ObjectId(timestamp)
         val objectId2 = ObjectId(timestamp + 100)
         val objectId3 = ObjectId(timestamp + 200)

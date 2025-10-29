@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.process.ExecOperations
 
 plugins {
     id("java-library")
@@ -37,11 +38,17 @@ java {
     targetCompatibility = Versions.targetCompatibilityVersion
 }
 
+interface ExecOpsProvider {
+    @get:Inject
+    val execOps: ExecOperations
+}
+
 val realmWrapperJvm: Task = tasks.create("realmWrapperJvm") {
+    val injectedExecOps = project.objects.newInstance<ExecOpsProvider>()
     doLast {
         // If task is actually triggered (not up to date) then we should clean up the old stuff
         delete(fileTree(generatedSourceRoot))
-        exec {
+        injectedExecOps.execOps.exec {
             workingDir(".")
             commandLine("swig", "-java", "-c++", "-package", "io.github.xilinjia.krdb.internal.interop", "-I$projectDir/../external/core/src", "-o", "$generatedSourceRoot/jni/realmc.cpp", "-outdir", "$generatedSourceRoot/java/io/github/xilinjia/krdb/internal/interop", "$projectDir/realm.i")
         }

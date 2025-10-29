@@ -10,6 +10,8 @@ Testing are performed on the dev versions. Maven artifacts can be published (tes
 
 ### Version compatibility
 
+krdb 3.2.9 <==> Kotlin 2.2.20
+
 krdb 3.2.8 <==> Kotlin 2.2.0
 
 krdb 3.2.6/7 <==> Kotlin 2.1.20

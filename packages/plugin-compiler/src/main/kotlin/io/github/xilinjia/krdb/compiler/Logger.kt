@@ -20,8 +20,9 @@ import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSourceLocation
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 
+// TODO: global variable appears causing issues with serialization, disable for now
 // Logging to console/IDE (Build Output)
-lateinit var messageCollector: MessageCollector
+var messageCollector: MessageCollector = MessageCollector.NONE
 private fun logger(message: String, severity: CompilerMessageSeverity = CompilerMessageSeverity.WARNING, location: CompilerMessageSourceLocation? = null) {
     val formattedMessage by lazy { "[Realm] $message" }
     messageCollector.report(severity, formattedMessage, location)

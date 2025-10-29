@@ -39,33 +39,19 @@ dependencies {
 
 val mavenPublicationName = "gradlePlugin"
 
-fun createMarkerArtifact(): Boolean {
-    val value = properties.getOrDefault("generatePluginArtifactMarker", "false") as String
-    return value.toBoolean()
-}
-
-pluginBundle {
-    website = "https://github.com/realm/realm-kotlin"
-    vcsUrl = "https://github.com/realm/realm-kotlin"
-    tags = listOf("MongoDB", "Realm", "Database", "Kotlin", "Mobile", "Multiplatform", "Android", "KMM")
-
-    mavenCoordinates {
-        groupId = Realm.group
-        artifactId = Realm.gradlePluginId
-        version = Realm.version
-    }
-}
-
 gradlePlugin {
     plugins {
         create("RealmPlugin") {
             id = Realm.pluginPortalId
             displayName = "Realm Kotlin Plugin"
             description = "Gradle plugin for the Realm Kotlin SDK, supporting Android and Multiplatform. " +
-                "Realm is a mobile database: Build better apps faster."
+                    "Realm is a mobile database: Build better apps faster."
             implementationClass = "io.github.xilinjia.krdb.gradle.RealmPlugin"
+            website = "https://github.com/realm/realm-kotlin"
+            vcsUrl = "https://github.com/realm/realm-kotlin"
+            tags = listOf("MongoDB", "Realm", "Database", "Kotlin", "Mobile", "Multiplatform", "Android", "KMM")
         }
-        isAutomatedPublishing = createMarkerArtifact()
+        isAutomatedPublishing = true
     }
 }
 
@@ -131,5 +117,5 @@ val versionConstants: Task = tasks.create("versionConstants") {
 tasks.getByName("compileKotlin").dependsOn(versionConstants)
 tasks.getByName("sourcesJar").dependsOn(versionConstants)
 afterEvaluate {
-    tasks.getByName("publishPluginJar").dependsOn(versionConstants)
+    tasks.getByName("publishPlugins").dependsOn(versionConstants)
 }
