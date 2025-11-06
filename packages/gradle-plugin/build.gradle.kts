@@ -116,6 +116,14 @@ val versionConstants: Task = tasks.create("versionConstants") {
 
 tasks.getByName("compileKotlin").dependsOn(versionConstants)
 tasks.getByName("sourcesJar").dependsOn(versionConstants)
+//afterEvaluate {
+//    tasks.getByName("publishPlugins").dependsOn(versionConstants)
+//}
 afterEvaluate {
     tasks.getByName("publishPlugins").dependsOn(versionConstants)
+
+    // Fix Gradle 9+ validation: ensure signing runs before local publishing
+    tasks.withType<PublishToMavenLocal>().configureEach {
+        dependsOn(tasks.withType<Sign>())
+    }
 }

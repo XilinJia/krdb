@@ -19,7 +19,8 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 plugins {
     kotlin("jvm")
     `java`
-    id("com.github.johnrengelman.shadow") version Versions.shadowJar
+//    id("com.github.johnrengelman.shadow") version Versions.shadowJar
+    id("com.gradleup.shadow") version Versions.shadowJar
     id("realm-publisher")
 }
 

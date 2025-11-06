@@ -132,7 +132,7 @@ class RealmCompilerSubplugin : KotlinCompilerPluginSupportPlugin, AnalyticsError
             // in `afterEvaluate`. This means we can only see dependencies directly set,
             // and not their transitive dependencies. This should be fine as we only
             // want to track builds directly using Realm.
-            var usesSync: Boolean = withDefaultOnError("Uses Sync", false) {
+            val usesSync: Boolean = withDefaultOnError("Uses Sync", false) {
                 var usesSync = false
                 outer@
                 for (conf in target.configurations) {
@@ -193,6 +193,7 @@ class RealmCompilerSubplugin : KotlinCompilerPluginSupportPlugin, AnalyticsError
         return SubpluginArtifact(groupId, artifactId, version)
     }
 
+    @Deprecated("This function is no longer used as only the embeddable compiler is supported. The 'kotlin.native.useEmbeddableCompilerJar' property has been removed and getPluginArtifact() is always used instead.", replaceWith = ReplaceWith("getPluginArtifact()"), level = DeprecationLevel.WARNING)
     override fun getPluginArtifactForNative(): SubpluginArtifact {
         return SubpluginArtifact(groupId, artifactId, version)
     }
@@ -262,13 +263,22 @@ class RealmCompilerSubplugin : KotlinCompilerPluginSupportPlugin, AnalyticsError
  * Wrapper to safely obtain provider for usage in configuration phases to support configuration
  * cache across Gradle versions.
  */
-private fun <T> Provider<T>.safeProvider(): Provider<T> = this.let {
-    when {
-        gradleVersion < gradle70 -> {
-            @Suppress("DEPRECATION")
-            it.forUseAtConfigurationTime()
+private fun <T : Any> Provider<T>.safeProvider(): Provider<T> {
+    return try {
+        when {
+            gradleVersion < gradle70 -> {
+                val method = this::class.java.methods.find { it.name == "forUseAtConfigurationTime" }
+                if (method != null) {
+                    @Suppress("DEPRECATION", "UNCHECKED_CAST")
+                    method.invoke(this) as Provider<T>
+                } else {
+                    this
+                }
+            }
+            else -> this
         }
-        else -> it
+    } catch (e: Exception) {
+        this
     }
 }
 

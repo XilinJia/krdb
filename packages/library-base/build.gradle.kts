@@ -249,11 +249,18 @@ tasks.named("publishKotlinMultiplatformPublicationToMavenLocal") {
     }
 }
 
-tasks.register("dokkaJar", Jar::class) {
-    val dokkaTask = "dokkaHtmlPartial"
+//tasks.register("dokkaJar", Jar::class) {
+//    val dokkaTask = "dokkaHtmlPartial"
+//    dependsOn(dokkaTask)
+//    archiveClassifier.set("dokka")
+//    from(tasks.named(dokkaTask).get().outputs)
+//}
+
+tasks.register<Jar>("dokkaJar") {
+    val dokkaTask = tasks.named("dokkaGeneratePublicationHtml") // or dokkaGenerateHtml
     dependsOn(dokkaTask)
     archiveClassifier.set("dokka")
-    from(tasks.named(dokkaTask).get().outputs)
+    from(dokkaTask.map { it.outputs.files })
 }
 
 val javadocJar by tasks.registering(Jar::class) {

@@ -3,17 +3,14 @@
 * enhanced efficiency by avoid using Kotlin reflection in RealmObject, incorporated the PR from @kzotin
 * updated Kotlin to 2.2.20
 * gradle upped to 9.1.0, gradlePluginPublishPlugin upped to 2.0.0, Android gradle plugin upped to 8.13.0
+* upped kotlinCompileTesting to 0.9.0
+* dokka upped to 2.1.0
+* migrated johnrengelman.shadow to com.gradleup.shadow, and upped to 8.3.6
 * Android SDK upped to 36, and various other dependencies update
+* fixed RealmCompilerSubplugin syntax for gradle < 7
 * in build.gradle, added host check so that ios and macos can be skipped on non-Mac machines
 * replaced jCenter with mavenCentral
 * removed sync packages
-
-Issues:
-
-* jvmTest build fail when migrating class Registrar to the new CompilerPluginRegistrar (serialization problem)
-* without migrating Registrar:
-  * jvmTest runs when kotlinCompileTesting = "0.8.0"
-  * jvmTest build fail when kotlinCompileTesting = "0.10.1"
 
 ## 3.2.8
 

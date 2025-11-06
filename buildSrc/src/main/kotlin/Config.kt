@@ -130,7 +130,7 @@ object Versions {
     const val kotlin = "2.2.20" // https://github.com/JetBrains/kotlin and https://kotlinlang.org/docs/releases.html#release-details
     const val latestKotlin = "2.2.20" // https://kotlinlang.org/docs/eap.html#build-details
     const val kotlinJvmTarget = "17" // Which JVM bytecode version is kotlin compiled to.
-    const val kotlinCompileTesting = "0.8.0" // https://github.com/zacsweers/kotlin-compile-testing
+    const val kotlinCompileTesting = "0.9.0" // https://github.com/zacsweers/kotlin-compile-testing
     const val ktlint = "1.7.1" // https://github.com/pinterest/ktlint
     const val ktor = "2.3.12" // https://github.com/ktorio/ktor
     const val multidex = "2.0.1" // https://developer.android.com/jetpack/androidx/releases/multidex
@@ -138,7 +138,8 @@ object Versions {
     const val okio = "3.16.2" // https://square.github.io/okio/#releases
     const val relinker = "1.4.5" // https://github.com/KeepSafe/ReLinker
     const val serialization = "1.9.0" // https://github.com/Kotlin/kotlinx.sericalization
-    const val shadowJar =  "8.1.1" // https://mvnrepository.com/artifact/com.github.johnrengelman.shadow/com.github.johnrengelman.shadow.gradle.plugin?repo=gradle-plugins
+//    const val shadowJar =  "8.1.1" // https://mvnrepository.com/artifact/com.github.johnrengelman.shadow/com.github.johnrengelman.shadow.gradle.plugin?repo=gradle-plugins
+    const val shadowJar =  "8.3.6" // https://github.com/GradleUp/shadow?tab=readme-ov-file
     const val snakeYaml = "1.33" // https://github.com/snakeyaml/snakeyaml
     val sourceCompatibilityVersion = JavaVersion.VERSION_17 // Language level of any Java source code.
     val targetCompatibilityVersion = JavaVersion.VERSION_17 // Version of generated JVM bytecode from Java files.
