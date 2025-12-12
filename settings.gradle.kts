@@ -49,7 +49,6 @@ include(":packages:gradle-plugin")
 include(":packages:plugin-compiler")
 include(":packages:plugin-compiler-shaded")
 include(":packages:library-base")
-// include(":packages:library-sync")
 include(":packages:cinterop")
 include(":packages:jni-swig-stub")
 

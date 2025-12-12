@@ -28,7 +28,6 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-//                implementation("io.github.xilinjia.krdb:library-sync:${Realm.version}")
             }
         }
         val androidMain by getting

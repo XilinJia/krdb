@@ -537,9 +537,7 @@ jobs:
     if: |
       always() && !cancelled() &&
       (needs.check-cache.outputs.packages-android-cache-hit != 'true' ||
-      needs.check-cache.outputs.android-test-base-apk-cache-hit != 'true'
-#      || needs.check-cache.outputs.android-test-sync-apk-cache-hit != 'true'
-      )
+      needs.check-cache.outputs.android-test-base-apk-cache-hit != 'true')
 
     steps:
       - name: Remove unnecessary files
@@ -628,10 +626,6 @@ jobs:
         working-directory: packages
         run: ./gradlew  :test-base:assembleAndroidTest -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
 
-      - name: Build Android Sync Test Apk
-        working-directory: packages
-        run: ./gradlew :test-sync:packageDebug :test-sync:assembleAndroidTest -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
-
       - name: Build packages
         working-directory: packages
         run: ./gradlew publishCIPackages -Prealm.kotlin.targets=android -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
@@ -648,14 +642,6 @@ jobs:
           path: ./packages/test-base/build/outputs/apk/androidTest/debug/test-base-debug-androidTest.apk
           key: android-base-test-apk-key-${{ needs.check-cache.outputs.packages-sha }}
 
-      # Must match naming found in include-check-cache.yml
-#      - name: Store build cache for Android Sync Test APK
-#        uses: actions/cache@v4
-#        with:
-#          key: android-sync-test-apk-key-${{ needs.check-cache.outputs.packages-sha }}
-#          path: |
-#            ./packages/test-sync/build/outputs/apk/androidTest/debug/test-sync-debug-androidTest.apk
-#            ./packages/test-sync/build/outputs/apk/debug/test-sync-debug.apk
 
       # Must match naming found in include-check-cache.yml
       # Must match naming found in include-check-cache.yml
@@ -672,15 +658,6 @@ jobs:
           name: android-base-test-apk-${{ needs.check-cache.outputs.version-label }}
           path: ./packages/test-base/build/outputs/apk/androidTest/debug/test-base-debug-androidTest.apk
           retention-days: 1
-
-#      - name: Upload Android Sync Test APK
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: android-sync-test-apk-${{ needs.check-cache.outputs.version-label }}
-#          retention-days: 1
-#          path: |
-#            ./packages/test-sync/build/outputs/apk/androidTest/debug/test-sync-debug-androidTest.apk
-#            ./packages/test-sync/build/outputs/apk/debug/test-sync-debug.apk
 
 
   # TODO: ccache is not being used by this build for some reason
@@ -1191,12 +1168,6 @@ jobs:
           OUTPUT=$(bash cli.sh start | jq -r '.id')
           echo "baas_container_id=$OUTPUT" >> $GITHUB_OUTPUT
 
-      - name: Restore Android Sync Test APK
-        uses: actions/download-artifact@v4
-        with:
-          name: android-sync-test-apk-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/test-sync/build/outputs/apk/
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -1213,17 +1184,6 @@ jobs:
         run: |
           OUTPUT=$(bash cli.sh poll ${{ steps.baas_cli_start.outputs.baas_container_id }} | jq -r '.httpUrl')
           echo "baas_container_hostname=$OUTPUT" >> $GITHUB_OUTPUT
-
-      - name: Run the Sync tests
-        uses: ./.github/actions/run-android-device-farm-test
-        id: run_android_tests
-        with:
-          apk-path: ${{ github.workspace }}/packages/test-sync/build/outputs/apk/androidTest/debug/test-sync-debug-androidTest.apk
-          apk-auxiliary-path: ${{ github.workspace }}/packages/test-sync/build/outputs/apk/debug/test-sync-debug.apk
-          baas_url: ${{ steps.baas_cli_poll.outputs.baas_container_hostname }}
-          app-id: io.realm.sync.testapp.test
-          project-arn: ${{ secrets.DEVICEFARM_PROJECT_ARN }}
-          device-pool-arn: ${{ secrets.DEVICEFARM_POOL_ARN }}
 
       - name: Stopping the BAAS container
         if: always()
