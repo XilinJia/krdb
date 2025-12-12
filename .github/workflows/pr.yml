@@ -86,7 +86,7 @@ jobs:
 
       - name: Build JNI Stub
         working-directory: ./
-        run: ./gradlew :jni-swig-stub:assemble -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
+        run: ./gradlew :packages:jni-swig-stub:assemble -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -624,7 +624,7 @@ jobs:
 
       - name: Build Android Base Test Apk
         working-directory: ./
-        run: ./gradlew  :test-base:assembleAndroidTest -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
+        run: ./gradlew  :packages:test-base:assembleAndroidTest -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
 
       - name: Build packages
         working-directory: ./

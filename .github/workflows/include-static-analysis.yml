@@ -28,7 +28,7 @@ jobs:
 
       - name: Build Gradle Plugin
         working-directory: .
-        run: ./gradlew :gradle-plugin:publishAllPublicationsToTestRepository --info --stacktrace
+        run: ./gradlew :packages:gradle-plugin:publishAllPublicationsToTestRepository --info --stacktrace
 
       - name: Run Ktlint
         run: ./gradlew ktlintCheck
@@ -79,7 +79,7 @@ jobs:
 
       - name: Build Gradle Plugin
         working-directory: .
-        run: ./gradlew :gradle-plugin:publishAllPublicationsToTestRepository --info --stacktrace
+        run: ./gradlew :packages:gradle-plugin:publishAllPublicationsToTestRepository --info --stacktrace
 
       - name: Run Detekt
         run: ./gradlew detekt
