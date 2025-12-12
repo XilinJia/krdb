@@ -85,7 +85,7 @@ jobs:
           curl -L ${{ vars.VERSION_SWIG}} > swig.rb && HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=true brew install swig.rb
 
       - name: Build JNI Stub
-        working-directory: ./packages
+        working-directory: ./
         run: ./gradlew :jni-swig-stub:assemble -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
 
       - name: Upload artifacts
@@ -309,7 +309,7 @@ jobs:
           path: ${{ github.workspace }}/packages/jni-swig-stub/build/generated/sources/jni        
 
       - name: Build packages
-        working-directory: packages
+        working-directory: ./
         run: ./gradlew buildJVMSharedLibs -Prealm.kotlin.mainHost=false
 
       - name: Show ccache size
@@ -396,7 +396,7 @@ jobs:
           key: packages-m2-metadata-${{ needs.check-cache.outputs.packages-sha }}
           
       - name: Build Kotlin Metadata and Gradle and Compiler Plugin
-        working-directory: packages
+        working-directory: ./
         run: ./gradlew publishCIPackages -Prealm.kotlin.targets=gradlePlugin,compilerPlugin -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=true
 
       - name: Upload artifacts
@@ -512,7 +512,7 @@ jobs:
           path: ./packages/cinterop/build/realmMacOsBuild
           
       - name: Build JVM Package
-        working-directory: packages
+        working-directory: ./
         run: ./gradlew publishCIPackages -Prealm.kotlin.targets=jvm -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.copyNativeJvmLibs=linux,windows,macos -Prealm.kotlin.mainHost=false
 
       - name: Show ccache size
@@ -623,11 +623,11 @@ jobs:
         run: sdkmanager --install "ndk;${{ env.NDK_VERSION }}"
 
       - name: Build Android Base Test Apk
-        working-directory: packages
+        working-directory: ./
         run: ./gradlew  :test-base:assembleAndroidTest -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
 
       - name: Build packages
-        working-directory: packages
+        working-directory: ./
         run: ./gradlew publishCIPackages -Prealm.kotlin.targets=android -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
 
       - name: Store build cache
@@ -714,7 +714,7 @@ jobs:
           echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++          
 
       - name: Build packages
-        working-directory: packages
+        working-directory: ./
         run: ./gradlew publishCIPackages -Prealm.kotlin.targets=macosX64 -Prealm.kotlin.mainHost=false
 
       - name: Show ccache size
@@ -790,7 +790,7 @@ jobs:
           echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++          
 
       - name: Build packages
-        working-directory: packages
+        working-directory: ./
         run: ./gradlew publishCIPackages -Prealm.kotlin.targets=macosArm64 -Prealm.kotlin.mainHost=false
 
       - name: Store build cache
@@ -861,7 +861,7 @@ jobs:
           echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++          
 
       - name: Build packages
-        working-directory: packages
+        working-directory: ./
         run: ./gradlew publishCIPackages -Prealm.kotlin.targets=iosX64 -Prealm.kotlin.mainHost=false
 
       # We cannot use artifacts as they cannot be shared between workflows, so use cache instead.
@@ -933,7 +933,7 @@ jobs:
           echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++          
 
       - name: Build packages
-        working-directory: packages
+        working-directory: ./
         run: ./gradlew publishCIPackages -Prealm.kotlin.targets=iosArm64 -Prealm.kotlin.mainHost=false
 
       # We cannot use artifacts as they cannot be shared between workflows, so use cache instead.
@@ -1064,7 +1064,7 @@ jobs:
           script: |
             adb logcat -c
             adb logcat > logcat.txt &
-            cd packages && ./gradlew :test-${{ matrix.type }}:connectedCheck -PsyncUsePlatformNetworking=true -PsyncTestUrl=${{ steps.baas_cli_poll.outputs.baas_container_hostname }} -PincludeSdkModules=false --info --no-daemon
+            ./gradlew :test-${{ matrix.type }}:connectedCheck -PsyncUsePlatformNetworking=true -PsyncTestUrl=${{ steps.baas_cli_poll.outputs.baas_container_hostname }} -PincludeSdkModules=false --info --no-daemon
 
       - name: Archive LogCat data
         uses: actions/upload-artifact@v4
@@ -1295,7 +1295,7 @@ jobs:
           echo "baas_container_hostname=$OUTPUT" >> $GITHUB_OUTPUT
 
       - name: Run tests
-        working-directory: packages
+        working-directory: ./
         run: >
           ./gradlew :test-${{ matrix.type }}:macosTest
           -PsyncTestUrl=${{ steps.baas_cli_poll.outputs.baas_container_hostname }} 
@@ -1425,7 +1425,7 @@ jobs:
 
       # App names are limited to 32 characters, so the appNamePrefix should not exceed 22 characters.
       - name: Run tests
-        working-directory: packages
+        working-directory: ./
         run: >
           ./gradlew :test-${{ matrix.type }}:${{ matrix.test-task }}
           -PsyncTestUrl=${{ steps.baas_cli_poll.outputs.baas_container_hostname }} 
@@ -1566,7 +1566,7 @@ jobs:
 
       # App names are limited to 32 characters, so the appNamePrefix should not exceed 22 characters.
       - name: Run tests
-        working-directory: packages
+        working-directory: ./
         run: >
           ./gradlew :test-${{ matrix.type }}:jvmTest
           -PsyncUsePlatformNetworking=true
