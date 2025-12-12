@@ -1,3 +1,9 @@
+## 3.2.10
+
+* realm-core is now linked to https://github.com/XilinJia/realm-core, which has updates required for build with NDK 29
+* NDK upped to 29
+* gradle upped to 9.2.1
+
 ## 3.2.9
 
 * enhanced efficiency by avoid using Kotlin reflection in RealmObject, incorporated the PR from @kzotin

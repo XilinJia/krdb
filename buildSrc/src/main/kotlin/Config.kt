@@ -62,7 +62,7 @@ val HOST_OS: OperatingSystem = findHostOs()
 
 object Realm {
     val ciBuild = (System.getenv("CI") != null)
-     const val version = "3.2.9"
+    const val version = "3.2.10"
     const val group = "io.github.xilinjia.krdb"
     const val projectUrl = "https://realm.io"
     const val pluginPortalId = "io.github.xilinjia.krdb"
@@ -102,8 +102,8 @@ object Versions {
         const val compileSdkVersion = 36
         const val buildToolsVersion = "36.1.0"
         const val buildTools = "8.13.0" // https://maven.google.com/web/index.html?q=gradle#com.android.tools.build:gradle
-        const val ndkVersion = "27.0.12077973"
-//        const val ndkVersion = "29.0.14206865"    // TODO: causes lots of errors in C++ and h files
+//        const val ndkVersion = "27.0.12077973"
+        const val ndkVersion = "29.0.14206865"    // TODO: causes lots of errors in C++ and h files
         const val r8 = "8.10.21" // See https://developer.android.com/build/kotlin-support
     }
     const val androidxBenchmarkPlugin = "1.3.3" // https://maven.google.com/web/index.html#androidx.benchmark:androidx.benchmark.gradle.plugin
