@@ -27,7 +27,7 @@ jobs:
           cmake-version: ${{ vars.VERSION_CMAKE }}
 
       - name: Build Gradle Plugin
-        working-directory: packages
+        working-directory: .
         run: ./gradlew :gradle-plugin:publishAllPublicationsToTestRepository --info --stacktrace
 
       - name: Run Ktlint
@@ -78,7 +78,7 @@ jobs:
           cmake-version: ${{ vars.VERSION_CMAKE }}
 
       - name: Build Gradle Plugin
-        working-directory: packages
+        working-directory: .
         run: ./gradlew :gradle-plugin:publishAllPublicationsToTestRepository --info --stacktrace
 
       - name: Run Detekt
