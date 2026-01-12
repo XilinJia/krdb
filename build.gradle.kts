@@ -195,7 +195,7 @@ tasks {
 
         // You should use currentVersion as a property provider if possible, but
         // assuming it is a resolved value (like a String) for now.
-        val currentVersion: String by project // Ensure this is accessible and defined at configuration time
+        val currentVersion: String? by project // Ensure this is accessible and defined at configuration time
 
         commandLine(
             "s3cmd",

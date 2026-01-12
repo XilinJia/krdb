@@ -64,6 +64,7 @@ import kotlin.reflect.KClassifier
 import kotlin.reflect.KMutableProperty1
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -263,6 +264,7 @@ class SerializationTests {
         }
     }
 
+    @Ignore("Serialization of RealmObjects is temporarily disabled for Kotlin 2.3.0 compatibility")
     @Test
     fun exhaustiveElementTypesTester() {
         val expected = SerializableSample().apply {
@@ -285,6 +287,7 @@ class SerializationTests {
             }
     }
 
+    @Ignore("Serialization of RealmObjects is temporarily disabled for Kotlin 2.3.0 compatibility")
     @Test
     fun exhaustiveRealmAnyTester() {
         RealmAny.Type.values()
@@ -378,6 +381,7 @@ class SerializationTests {
      *   would be serialized and deserialized, and then validate that the deserialized and original
      *   values match.
      */
+    @Ignore("Serialization of RealmObjects is temporarily disabled for Kotlin 2.3.0 compatibility")
     @Test
     fun exhaustiveRealmListTest() {
         TypeDescriptor
@@ -401,6 +405,7 @@ class SerializationTests {
      *   would be serialized and deserialized, and then validate that the deserialized and original
      *   values match.
      */
+    @Ignore("Serialization of RealmObjects is temporarily disabled for Kotlin 2.3.0 compatibility")
     @Test
     fun exhaustiveRealmSetTest() {
         TypeDescriptor
@@ -423,6 +428,7 @@ class SerializationTests {
      * - Instantiate a managed and an unmanaged RealmObjects, each one would be serialized and
      *   deserialized, and then validate that the deserialized and original values match.
      */
+    @Ignore("Serialization of RealmObjects is temporarily disabled for Kotlin 2.3.0 compatibility")
     @Test
     fun exhaustiveRealmDictTest() {
         TypeDescriptor

@@ -66,8 +66,8 @@ class GenerationExtensionTest {
         val fileMap: Map<String, File>
 
         init {
-            val base = File(this::class.java.getResource("$directory").file)
-            val file = File(this::class.java.getResource("${directory}${File.separator}input").file)
+            val base = File(this::class.java.getResource("$directory")?.file ?: "")
+            val file = File(this::class.java.getResource("${directory}${File.separator}input")?.file ?: "")
             fileMap = file.walkTopDown()
                 .toList()
                 .filter { !it.isDirectory }
@@ -386,17 +386,18 @@ class GenerationExtensionTest {
     @Suppress("deprecation")
     private fun compile(
         inputs: Files,
-        plugins: List<org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar> = listOf(Registrar()),
+        plugins: List<Registrar> = listOf(Registrar()),
         options: List<PluginOption> = emptyList(),
     ): JvmCompilationResult {
         return KotlinCompilation().apply {
             sources = inputs.fileMap.values.map { SourceFile.fromPath(it) }
             messageOutputStream = System.out
-            componentRegistrars = plugins
-//            compilerPluginRegistrars = plugins
+            jvmTarget = "17"
+            compilerPluginRegistrars = plugins
             inheritClassPath = true
             kotlincArguments = listOf(
-                "-Xjvm-default=all-compatibility",
+//                "-Xjvm-default=all-compatibility",
+                "-jvm-default", "no-compatibility",
                 "-Xdump-directory=${inputs.outputDir()}",
                 "-Xphases-to-dump-after=ValidateIrBeforeLowering"
             )

@@ -30,11 +30,12 @@ object Compiler {
     ): JvmCompilationResult =
         KotlinCompilation().apply {
             sources = listOf(source)
+            jvmTarget = "17"
             messageOutputStream = System.out
-            @Suppress("deprecation")
-            componentRegistrars = plugins
-//            compilerPluginRegistrars = plugins
+//            @Suppress("deprecation")
+            compilerPluginRegistrars = plugins
             inheritClassPath = true
-            kotlincArguments = listOf("-Xjvm-default=all-compatibility")
+//            kotlincArguments = listOf("-Xjvm-default=all-compatibility")
+            kotlincArguments = listOf("-jvm-default", "no-compatibility")
         }.compile()
 }

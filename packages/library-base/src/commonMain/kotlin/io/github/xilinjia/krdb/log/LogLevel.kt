@@ -25,7 +25,7 @@ import io.github.xilinjia.krdb.log.LogLevel.WTF
  * Each log entry is assigned a priority between [TRACE] and [WTF]. If the log level is equal or
  * higher than the priority defined in [RealmLog.getLevel] the event will be logged.
  */
-@Suppress("MagicNumber")
+// @Suppress("MagicNumber")
 public enum class LogLevel(public val priority: Int) {
     ALL(0),
     TRACE(1),

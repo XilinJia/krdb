@@ -53,8 +53,8 @@ import org.mongodb.kbson.Decimal128
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
 
-@Suppress("MagicNumber")
-@Serializable
+//@Suppress("MagicNumber")
+//@Serializable
 class SerializableSample : RealmObject {
     var stringField: String = "Realm"
     var byteField: Byte = 0xA
@@ -348,7 +348,7 @@ class SerializableSample : RealmObject {
     }
 }
 
-@Serializable
+//@Serializable
 class SerializableEmbeddedObject : EmbeddedRealmObject {
     var name: String = "hello world"
 

@@ -28,6 +28,8 @@ import io.github.xilinjia.krdb.compiler.FqNames.PACKAGE_TYPES
 import io.github.xilinjia.krdb.compiler.Names.ASYMMETRIC_REALM_OBJECT
 import io.github.xilinjia.krdb.compiler.Names.EMBEDDED_REALM_OBJECT
 import io.github.xilinjia.krdb.compiler.Names.REALM_OBJECT
+import java.lang.reflect.Field
+import java.util.function.Predicate
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocationWithRange
@@ -69,6 +71,7 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationWithName
 import org.jetbrains.kotlin.ir.declarations.IrField
 import org.jetbrains.kotlin.ir.declarations.IrMutableAnnotationContainer
+import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrVariable
@@ -119,23 +122,46 @@ import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes.SUPER_TYPE_LIST
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.types.KotlinType
-import java.lang.reflect.Field
-import java.util.function.Predicate
-import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 
 // Somehow addSetter was removed from the IrProperty in https://github.com/JetBrains/kotlin/commit/d1dc938a5d7331ba43fcbb8ce53c3e17ef76a22a#diff-2726c3747ace0a1c93ad82365cf3ff18L114
 // Remove this extension when this will be re-introduced? see https://kotlinlang.slack.com/archives/C7L3JB43G/p1600888883006300
-inline fun IrProperty.addSetter(builder: IrFunctionBuilder.() -> Unit = {}): IrSimpleFunction =
-    IrFunctionBuilder().run {
-        factory.buildFun {
-            this.name = Name.special("<set-${this@addSetter.name}>")
-            builder()
-        }.also { setter ->
-            this@addSetter.setter = setter
-            setter.correspondingPropertySymbol = this@addSetter.symbol
-            setter.parent = this@addSetter.parent
-        }
+//inline fun IrProperty.addSetter(builder: IrFunctionBuilder.() -> Unit = {}): IrSimpleFunction =
+//    IrFunctionBuilder().run {
+//        factory.buildFun {
+//            this.name = Name.special("<set-${this@addSetter.name}>")
+//            builder()
+//        }.also { setter ->
+//            this@addSetter.setter = setter
+//            setter.correspondingPropertySymbol = this@addSetter.symbol
+//            setter.parent = this@addSetter.parent
+//        }
+//    }
+
+// xlj
+fun IrProperty.addSetter(
+        pluginContext: IrPluginContext,
+        builder: (IrSimpleFunction) -> Unit = {}
+): IrSimpleFunction {
+    val setter = pluginContext.irFactory.buildFun {
+        name = Name.special("<set-${this@addSetter.name}>")
+        returnType = pluginContext.irBuiltIns.unitType
+        visibility = DescriptorVisibilities.PUBLIC
+        modality = Modality.FINAL
     }
+
+    setter.body = pluginContext.irFactory.createBlockBody(
+        startOffset = UNDEFINED_OFFSET,
+        endOffset = UNDEFINED_OFFSET
+    )
+
+    this.setter = setter
+    setter.correspondingPropertySymbol = this.symbol
+    setter.parent = this.parent
+
+    builder(setter)
+
+    return setter
+}
 
 fun IrPluginContext.blockBody(
     symbol: IrSymbol,
@@ -602,11 +628,6 @@ fun IrBlockBuilder.createSafeCallConstruction(
                 symbol = context.irBuiltIns.eqeqSymbol,
                 typeArgumentsCount = 0,
                 origin = IrStatementOrigin.EQEQ
-//                startOffset, endOffset, context.irBuiltIns.booleanType,
-//                context.irBuiltIns.eqeqSymbol,
-//                valueArgumentsCount = 2,
-//                typeArgumentsCount = 0,
-//                origin = IrStatementOrigin.EQEQ
             ).apply {
                 arguments[0] = IrGetValueImpl(startOffset, endOffset, receiverVariableSymbol)
                 arguments[1] = IrConstImpl.constNull(startOffset, endOffset, context.irBuiltIns.nothingNType)

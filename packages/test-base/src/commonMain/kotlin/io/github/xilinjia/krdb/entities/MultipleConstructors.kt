@@ -19,7 +19,7 @@ package io.github.xilinjia.krdb.entities
 import io.github.xilinjia.krdb.types.RealmObject
 
 class MultipleConstructors(var firstName: String, var lastName: String, var age: Int) : RealmObject {
-    @Suppress("MagicNumber")
+    // @Suppress("MagicNumber")
     constructor(firstName: String, lastName: String) : this (firstName, lastName, 42)
     constructor(foreName: String) : this (foreName, "Doe")
     constructor() : this ("John")

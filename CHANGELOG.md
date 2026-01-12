@@ -1,3 +1,14 @@
+## 3.3.0
+
+* Kotlin is upped to 2.3.0
+* support for entity serialization is dropped
+  * marking a Realm entity with @Serializable would cause crash
+* tests for serialization is disabled
+* test compile is set to jvmTarget 17
+* replaced -Xjvm-default with -jvm-default
+* migrated Registrar to the new Kotlin API
+* removed bridge functions lowerFromModuleFragment(moduleFragment: IrModuleFragment) used for backward compatibility with Kotlin 1.9
+
 ## 3.2.10
 
 * realm-core is now linked to https://github.com/XilinJia/realm-core, which has updates required for build with NDK 29

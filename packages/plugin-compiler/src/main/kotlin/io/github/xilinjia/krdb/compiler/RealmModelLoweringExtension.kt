@@ -51,8 +51,16 @@ import org.jetbrains.kotlin.platform.konan.isNative
 import org.jetbrains.kotlin.utils.KotlinExceptionWithAttachments
 
 class RealmModelLoweringExtension : IrGenerationExtension {
+//    override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
+//        RealmModelLowering(pluginContext).lowerFromModuleFragment(moduleFragment)
+//    }
+
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-        RealmModelLowering(pluginContext).lowerFromModuleFragment(moduleFragment)
+        try {
+            RealmModelLowering(pluginContext).lowerFromModuleFragment(moduleFragment)
+        } catch (t: Throwable) {
+            error("KRDB crash in RealmModelLowering\n" + t.stackTraceToString())
+        }
     }
 }
 
@@ -63,40 +71,16 @@ private class RealmModelLowering(private val pluginContext: IrPluginContext) : C
         pluginContext.lookupClassOrThrow(MODEL_OBJECT_ANNOTATION)
     }
 
-    // TODO 1.9-DEPRECATION Remove and rely on ClassLoweringPass.lower(IrModuleFragment) when
-    //  leaving 1.9 support
-    // Workaround that FileLoweringPass.lower(IrModuleFragment) is implemented as extension method
-    // in 1.9 but as proper interface method in 2.0. Implementation in both versions are more or
-    // less the same but this common implementation can loose some information as the IrElement is
-    // also not uniformly available on the CompilationException across versions.
-    fun lowerFromModuleFragment(
-        moduleFragment: IrModuleFragment
-    ) = moduleFragment.files.forEach {
+    fun lowerFromModuleFragment(moduleFragment: IrModuleFragment) {
         try {
-            lower(it)
-        } catch (e: CompilationException) {
-            // Unfortunately we cannot access the IR element of e uniformly across 1.9 and 2.0 so
-            // leaving it as null. Hopefully the embedded cause will give the appropriate pointers
-            // to fix this.
-            throw CompilationException(
-                "Internal error in realm lowering : ${this::class.qualifiedName}: ${e.message}",
-                it,
-                null,
-                cause = e
-            ).apply {
-                stackTrace = e.stackTrace
-            }
-        } catch (e: KotlinExceptionWithAttachments) {
-            throw e
+            super.lower(moduleFragment)
         } catch (e: Throwable) {
             throw CompilationException(
-                "Internal error in file lowering : ${this::class.qualifiedName}: ${e.message}",
-                it,
+                "Internal error in realm lowering: ${e.message}",
+                null, // K2 provides better ways to get the element from the trace
                 null,
                 cause = e
-            ).apply {
-                stackTrace = e.stackTrace
-            }
+            )
         }
     }
 
@@ -140,8 +124,7 @@ private class RealmModelLowering(private val pluginContext: IrPluginContext) : C
                 irClass.annotations += modelObjectAnnotation
             }
             // add super type RealmObjectInternal and RealmObjectInterop
-            val realmObjectInternalInterface: IrClassSymbol =
-                pluginContext.lookupClassOrThrow(REALM_OBJECT_INTERNAL_INTERFACE).symbol
+            val realmObjectInternalInterface: IrClassSymbol = pluginContext.lookupClassOrThrow(REALM_OBJECT_INTERNAL_INTERFACE).symbol
             irClass.superTypes += realmObjectInternalInterface.defaultType
 
             // Generate RealmObjectInternal properties overrides
@@ -162,8 +145,7 @@ private class RealmModelLowering(private val pluginContext: IrPluginContext) : C
             generator.addNewInstanceMethodBody(irClass)
         } else {
             if (irClass.isCompanion && irClass.parentAsClass.isBaseRealmObject) {
-                val realmModelCompanion: IrClassSymbol =
-                    pluginContext.lookupClassOrThrow(REALM_MODEL_COMPANION).symbol
+                val realmModelCompanion: IrClassSymbol = pluginContext.lookupClassOrThrow(REALM_MODEL_COMPANION).symbol
                 irClass.superTypes += realmModelCompanion.defaultType
             }
         }

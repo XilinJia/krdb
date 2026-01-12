@@ -15,6 +15,9 @@ class BacklinksTests {
             "nonParameter.kt",
             NON_PARAMETER_BACKLINKS
         )
+        if (result.exitCode != KotlinCompilation.ExitCode.COMPILATION_ERROR) {
+            println("COMPILATION MESSAGES: ${result.messages}")
+        }
         assertEquals(KotlinCompilation.ExitCode.COMPILATION_ERROR, result.exitCode)
         assertContains(result.messages, "[Realm] Error in backlinks field nonParameterBacklinks - only direct property references are valid parameters.")
     }

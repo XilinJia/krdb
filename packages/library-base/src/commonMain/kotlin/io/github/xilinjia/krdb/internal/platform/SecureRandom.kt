@@ -34,7 +34,7 @@ import kotlin.random.Random
 
 internal expect fun fillRandomBytes(array: ByteArray)
 
-@Suppress("MagicNumber")
+// @Suppress("MagicNumber")
 internal object SecureRandom : Random() {
     private fun getInt(): Int {
         val temp = ByteArray(4)

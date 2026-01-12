@@ -27,7 +27,7 @@ import io.github.xilinjia.krdb.types.annotations.PrimaryKey
 import org.mongodb.kbson.BsonObjectId
 import org.mongodb.kbson.Decimal128
 
-@Suppress("MagicNumber")
+// @Suppress("MagicNumber")
 class SampleWithPrimaryKey : RealmObject {
     @PrimaryKey
     var primaryKey: Long = 1L

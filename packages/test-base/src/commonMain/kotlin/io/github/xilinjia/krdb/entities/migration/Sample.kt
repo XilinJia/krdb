@@ -19,7 +19,7 @@ package io.github.xilinjia.krdb.entities.migration
 import io.github.xilinjia.krdb.types.RealmObject
 import io.github.xilinjia.krdb.types.annotations.PersistedName
 
-@Suppress("MagicNumber")
+// @Suppress("MagicNumber")
 class Sample : RealmObject {
     var name: String = "Migration"
     var stringField: String = "Realm"

@@ -83,7 +83,7 @@ public actual fun epochInSeconds(): Long =
  * Since internalNow() should only logically return a value after the Unix epoch, it is safe to create a RealmInstant
  * without considering having to pass negative nanoseconds.
  */
-@Suppress("MagicNumber")
+// @Suppress("MagicNumber")
 public actual fun currentTime(): RealmInstant {
     val secs: Double = NSDate().timeIntervalSince1970
     return when {

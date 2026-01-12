@@ -26,7 +26,7 @@ import org.mongodb.kbson.BsonBinarySubType
 import kotlin.experimental.and
 import kotlin.experimental.or
 
-@Suppress("MagicNumber")
+// @Suppress("MagicNumber")
 // Public as constructor is inlined in accessor converter method (Converters.kt)
 public class RealmUUIDImpl : RealmUUID {
     override val bytes: ByteArray

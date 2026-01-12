@@ -62,7 +62,7 @@ val HOST_OS: OperatingSystem = findHostOs()
 
 object Realm {
     val ciBuild = (System.getenv("CI") != null)
-    const val version = "3.2.10"
+    const val version = "3.3.0"
     const val group = "io.github.xilinjia.krdb"
     const val projectUrl = "https://realm.io"
     const val pluginPortalId = "io.github.xilinjia.krdb"
@@ -101,9 +101,8 @@ object Versions {
         const val targetSdk = 36
         const val compileSdkVersion = 36
         const val buildToolsVersion = "36.1.0"
-        const val buildTools = "8.13.0" // https://maven.google.com/web/index.html?q=gradle#com.android.tools.build:gradle
-//        const val ndkVersion = "27.0.12077973"
-        const val ndkVersion = "29.0.14206865"    // TODO: causes lots of errors in C++ and h files
+        const val buildTools = "8.12.3" // https://maven.google.com/web/index.html?q=gradle#com.android.tools.build:gradle
+        const val ndkVersion = "29.0.14206865"
         const val r8 = "8.10.21" // See https://developer.android.com/build/kotlin-support
     }
     const val androidxBenchmarkPlugin = "1.3.3" // https://maven.google.com/web/index.html#androidx.benchmark:androidx.benchmark.gradle.plugin
@@ -111,9 +110,17 @@ object Versions {
     const val androidxJunit = "1.2.1" // https://maven.google.com/web/index.html#androidx.test.ext:junit
     const val androidxTest = "1.6.1" // https://maven.google.com/web/index.html#androidx.test:rules
 
+    // When updating the Kotlin version, also remember to update /examples/min-android-sample/build.gradle.kts
+    // these need to be compatible with Kotlin version: atomicfu, atomicfuPlugin, serialization, kotlinCompileTesting, ktlint
+    const val kotlin = "2.3.0" // https://github.com/JetBrains/kotlin and https://kotlinlang.org/docs/releases.html#release-details
+    const val latestKotlin = "2.3.0" // https://kotlinlang.org/docs/eap.html#build-details
+    const val kotlinCompileTesting = "0.12.1" // https://github.com/zacsweers/kotlin-compile-testing
+    const val serialization = "1.10.0-RC" // https://github.com/Kotlin/kotlinx.serialization
     // Must be built with same (major.minor!?) kotlin version as 'kotlin' variable below, to be binary compatible with kotlin
     const val atomicfu = "0.29.0" // https://github.com/Kotlin/kotlinx.atomicfu
     const val atomicfuPlugin = "0.29.0" // https://github.com/Kotlin/kotlinx.atomicfu
+    const val ktlint = "1.8.0" // https://github.com/pinterest/ktlint
+
     const val autoService = "1.0" // https://mvnrepository.com/artifact/com.google.auto.service/auto-service
     const val buildkonfig = "0.13.3" // https://github.com/yshrsmz/BuildKonfig
     const val coroutines = "1.10.2" // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
@@ -125,22 +132,16 @@ object Versions {
     const val jmhPlugin = "0.7.3" // https://github.com/melix/jmh-gradle-plugin
     const val junit = "4.13.2" // https://mvnrepository.com/artifact/junit/junit
     const val kbson = "0.4.0" // https://github.com/mongodb/kbson
-    // When updating the Kotlin version, also remember to update /examples/min-android-sample/build.gradle.kts
-    // these need to be compatible with Kotlin version: atomicfu, atomicfuPlugin, serialization, kotlinCompileTesting, ktlint
-    const val kotlin = "2.2.20" // https://github.com/JetBrains/kotlin and https://kotlinlang.org/docs/releases.html#release-details
-    const val latestKotlin = "2.2.20" // https://kotlinlang.org/docs/eap.html#build-details
-    const val kotlinJvmTarget = "17" // Which JVM bytecode version is kotlin compiled to.
-    const val kotlinCompileTesting = "0.9.0" // https://github.com/zacsweers/kotlin-compile-testing
-    const val ktlint = "1.7.1" // https://github.com/pinterest/ktlint
     const val ktor = "2.3.12" // https://github.com/ktorio/ktor
     const val multidex = "2.0.1" // https://developer.android.com/jetpack/androidx/releases/multidex
     const val nexusPublishPlugin = "1.3.0" // https://github.com/gradle-nexus/publish-plugin
     const val okio = "3.16.2" // https://square.github.io/okio/#releases
     const val relinker = "1.4.5" // https://github.com/KeepSafe/ReLinker
-    const val serialization = "1.9.0" // https://github.com/Kotlin/kotlinx.sericalization
 //    const val shadowJar =  "8.1.1" // https://mvnrepository.com/artifact/com.github.johnrengelman.shadow/com.github.johnrengelman.shadow.gradle.plugin?repo=gradle-plugins
     const val shadowJar =  "8.3.6" // https://github.com/GradleUp/shadow?tab=readme-ov-file
     const val snakeYaml = "1.33" // https://github.com/snakeyaml/snakeyaml
+
+    const val kotlinJvmTarget = "17" // Which JVM bytecode version is kotlin compiled to.
     val sourceCompatibilityVersion = JavaVersion.VERSION_17 // Language level of any Java source code.
     val targetCompatibilityVersion = JavaVersion.VERSION_17 // Version of generated JVM bytecode from Java files.
 }

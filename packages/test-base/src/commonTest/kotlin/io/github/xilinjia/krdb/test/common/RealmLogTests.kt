@@ -126,7 +126,7 @@ class RealmLogTests {
     @Test
     fun smallLogEntryWithArgs() {
         val message = "Testing the RealmLog implementation: (%s, %d, %f)"
-        val args: Array<out Any?> = arrayOf("foo", Long.MAX_VALUE, Float.MAX_VALUE)
+        val args: Array<out Any?> = arrayOf<Any?>("foo", Long.MAX_VALUE, Float.MAX_VALUE)
         LogLevel.entries.forEach {
             when (it) {
                 LogLevel.ALL -> { /* Ignore */ }
@@ -163,7 +163,7 @@ class RealmLogTests {
     @Test
     fun longLogEntryWithArgs() {
         val message = "${Utils.createRandomString(8000)}: (%s, %d, %f)"
-        val args: Array<out Any?> = arrayOf("foo", Long.MAX_VALUE, Float.MAX_VALUE)
+        val args: Array<out Any?> = arrayOf<Any?>("foo", Long.MAX_VALUE, Float.MAX_VALUE)
         LogLevel.entries.forEach {
             when (it) {
                 LogLevel.ALL -> { /* Ignore */ }
@@ -201,7 +201,7 @@ class RealmLogTests {
     fun logExceptionWithMessage() {
         val error = IllegalArgumentException("BOOM")
         val message = "Details: (%s, %d, %f)"
-        val args: Array<out Any?> = arrayOf("foo", Long.MAX_VALUE, Float.MAX_VALUE)
+        val args: Array<out Any?> = arrayOf<Any?>("foo", Long.MAX_VALUE, Float.MAX_VALUE)
         LogLevel.entries.forEach {
             when (it) {
                 LogLevel.ALL -> { /* Ignore */ }

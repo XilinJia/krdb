@@ -8,7 +8,13 @@ Project structure is changed to make Intellij IDE work.  gradlew needs to be run
 
 Testing are performed on the dev versions. Maven artifacts can be published (tested locally), but can not be tested upon yet.
 
+### Since 3.2.10, realm-core is linked to https://github.com/XilinJia/realm-core for newer C++ compilers
+
+### Since 3.3.0, Realm entities are **no longer** allowed to be serializable. 
+
 ### Version compatibility
+
+krdb 3.3.0 <==> Kotlin 2.3.0
 
 krdb 3.2.9/10 <==> Kotlin 2.2.20
 

@@ -398,7 +398,7 @@ internal fun sha256Hash(data: ByteArray?): ByteArray {
  * @param data the byte array to convert
  * @return the hex-string of the byte array
  */
-@Suppress("MagicNumber")
+// @Suppress("MagicNumber")
 internal fun hexStringify(data: ByteArray): String {
     val stringBuilder = java.lang.StringBuilder()
     for (singleByte: Byte in data) {

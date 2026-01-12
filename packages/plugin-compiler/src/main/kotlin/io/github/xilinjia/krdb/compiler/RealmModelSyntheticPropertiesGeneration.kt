@@ -850,12 +850,24 @@ class RealmModelSyntheticPropertiesGeneration(private val pluginContext: IrPlugi
 
         // FUN DEFAULT_PROPERTY_ACCESSOR name:<set-realmPointer> visibility:public modality:OPEN <> ($this:dev.nhachicha.Child, <set-?>:kotlin.Long?) returnType:kotlin.Unit
         //  correspondingProperty: PROPERTY name:realmPointer visibility:public modality:OPEN [var]
-        val setter = property.addSetter {
-            at(this@addInternalVarProperty.startOffset, this@addInternalVarProperty.endOffset)
-            visibility = DescriptorVisibilities.PUBLIC
-            modality = Modality.OPEN
-            returnType = pluginContext.irBuiltIns.unitType
+//        val setter = property.addSetter {
+//            at(this@addInternalVarProperty.startOffset, this@addInternalVarProperty.endOffset)
+//            visibility = DescriptorVisibilities.PUBLIC
+//            modality = Modality.OPEN
+//            returnType = pluginContext.irBuiltIns.unitType
+//        }
+        // xlj
+        val setter = property.addSetter(pluginContext) { setter ->
+            setter.visibility = DescriptorVisibilities.PUBLIC
+            setter.modality = Modality.OPEN
+            setter.returnType = pluginContext.irBuiltIns.unitType
+
+            setter.startOffset = this@addInternalVarProperty.startOffset
+            setter.endOffset = this@addInternalVarProperty.endOffset
+            setter.body?.startOffset = setter.startOffset
+            setter.body?.endOffset = setter.endOffset
         }
+
         // $this: VALUE_PARAMETER name:<this> type:dev.nhachicha.Child
 //        setter.dispatchReceiverParameter = thisReceiver!!.copyTo(setter)
         setter.parameters = setter.parameters.filterNot { it.kind == IrParameterKind.DispatchReceiver }.toMutableList().apply {

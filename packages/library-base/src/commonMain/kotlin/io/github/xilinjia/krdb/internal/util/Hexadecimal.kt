@@ -23,7 +23,7 @@ private val HEX_CHARS = ('0'..'9') + ('a'..'f')
  *
  * @return a string representation of [ByteArray] in hexadecimal format.
  */
-@Suppress("MagicNumber")
+// @Suppress("MagicNumber")
 internal fun ByteArray.toHexString(startIndex: Int = 0, endIndex: Int = this.size): String {
     val chars = CharArray((endIndex - startIndex) * 2)
 
@@ -44,7 +44,7 @@ internal fun ByteArray.toHexString(startIndex: Int = 0, endIndex: Int = this.siz
  *
  * @return the [ByteArray] represented by the string.
  */
-@Suppress("MagicNumber")
+// @Suppress("MagicNumber")
 internal fun String.parseHex(): ByteArray {
     val byteArray = ByteArray(length / 2)
     for (i in byteArray.indices) {

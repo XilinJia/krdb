@@ -52,19 +52,29 @@ import org.jetbrains.kotlin.utils.KotlinExceptionWithAttachments
  * - AppConfiguration.Builder().build() -> AppConfigurationImpl.Builder.build(bundleId)
  */
 class SyncLoweringExtension(private val bundleId: String) : IrGenerationExtension {
+//    override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
+//        // Safe guard that we don't process anything unless we can actually look up a library-sync
+//        // symbol
+//        val syncSymbol = pluginContext.referenceClass(ClassIds.APP)?.owner
+//        if (syncSymbol != null) {
+//            SyncLowering(pluginContext, bundleId).lowerFromModuleFragment(moduleFragment)
+//        }
+//    }
+
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-        // Safe guard that we don't process anything unless we can actually look up a library-sync
-        // symbol
-        val syncSymbol = pluginContext.referenceClass(ClassIds.APP)?.owner
-        if (syncSymbol != null) {
-            SyncLowering(pluginContext, bundleId).lowerFromModuleFragment(moduleFragment)
+        try {
+            val syncSymbol = pluginContext.referenceClass(ClassIds.APP)?.owner
+            if (syncSymbol != null) {
+                SyncLowering(pluginContext, bundleId).lowerFromModuleFragment(moduleFragment)
+            }
+        } catch (t: Throwable) {
+            error("KRDB crash in SyncLoweringExtension\n" + t.stackTraceToString())
         }
     }
 }
 
 private class SyncLowering(private val pluginContext: IrPluginContext, private val bundleId: String) : ClassLoweringPass, DeclarationContainerLoweringPass {
-    private val appImplCompanionSymbol =
-        pluginContext.lookupClassOrThrow(ClassIds.APP_IMPL).companionObject()!!.symbol
+    private val appImplCompanionSymbol = pluginContext.lookupClassOrThrow(ClassIds.APP_IMPL).companionObject()!!.symbol
     private val appConfigurationImplCompanionSymbol =
         pluginContext.lookupClassOrThrow(ClassIds.APP_CONFIGURATION_IMPL).companionObject()!!.symbol
     // App.create(appId)
@@ -93,8 +103,7 @@ private class SyncLowering(private val pluginContext: IrPluginContext, private v
             val params = it.parameters.filter {p -> p.kind == IrParameterKind.Regular || p.kind == IrParameterKind.Context }
             params.size == 2
         }
-    private val appConfigurationBuilder: IrClass =
-        pluginContext.lookupClassOrThrow(APP_CONFIGURATION_BUILDER)
+    private val appConfigurationBuilder: IrClass = pluginContext.lookupClassOrThrow(APP_CONFIGURATION_BUILDER)
     // AppConfiguration.Builder.build()
     private val appBuilderBuildNoArg: IrSimpleFunction =
         appConfigurationBuilder.lookupFunction(Names.APP_CONFIGURATION_BUILDER_BUILD) {
@@ -168,24 +177,13 @@ private class SyncLowering(private val pluginContext: IrPluginContext, private v
         }
     }
 
-    // TODO 1.9-DEPRECATION Remove and rely on ClassLoweringPass.lower(IrModuleFragment) when leaving i
-    //  1.9 support
-    // Workaround that FileLoweringPass.lower(IrModuleFragment) is implemented as extension method
-    // in 1.9 but as proper interface method in 2.0. Implementation in both versions are more or
-    // less the same but this common implementation can loose some information as the IrElement is
-    // also not uniformly available on the CompilationException across versions.
-    fun lowerFromModuleFragment(
-        moduleFragment: IrModuleFragment
-    ) = moduleFragment.files.forEach {
+    fun lowerFromModuleFragment(moduleFragment: IrModuleFragment) {
         try {
-            lower(it)
+            super<ClassLoweringPass>.lower(moduleFragment)
         } catch (e: CompilationException) {
-            // Unfortunately we cannot access the IR element of e uniformly across 1.9 and 2.0 so
-            // leaving it as null. Hopefully the embedded cause will give the appropriate pointers
-            // to fix this.
             throw CompilationException(
                 "Internal error in realm lowering : ${this::class.qualifiedName}: ${e.message}",
-                it,
+                null,
                 null,
                 cause = e
             ).apply {
@@ -195,8 +193,8 @@ private class SyncLowering(private val pluginContext: IrPluginContext, private v
             throw e
         } catch (e: Throwable) {
             throw CompilationException(
-                "Internal error in file lowering : ${this::class.qualifiedName}: ${e.message}",
-                it,
+                "Internal error during realm transformation : ${this::class.qualifiedName}: ${e.message}",
+                null,
                 null,
                 cause = e
             ).apply {
@@ -211,14 +209,10 @@ private class SyncLowering(private val pluginContext: IrPluginContext, private v
     }
 
     override fun lower(irDeclarationContainer: IrDeclarationContainer) {
-        irDeclarationContainer.transformChildrenVoid(
-            transformer
-        )
+        irDeclarationContainer.transformChildrenVoid(transformer)
     }
 
     override fun lower(irClass: IrClass) {
-        irClass.transformChildrenVoid(
-            transformer
-        )
+        irClass.transformChildrenVoid(transformer)
     }
 }

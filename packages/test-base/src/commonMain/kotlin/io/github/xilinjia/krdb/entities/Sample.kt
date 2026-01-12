@@ -33,7 +33,7 @@ import io.github.xilinjia.krdb.types.annotations.PersistedName
 import org.mongodb.kbson.BsonObjectId
 import org.mongodb.kbson.Decimal128
 
-@Suppress("MagicNumber")
+// @Suppress("MagicNumber")
 class Sample : RealmObject {
     var stringField: String = "Realm"
     var byteField: Byte = 0xA
