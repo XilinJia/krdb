@@ -85,34 +85,44 @@ jobs:
       #     ls -R ./buildSrc
       #     echo "sha=${{ hashFiles('packages/**') }}" >> $GITHUB_OUTPUT
 
-      - name: Debug Working Directory and File Location
-        run: |
-          echo "--- 1. Where am I? ---"
-          pwd
+      # - name: Debug Working Directory and File Location
+      #   run: |
+      #     echo "--- 1. Where am I? ---"
+      #     pwd
 
-          echo "--- 2. What is in the root? ---"
-          ls -F
+      #     echo "--- 2. What is in the root? ---"
+      #     ls -F
 
-          echo "--- 3. Searching for 'packages' folder ---"
-          find . -maxdepth 3 -name "packages" -type d
+      #     echo "--- 3. Searching for 'packages' folder ---"
+      #     find . -maxdepth 3 -name "packages" -type d
 
-          echo "--- 4. Checking if 'packages' is empty ---"
-          ls -R packages/ || echo "Cannot look inside packages/"
+      #     echo "--- 4. Checking if 'packages' is empty ---"
+      #     ls -R packages/ || echo "Cannot look inside packages/"
+
+      # - name: Calculate ./packages SHAs
+      #   id: packages-cache-key
+      #   run: |
+      #     # 1. Check if the directory exists
+      #     if [ ! -d "packages" ]; then
+      #       echo "Warning: packages directory not found! Using fallback hash."
+      #       echo "sha=empty-${{ github.run_id }}" >> $GITHUB_OUTPUT
+      #     else
+      #       # 2. Generate a hash of all file names and timestamps in the folders
+      #       # This is a safe alternative to hashFiles()
+      #       FILE_HASH=$(find packages/ buildSrc/ -type f -not -path '*/.*' | sort | xargs cksum | shasum | cut -d' ' -f1)
+      #       echo "sha=$FILE_HASH" >> $GITHUB_OUTPUT
+      #       echo "Generated Hash: $FILE_HASH"
+      #     fi
 
       - name: Calculate ./packages SHAs
         id: packages-cache-key
         run: |
-          # 1. Check if the directory exists
-          if [ ! -d "packages" ]; then
-            echo "Warning: packages directory not found! Using fallback hash."
-            echo "sha=empty-${{ github.run_id }}" >> $GITHUB_OUTPUT
-          else
-            # 2. Generate a hash of all file names and timestamps in the folders
-            # This is a safe alternative to hashFiles()
-            FILE_HASH=$(find packages/ buildSrc/ -type f -not -path '*/.*' | sort | xargs cksum | shasum | cut -d' ' -f1)
-            echo "sha=$FILE_HASH" >> $GITHUB_OUTPUT
-            echo "Generated Hash: $FILE_HASH"
-          fi
+          # Create a hash of all file names and contents in these folders
+          # We use sha256sum to create a single unique fingerprint
+          HASH=$(find packages/ buildSrc/ -type f -not -path '*/.*' -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
+
+          echo "Computed Hash: $HASH"
+          echo "sha=$HASH" >> $GITHUB_OUTPUT
 
       # - name: Calculate ./packages SHAs
       #   id: packages-cache-key
