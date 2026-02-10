@@ -1,935 +1,935 @@
 name: Test on Multiple Platforms
 
 on:
-    push:
-        branches: [main]
-    pull_request:
-        branches: [main]
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-    check-cache:
-        uses: ./.github/workflows/include-check-cache.yml
+  check-cache:
+    uses: ./.github/workflows/include-check-cache.yml
 
-    # We build the same JNI SWIG stub once and re-use it across platforms to ensure any problems
-    # with SWIG if we compile on each seperate platform.
-    build-jni-swig-stub:
-        runs-on: ubuntu-latest
-        needs: check-cache
-        if: always() && !cancelled() && needs.check-cache.outputs.jni-swig-stub-cache-hit != 'true'
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-              with:
-                  submodules: "recursive"
+  # We build the same JNI SWIG stub once and re-use it across platforms to ensure any problems
+  # with SWIG if we compile on each seperate platform.
+  build-jni-swig-stub:
+    runs-on: ubuntu-latest
+    needs: check-cache
+    if: always() && !cancelled() && needs.check-cache.outputs.jni-swig-stub-cache-hit != 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
 
-            - name: Register problem matchers
-              run: |-
-                  echo "::add-matcher::.github/problem-matchers/kotlin.json"
+      - name: Register problem matchers
+        run: |-
+          echo "::add-matcher::.github/problem-matchers/kotlin.json"
 
-            - name: Setup Java 11
-              uses: actions/setup-java@v4
-              with:
-                  distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
-                  java-version: ${{ vars.VERSION_JAVA }}
+      - name: Setup Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
+          java-version: ${{ vars.VERSION_JAVA }}
 
-            - name: Setup Gradle and task/dependency caching
-              uses: gradle/actions/setup-gradle@v3
-              with:
-                  cache-read-only: false
+      - name: Setup Gradle and task/dependency caching
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
 
-            - name: Load build cache
-              uses: actions/cache@v4
-              with:
-                  path: ./packages/jni-swig-stub/build/generated/sources/jni
-                  key: jni-swig-stubs-${{ needs.check-cache.outputs.packages-sha }}
+      - name: Load build cache
+        uses: actions/cache@v4
+        with:
+          path: ./packages/jni-swig-stub/build/generated/sources/jni
+          key: jni-swig-stubs-${{ needs.check-cache.outputs.packages-sha }}
 
-            - name: Setup cmake
-              uses: jwlawson/actions-setup-cmake@v2.0.2
-              with:
-                  cmake-version: ${{ vars.VERSION_CMAKE }}
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v2.0.2
+        with:
+          cmake-version: ${{ vars.VERSION_CMAKE }}
 
-            # Manually install SWIG 4.1.1 as only 4.0.2 is pre-installed
-            # 4.1.1 is not available in apt-get, so use brew instead
-            # We need to use the formulae directly from GitHub to pin the version as Homebrew does not have
-            # all versions available.
-            # https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md#ubuntu-22041-lts
-            # It seems to be required to manually add brew dirs to the PATH. This does not happen automatically.
-            - name: Install SWIG
-              run: |
-                  test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
-                  test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-                  test -r ~/.bash_profile && echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bash_profile
-                  echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.profile
-                  echo "/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
-                  echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
-                  cd ~
-                  curl -L ${{ vars.VERSION_SWIG}} > swig.rb && HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=true brew install swig.rb
+      # Manually install SWIG 4.1.1 as only 4.0.2 is pre-installed
+      # 4.1.1 is not available in apt-get, so use brew instead
+      # We need to use the formulae directly from GitHub to pin the version as Homebrew does not have
+      # all versions available.
+      # https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md#ubuntu-22041-lts
+      # It seems to be required to manually add brew dirs to the PATH. This does not happen automatically.
+      - name: Install SWIG
+        run: |
+          test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
+          test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          test -r ~/.bash_profile && echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bash_profile
+          echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.profile
+          echo "/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
+          echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
+          cd ~
+          curl -L ${{ vars.VERSION_SWIG}} > swig.rb && HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=true brew install swig.rb
 
-            - name: Build JNI Stub
-              working-directory: ./
-              run: ./gradlew :packages:jni-swig-stub:assemble -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
+      - name: Build JNI Stub
+        working-directory: ./
+        run: ./gradlew :packages:jni-swig-stub:assemble -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
 
-            - name: Upload artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                  name: jni-stub-${{ needs.check-cache.outputs.version-label }}
-                  path: ./packages/jni-swig-stub/build/generated/sources/jni/*
-                  retention-days: 1
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: jni-stub-${{ needs.check-cache.outputs.version-label }}
+          path: ./packages/jni-swig-stub/build/generated/sources/jni/*
+          retention-days: 1
 
-    build-jvm-linux-native-lib:
-        runs-on: ubuntu-22.04
-        needs: [check-cache, build-jni-swig-stub]
-        if: |
-            always() && 
-            !cancelled() && 
-            !contains(needs.*.result, 'failure') && 
-            !contains(needs.*.result, 'cancelled') &&
-            needs.check-cache.outputs.jni-linux-lib-cache-hit != 'true'
+  build-jvm-linux-native-lib:
+    runs-on: ubuntu-22.04
+    needs: [check-cache, build-jni-swig-stub]
+    if: |
+      always() && 
+      !cancelled() && 
+      !contains(needs.*.result, 'failure') && 
+      !contains(needs.*.result, 'cancelled') &&
+      needs.check-cache.outputs.jni-linux-lib-cache-hit != 'true'
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-              with:
-                  submodules: "recursive"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
 
-            - name: Register problem matchers
-              run: |-
-                  echo "::add-matcher::.github/problem-matchers/kotlin.json"
+      - name: Register problem matchers
+        run: |-
+          echo "::add-matcher::.github/problem-matchers/kotlin.json"
 
-            - name: Setup build cache
-              uses: actions/cache@v4
-              with:
-                  path: ./packages/cinterop/build/realmLinuxBuild
-                  key: jni-linux-lib-${{ needs.check-cache.outputs.packages-sha }}
+      - name: Setup build cache
+        uses: actions/cache@v4
+        with:
+          path: ./packages/cinterop/build/realmLinuxBuild
+          key: jni-linux-lib-${{ needs.check-cache.outputs.packages-sha }}
 
-            - name: Setup Java 11
-              uses: actions/setup-java@v4
-              with:
-                  distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
-                  java-version: ${{ vars.VERSION_JAVA }}
+      - name: Setup Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
+          java-version: ${{ vars.VERSION_JAVA }}
 
-            - name: Setup cmake
-              uses: jwlawson/actions-setup-cmake@v2.0.2
-              with:
-                  cmake-version: ${{ vars.VERSION_CMAKE }}
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v2.0.2
+        with:
+          cmake-version: ${{ vars.VERSION_CMAKE }}
 
-            - name: Restore JNI Swig Stubs
-              uses: actions/download-artifact@v4
-              with:
-                  name: jni-stub-${{ needs.check-cache.outputs.version-label }}
-                  path: ./packages/jni-swig-stub/build/generated/sources/jni
+      - name: Restore JNI Swig Stubs
+        uses: actions/download-artifact@v4
+        with:
+          name: jni-stub-${{ needs.check-cache.outputs.version-label }}
+          path: ./packages/jni-swig-stub/build/generated/sources/jni
 
-            - name: Build native lib
-              working-directory: ./packages/cinterop
-              run: |
-                  mkdir build
-                  cd build
-                  rm -rf realmLinuxBuild
-                  mkdir realmLinuxBuild
-                  cd realmLinuxBuild
-                  cmake -DCMAKE_BUILD_TYPE=Release \
-                  -DREALM_ENABLE_SYNC=1 \
-                  -DREALM_NO_TESTS=1 \
-                  -DREALM_BUILD_LIB_ONLY=true \
-                  -DCMAKE_CXX_VISIBILITY_PRESET=hidden \
-                  -DCMAKE_TOOLCHAIN_FILE=../../../external/core/tools/cmake/x86_64-linux-gnu.toolchain.cmake \
-                  -DJAVA_INCLUDE_PATH=${{ env.JAVA_HOME }}/include/ \
-                  ../../src/jvm
-                  make -j8
+      - name: Build native lib
+        working-directory: ./packages/cinterop
+        run: |
+          mkdir build
+          cd build
+          rm -rf realmLinuxBuild
+          mkdir realmLinuxBuild
+          cd realmLinuxBuild
+          cmake -DCMAKE_BUILD_TYPE=Release \
+          -DREALM_ENABLE_SYNC=1 \
+          -DREALM_NO_TESTS=1 \
+          -DREALM_BUILD_LIB_ONLY=true \
+          -DCMAKE_CXX_VISIBILITY_PRESET=hidden \
+          -DCMAKE_TOOLCHAIN_FILE=../../../external/core/tools/cmake/x86_64-linux-gnu.toolchain.cmake \
+          -DJAVA_INCLUDE_PATH=${{ env.JAVA_HOME }}/include/ \
+          ../../src/jvm
+          make -j8
 
-            - name: Upload artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                  name: jni-linux-lib-${{ needs.check-cache.outputs.version-label }}
-                  path: ./packages/cinterop/build/realmLinuxBuild/librealmc.so
-                  retention-days: 1
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: jni-linux-lib-${{ needs.check-cache.outputs.version-label }}
+          path: ./packages/cinterop/build/realmLinuxBuild/librealmc.so
+          retention-days: 1
 
-    build-jvm-windows-native-lib:
-        runs-on: windows-latest
-        needs: [check-cache, build-jni-swig-stub]
-        if: |
-            always() && 
-            !cancelled() && 
-            !contains(needs.*.result, 'failure') && 
-            !contains(needs.*.result, 'cancelled') &&
-            needs.check-cache.outputs.jni-windows-lib-cache-hit != 'true'
+  build-jvm-windows-native-lib:
+    runs-on: windows-latest
+    needs: [check-cache, build-jni-swig-stub]
+    if: |
+      always() && 
+      !cancelled() && 
+      !contains(needs.*.result, 'failure') && 
+      !contains(needs.*.result, 'cancelled') &&
+      needs.check-cache.outputs.jni-windows-lib-cache-hit != 'true'
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-              with:
-                  # TODO See https://github.com/microsoft/vcpkg/issues/25349 which might describe the error here https://github.com/realm/realm-kotlin/runs/8099890473?check_suite_focus=true
-                  # -- Building for: Visual Studio 17 2022
-                  # -- Running vcpkg install
-                  # Error: while checking out port openssl with git tree 7e4d802e3bde4154c227c0dd1da75c719be9f07a
-                  # Error: Failed to tar port directory
-                  # error: tar failed with exit code: (128).
-                  # fatal: not a tree object: 7e4d802e3bde4154c227c0dd1da75c719be9f07a
-                  # TODO Implement better work-around here: https://mongodb.slack.com/archives/C017MBM0A30/p1661889411467029?thread_ts=1661888738.117769&cid=C017MBM0A30
-                  fetch-depth: 0
-                  submodules: "recursive"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # TODO See https://github.com/microsoft/vcpkg/issues/25349 which might describe the error here https://github.com/realm/realm-kotlin/runs/8099890473?check_suite_focus=true
+          # -- Building for: Visual Studio 17 2022
+          # -- Running vcpkg install
+          # Error: while checking out port openssl with git tree 7e4d802e3bde4154c227c0dd1da75c719be9f07a
+          # Error: Failed to tar port directory
+          # error: tar failed with exit code: (128).
+          # fatal: not a tree object: 7e4d802e3bde4154c227c0dd1da75c719be9f07a
+          # TODO Implement better work-around here: https://mongodb.slack.com/archives/C017MBM0A30/p1661889411467029?thread_ts=1661888738.117769&cid=C017MBM0A30
+          fetch-depth: 0
+          submodules: "recursive"
 
-            - name: Setup build cache
-              uses: actions/cache@v4
-              with:
-                  path: ./packages/cinterop/build/realmWindowsBuild
-                  key: jni-windows-lib-${{ needs.check-cache.outputs.packages-sha }}
-                  enableCrossOsArchive: true
+      - name: Setup build cache
+        uses: actions/cache@v4
+        with:
+          path: ./packages/cinterop/build/realmWindowsBuild
+          key: jni-windows-lib-${{ needs.check-cache.outputs.packages-sha }}
+          enableCrossOsArchive: true
 
-            - name: Setup cmake
-              uses: jwlawson/actions-setup-cmake@v2.0.2
-              with:
-                  cmake-version: ${{ vars.VERSION_CMAKE }}
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v2.0.2
+        with:
+          cmake-version: ${{ vars.VERSION_CMAKE }}
 
-            - name: Restore JNI Swig Stubs
-              uses: actions/download-artifact@v4
-              with:
-                  name: jni-stub-${{ needs.check-cache.outputs.version-label }}
-                  path: ${{ github.workspace }}/packages/jni-swig-stub/build/generated/sources/jni
+      - name: Restore JNI Swig Stubs
+        uses: actions/download-artifact@v4
+        with:
+          name: jni-stub-${{ needs.check-cache.outputs.version-label }}
+          path: ${{ github.workspace }}/packages/jni-swig-stub/build/generated/sources/jni
 
-            - name: Build native lib
-              shell: powershell
-              working-directory: packages
-              run: |
-                  cd cinterop
-                  mkdir build  
-                  cd build
-                  Remove-Item -Path realmWindowsBuild -Force -Recurse -ErrorAction Ignore
-                  mkdir realmWindowsBuild
-                  cd realmWindowsBuild
-                  cmake `
-                  ..\..\src\jvm `
-                  -DCMAKE_GENERATOR_PLATFORM=x64 `
-                  -DCMAKE_BUILD_TYPE=Release `
-                  -DREALM_ENABLE_SYNC=ON `
-                  -DREALM_NO_TESTS=1 `
-                  -DCMAKE_CXX_VISIBILITY_PRESET=hidden `
-                  -DVCPKG_TARGET_TRIPLET=x64-windows-static
-                  cmake --build . --config Release
+      - name: Build native lib
+        shell: powershell
+        working-directory: packages
+        run: |
+          cd cinterop
+          mkdir build  
+          cd build
+          Remove-Item -Path realmWindowsBuild -Force -Recurse -ErrorAction Ignore
+          mkdir realmWindowsBuild
+          cd realmWindowsBuild
+          cmake `
+          ..\..\src\jvm `
+          -DCMAKE_GENERATOR_PLATFORM=x64 `
+          -DCMAKE_BUILD_TYPE=Release `
+          -DREALM_ENABLE_SYNC=ON `
+          -DREALM_NO_TESTS=1 `
+          -DCMAKE_CXX_VISIBILITY_PRESET=hidden `
+          -DVCPKG_TARGET_TRIPLET=x64-windows-static
+          cmake --build . --config Release
 
-            - name: Upload artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                  name: jni-windows-lib-${{ needs.check-cache.outputs.version-label }}
-                  path: ./packages/cinterop/build/realmWindowsBuild/Release/realmc.dll
-                  retention-days: 1
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: jni-windows-lib-${{ needs.check-cache.outputs.version-label }}
+          path: ./packages/cinterop/build/realmWindowsBuild/Release/realmc.dll
+          retention-days: 1
 
-    build-jvm-macos-native-lib:
-        runs-on: macos-14
-        needs: [check-cache, build-jni-swig-stub]
-        if: |
-            always() &&
-            !cancelled() &&
-            !contains(needs.*.result, 'failure') &&
-            !contains(needs.*.result, 'cancelled') &&
-            needs.check-cache.outputs.jni-macos-lib-cache-hit != 'true'
+  build-jvm-macos-native-lib:
+    runs-on: macos-14
+    needs: [check-cache, build-jni-swig-stub]
+    if: |
+      always() &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      needs.check-cache.outputs.jni-macos-lib-cache-hit != 'true'
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-              with:
-                  submodules: "recursive"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
 
-            - name: Setup Java 11
-              uses: actions/setup-java@v4
-              with:
-                  distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
-                  java-version: ${{ vars.VERSION_JAVA }}
+      - name: Setup Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
+          java-version: ${{ vars.VERSION_JAVA }}
 
-            - name: Setup Gradle and task/dependency caching
-              uses: gradle/actions/setup-gradle@v3
-              with:
-                  cache-read-only: false
+      - name: Setup Gradle and task/dependency caching
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
 
-            - name: Setup cmake
-              uses: jwlawson/actions-setup-cmake@v2.0.2
-              with:
-                  cmake-version: ${{ vars.VERSION_CMAKE }}
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v2.0.2
+        with:
+          cmake-version: ${{ vars.VERSION_CMAKE }}
 
-            - name: Setup ninja
-              uses: clementetb/setup-ninja@master
-              with:
-                  version: ${{ vars.VERSION_NINJA  }}
+      - name: Setup ninja
+        uses: clementetb/setup-ninja@master
+        with:
+          version: ${{ vars.VERSION_NINJA  }}
 
-            - name: Install ccache
-              uses: hendrikmuhs/ccache-action@v1.2.13
-              with:
-                  key: "jvm-macos-native-lib"
-                  max-size: "2.0G"
+      - name: Install ccache
+        uses: hendrikmuhs/ccache-action@v1.2.13
+        with:
+          key: "jvm-macos-native-lib"
+          max-size: "2.0G"
 
-            - name: Prepend ccache executables to the PATH
-              run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
+      - name: Prepend ccache executables to the PATH
+        run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
 
-            # See https://github.com/hendrikmuhs/ccache-action/issues/94
-            - name: Configure ccache
-              run: |
-                  ccache --set-config="compiler_check=content"
-                  ccache --show-config
-                  echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
-                  echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
+      # See https://github.com/hendrikmuhs/ccache-action/issues/94
+      - name: Configure ccache
+        run: |
+          ccache --set-config="compiler_check=content"
+          ccache --show-config
+          echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
+          echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
 
-            - name: Debug environment
-              run: |
-                  env
-                  type cmake
-                  cmake --version
-                  type ninja
-                  ninja --version
+      - name: Debug environment
+        run: |
+          env
+          type cmake
+          cmake --version
+          type ninja
+          ninja --version
 
-            # We cannot use artifacts as they cannot be shared between workflows, so use cache instead.
-            - name: Setup build cache
-              uses: actions/cache@v4
-              with:
-                  path: ./packages/cinterop/build/realmMacOsBuild
-                  key: jni-macos-lib-${{ needs.check-cache.outputs.packages-sha }}
+      # We cannot use artifacts as they cannot be shared between workflows, so use cache instead.
+      - name: Setup build cache
+        uses: actions/cache@v4
+        with:
+          path: ./packages/cinterop/build/realmMacOsBuild
+          key: jni-macos-lib-${{ needs.check-cache.outputs.packages-sha }}
 
-            - name: Restore JNI Swig Stubs
-              uses: actions/download-artifact@v4
-              with:
-                  name: jni-stub-${{ needs.check-cache.outputs.version-label }}
-                  path: ${{ github.workspace }}/packages/jni-swig-stub/build/generated/sources/jni
+      - name: Restore JNI Swig Stubs
+        uses: actions/download-artifact@v4
+        with:
+          name: jni-stub-${{ needs.check-cache.outputs.version-label }}
+          path: ${{ github.workspace }}/packages/jni-swig-stub/build/generated/sources/jni
 
-            - name: Build packages
-              working-directory: ./
-              run: ./gradlew buildJVMSharedLibs -Prealm.kotlin.mainHost=false
+      - name: Build packages
+        working-directory: ./
+        run: ./gradlew buildJVMSharedLibs -Prealm.kotlin.mainHost=false
 
-            - name: Show ccache size
-              run: |
-                  echo `du -sh ~/.ccache`
+      - name: Show ccache size
+        run: |
+          echo `du -sh ~/.ccache`
 
-            - name: Upload artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                  name: jni-macos-lib-${{ needs.check-cache.outputs.version-label }}
-                  path: ./packages/cinterop/build/realmMacOsBuild/librealmc.dylib
-                  retention-days: 1
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: jni-macos-lib-${{ needs.check-cache.outputs.version-label }}
+          path: ./packages/cinterop/build/realmMacOsBuild/librealmc.dylib
+          retention-days: 1
 
-    build-kotlin-metadata-package:
-        runs-on: ubuntu-latest
-        needs: [check-cache]
+  build-kotlin-metadata-package:
+    runs-on: ubuntu-latest
+    needs: [check-cache]
+    env:
+      NDK_VERSION: 23.2.8568313
+    if: |
+      always() && 
+      !cancelled() && 
+      !contains(needs.*.result, 'failure') && 
+      !contains(needs.*.result, 'cancelled') &&
+      needs.check-cache.outputs.packages-metadata-cache-hit != 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+
+      - name: Register problem matchers
+        run: |-
+          echo "::add-matcher::.github/problem-matchers/kotlin.json"
+
+      - name: Setup Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
+          java-version: ${{ vars.VERSION_JAVA }}
+
+      - name: Setup Gradle and task/dependency caching
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v2.0.2
+        with:
+          cmake-version: ${{ vars.VERSION_CMAKE }}
+
+      - name: Setup ninja
+        uses: clementetb/setup-ninja@master
+        with:
+          version: ${{ vars.VERSION_NINJA  }}
+
+      - name: Install ccache
+        uses: hendrikmuhs/ccache-action@v1.2.13
+        with:
+          key: "metadata-package"
+          max-size: "2.0G"
+
+      - name: Prepend ccache executables to the PATH
+        run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
+
+      # See https://github.com/hendrikmuhs/ccache-action/issues/94
+      - name: Configure ccache
+        run: |
+          ccache --set-config="compiler_check=content"
+          ccache --show-config
+          echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
+          echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
+
+      # This matches 23.2.8568313, but what happens if we a define specific ndk version in our build?
+      - name: Setup NDK
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r23c
+
+      - name: Setup build cache
+        uses: actions/cache@v4
+        with:
+          path: ./packages/build/m2-buildrepo
+          key: packages-m2-metadata-${{ needs.check-cache.outputs.packages-sha }}
+
+      - name: Build Kotlin Metadata and Gradle and Compiler Plugin
+        working-directory: ./
+        run: ./gradlew publishCIPackages -Prealm.kotlin.targets=gradlePlugin,compilerPlugin -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-metadata-${{ needs.check-cache.outputs.version-label }}
+          path: ./packages/build/m2-buildrepo/**/*
+          retention-days: 1
+
+  # This task is also responsible for creating the Gradle and Compiler Plugin as well as
+  # all Kotlin Multiplatform Metadata
+  build-jvm-packages:
+    runs-on: macos-14
+    needs:
+      [
+        check-cache,
+        build-jvm-linux-native-lib,
+        build-jvm-windows-native-lib,
+        build-jvm-macos-native-lib,
+      ]
+    env:
+      NDK_VERSION: 23.2.8568313
+    if: |
+      always() && 
+      !cancelled() && 
+      !contains(needs.*.result, 'failure') && 
+      !contains(needs.*.result, 'cancelled') &&
+      needs.check-cache.outputs.packages-jvm-cache-hit != 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+
+      - name: Register problem matchers
+        run: |-
+          echo "::add-matcher::.github/problem-matchers/kotlin.json"
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
+          # JVM 17 is required for android-actions/setup-android@v3
+          # Last version will be used and available globally. Other Java versions can be accessed through env variables with such specification as 'JAVA_HOME_{{ MAJOR_VERSION }}_{{ ARCHITECTURE }}'
+          java-version: |
+            17
+            ${{ vars.VERSION_JAVA }}
+
+      - name: Setup Gradle and task/dependency caching
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v2.0.2
+        with:
+          cmake-version: ${{ vars.VERSION_CMAKE }}
+
+      - name: Setup ninja
+        uses: clementetb/setup-ninja@master
+        with:
+          version: ${{ vars.VERSION_NINJA  }}
+
+      - name: Install ccache
+        uses: hendrikmuhs/ccache-action@v1.2.13
+        with:
+          key: "jvm-package"
+          max-size: "2.0G"
+
+      - name: Install SWIG
+        run: brew install swig
+
+      - name: Prepend ccache executables to the PATH
+        run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
+
+      # See https://github.com/hendrikmuhs/ccache-action/issues/94
+      - name: Configure ccache
+        run: |
+          ccache --set-config="compiler_check=content"
+          ccache --show-config
+          echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
+          echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
+
+      - name: Setup Android SDK
         env:
-            NDK_VERSION: 23.2.8568313
-        if: |
-            always() && 
-            !cancelled() && 
-            !contains(needs.*.result, 'failure') && 
-            !contains(needs.*.result, 'cancelled') &&
-            needs.check-cache.outputs.packages-metadata-cache-hit != 'true'
+          JAVA_HOME: ${{ env.JAVA_HOME_17_ARM64 }}
+        uses: android-actions/setup-android@v3
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-              with:
-                  submodules: "recursive"
-
-            - name: Register problem matchers
-              run: |-
-                  echo "::add-matcher::.github/problem-matchers/kotlin.json"
-
-            - name: Setup Java 11
-              uses: actions/setup-java@v4
-              with:
-                  distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
-                  java-version: ${{ vars.VERSION_JAVA }}
-
-            - name: Setup Gradle and task/dependency caching
-              uses: gradle/actions/setup-gradle@v3
-              with:
-                  cache-read-only: false
-
-            - name: Setup cmake
-              uses: jwlawson/actions-setup-cmake@v2.0.2
-              with:
-                  cmake-version: ${{ vars.VERSION_CMAKE }}
-
-            - name: Setup ninja
-              uses: clementetb/setup-ninja@master
-              with:
-                  version: ${{ vars.VERSION_NINJA  }}
-
-            - name: Install ccache
-              uses: hendrikmuhs/ccache-action@v1.2.13
-              with:
-                  key: "metadata-package"
-                  max-size: "2.0G"
-
-            - name: Prepend ccache executables to the PATH
-              run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-
-            # See https://github.com/hendrikmuhs/ccache-action/issues/94
-            - name: Configure ccache
-              run: |
-                  ccache --set-config="compiler_check=content"
-                  ccache --show-config
-                  echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
-                  echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
-
-            # This matches 23.2.8568313, but what happens if we a define specific ndk version in our build?
-            - name: Setup NDK
-              uses: nttld/setup-ndk@v1
-              with:
-                  ndk-version: r23c
-
-            - name: Setup build cache
-              uses: actions/cache@v4
-              with:
-                  path: ./packages/build/m2-buildrepo
-                  key: packages-m2-metadata-${{ needs.check-cache.outputs.packages-sha }}
-
-            - name: Build Kotlin Metadata and Gradle and Compiler Plugin
-              working-directory: ./
-              run: ./gradlew publishCIPackages -Prealm.kotlin.targets=gradlePlugin,compilerPlugin -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=true
-
-            - name: Upload artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                  name: packages-metadata-${{ needs.check-cache.outputs.version-label }}
-                  path: ./packages/build/m2-buildrepo/**/*
-                  retention-days: 1
-
-    # This task is also responsible for creating the Gradle and Compiler Plugin as well as
-    # all Kotlin Multiplatform Metadata
-    build-jvm-packages:
-        runs-on: macos-14
-        needs:
-            [
-                check-cache,
-                build-jvm-linux-native-lib,
-                build-jvm-windows-native-lib,
-                build-jvm-macos-native-lib,
-            ]
+      - name: Install NDK
+        run: sdkmanager --install "ndk;${{ env.NDK_VERSION }}"
         env:
-            NDK_VERSION: 23.2.8568313
-        if: |
-            always() && 
-            !cancelled() && 
-            !contains(needs.*.result, 'failure') && 
-            !contains(needs.*.result, 'cancelled') &&
-            needs.check-cache.outputs.packages-jvm-cache-hit != 'true'
+          JAVA_HOME: ${{ env.JAVA_HOME_17_ARM64 }}
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-              with:
-                  submodules: "recursive"
+      # We cannot use artifacts as they cannot be shared between workflows, so use cache instead.
+      - name: Setup build cache
+        uses: actions/cache@v4
+        with:
+          path: ./packages/build/m2-buildrepo
+          key: packages-m2-jvm-sync-${{ needs.check-cache.outputs.packages-sha }}
 
-            - name: Register problem matchers
-              run: |-
-                  echo "::add-matcher::.github/problem-matchers/kotlin.json"
+      - name: Restore Linux JNI lib
+        uses: actions/download-artifact@v4
+        with:
+          name: jni-linux-lib-${{ needs.check-cache.outputs.version-label }}
+          path: ./packages/cinterop/build/realmLinuxBuild
 
-            - name: Setup Java
-              uses: actions/setup-java@v4
-              with:
-                  distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
-                  # JVM 17 is required for android-actions/setup-android@v3
-                  # Last version will be used and available globally. Other Java versions can be accessed through env variables with such specification as 'JAVA_HOME_{{ MAJOR_VERSION }}_{{ ARCHITECTURE }}'
-                  java-version: |
-                      17
-                      ${{ vars.VERSION_JAVA }}
+      - name: Restore Windows JNI lib
+        uses: actions/download-artifact@v4
+        with:
+          name: jni-windows-lib-${{ needs.check-cache.outputs.version-label }}
+          path: ./packages/cinterop/build/realmWindowsBuild/Release
 
-            - name: Setup Gradle and task/dependency caching
-              uses: gradle/actions/setup-gradle@v3
-              with:
-                  cache-read-only: false
+      - name: Restore MacOS JNI lib
+        uses: actions/download-artifact@v4
+        with:
+          name: jni-macos-lib-${{ needs.check-cache.outputs.version-label }}
+          path: ./packages/cinterop/build/realmMacOsBuild
 
-            - name: Setup cmake
-              uses: jwlawson/actions-setup-cmake@v2.0.2
-              with:
-                  cmake-version: ${{ vars.VERSION_CMAKE }}
+      - name: Build JVM Package
+        working-directory: ./
+        run: ./gradlew publishCIPackages -Prealm.kotlin.targets=jvm -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.copyNativeJvmLibs=linux,windows,macos -Prealm.kotlin.mainHost=false
 
-            - name: Setup ninja
-              uses: clementetb/setup-ninja@master
-              with:
-                  version: ${{ vars.VERSION_NINJA  }}
+      - name: Show ccache size
+        run: |
+          echo `du -sh ~/.ccache`
 
-            - name: Install ccache
-              uses: hendrikmuhs/ccache-action@v1.2.13
-              with:
-                  key: "jvm-package"
-                  max-size: "2.0G"
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-jvm-${{ needs.check-cache.outputs.version-label }}
+          path: ./packages/build/m2-buildrepo/**/*
+          retention-days: 1
 
-            - name: Install SWIG
-              run: brew install swig
+  build-android-packages:
+    runs-on: ubuntu-latest
+    needs: check-cache
+    env:
+      NDK_VERSION: 23.2.8568313
+    outputs:
+      baas-container-id: ${{ steps.baas_cli_start.outputs.baas_container_id }}
+    if: |
+      always() && !cancelled() &&
+      (needs.check-cache.outputs.packages-android-cache-hit != 'true' ||
+      needs.check-cache.outputs.android-test-base-apk-cache-hit != 'true')
 
-            - name: Prepend ccache executables to the PATH
-              run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
+    steps:
+      - name: Remove unnecessary files
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
-            # See https://github.com/hendrikmuhs/ccache-action/issues/94
-            - name: Configure ccache
-              run: |
-                  ccache --set-config="compiler_check=content"
-                  ccache --show-config
-                  echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
-                  echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
 
-            - name: Setup Android SDK
-              env:
-                  JAVA_HOME: ${{ env.JAVA_HOME_17_ARM64 }}
-              uses: android-actions/setup-android@v3
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
+          # JVM 17 is required for android-actions/setup-android@v3
+          # Last version will be used and available globally. Other Java versions can be accessed through env variables with such specification as 'JAVA_HOME_{{ MAJOR_VERSION }}_{{ ARCHITECTURE }}'
+          java-version: |
+            17
+            ${{ vars.VERSION_JAVA }}
 
-            - name: Install NDK
-              run: sdkmanager --install "ndk;${{ env.NDK_VERSION }}"
-              env:
-                  JAVA_HOME: ${{ env.JAVA_HOME_17_ARM64 }}
+      - name: Setup Gradle and task/dependency caching
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
 
-            # We cannot use artifacts as they cannot be shared between workflows, so use cache instead.
-            - name: Setup build cache
-              uses: actions/cache@v4
-              with:
-                  path: ./packages/build/m2-buildrepo
-                  key: packages-m2-jvm-sync-${{ needs.check-cache.outputs.packages-sha }}
+      # Manually install SWIG 4.1.1 as only 4.0.2 is pre-installed
+      # 4.1.1 is not available in apt-get, so use brew instead
+      # We need to use the formulae directly from GitHub to pin the version as Homebrew does not have
+      # all versions available.
+      # https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md#ubuntu-22041-lts
+      # It seems to be required to manually add brew dirs to the PATH. This does not happen automatically.
+      - name: Install SWIG
+        run: |
+          test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
+          test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          test -r ~/.bash_profile && echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bash_profile
+          echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.profile
+          echo "/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
+          echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
+          cd ~
+          curl -L ${{ vars.VERSION_SWIG}} > swig.rb && HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=true brew install swig.rb
 
-            - name: Restore Linux JNI lib
-              uses: actions/download-artifact@v4
-              with:
-                  name: jni-linux-lib-${{ needs.check-cache.outputs.version-label }}
-                  path: ./packages/cinterop/build/realmLinuxBuild
+      - name: Install JSON parser
+        run: brew install jq
 
-            - name: Restore Windows JNI lib
-              uses: actions/download-artifact@v4
-              with:
-                  name: jni-windows-lib-${{ needs.check-cache.outputs.version-label }}
-                  path: ./packages/cinterop/build/realmWindowsBuild/Release
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v2.0.2
+        with:
+          cmake-version: ${{ vars.VERSION_CMAKE }}
 
-            - name: Restore MacOS JNI lib
-              uses: actions/download-artifact@v4
-              with:
-                  name: jni-macos-lib-${{ needs.check-cache.outputs.version-label }}
-                  path: ./packages/cinterop/build/realmMacOsBuild
+      - name: Setup ninja
+        uses: clementetb/setup-ninja@master
+        with:
+          version: ${{ vars.VERSION_NINJA  }}
 
-            - name: Build JVM Package
-              working-directory: ./
-              run: ./gradlew publishCIPackages -Prealm.kotlin.targets=jvm -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.copyNativeJvmLibs=linux,windows,macos -Prealm.kotlin.mainHost=false
+      - name: Install ccache
+        uses: hendrikmuhs/ccache-action@v1.2.13
+        with:
+          key: "android-package"
+          max-size: "2.0G"
 
-            - name: Show ccache size
-              run: |
-                  echo `du -sh ~/.ccache`
+      - name: Prepend ccache executables to the PATH
+        run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
 
-            - name: Upload artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                  name: packages-jvm-${{ needs.check-cache.outputs.version-label }}
-                  path: ./packages/build/m2-buildrepo/**/*
-                  retention-days: 1
+      # See https://github.com/hendrikmuhs/ccache-action/issues/94
+      - name: Configure ccache
+        run: |
+          ccache --set-config="compiler_check=content"
+          ccache --show-config
+          echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
+          echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
 
-    build-android-packages:
-        runs-on: ubuntu-latest
-        needs: check-cache
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
         env:
-            NDK_VERSION: 23.2.8568313
-        outputs:
-            baas-container-id: ${{ steps.baas_cli_start.outputs.baas_container_id }}
-        if: |
-            always() && !cancelled() &&
-            (needs.check-cache.outputs.packages-android-cache-hit != 'true' ||
-            needs.check-cache.outputs.android-test-base-apk-cache-hit != 'true')
-
-        steps:
-            - name: Remove unnecessary files
-              run: |
-                  sudo rm -rf /usr/share/dotnet
-                  sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-
-            - name: Checkout code
-              uses: actions/checkout@v4
-              with:
-                  submodules: "recursive"
-
-            - name: Setup Java
-              uses: actions/setup-java@v4
-              with:
-                  distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
-                  # JVM 17 is required for android-actions/setup-android@v3
-                  # Last version will be used and available globally. Other Java versions can be accessed through env variables with such specification as 'JAVA_HOME_{{ MAJOR_VERSION }}_{{ ARCHITECTURE }}'
-                  java-version: |
-                      17
-                      ${{ vars.VERSION_JAVA }}
-
-            - name: Setup Gradle and task/dependency caching
-              uses: gradle/actions/setup-gradle@v3
-              with:
-                  cache-read-only: false
-
-            # Manually install SWIG 4.1.1 as only 4.0.2 is pre-installed
-            # 4.1.1 is not available in apt-get, so use brew instead
-            # We need to use the formulae directly from GitHub to pin the version as Homebrew does not have
-            # all versions available.
-            # https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md#ubuntu-22041-lts
-            # It seems to be required to manually add brew dirs to the PATH. This does not happen automatically.
-            - name: Install SWIG
-              run: |
-                  test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
-                  test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-                  test -r ~/.bash_profile && echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bash_profile
-                  echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.profile
-                  echo "/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
-                  echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
-                  cd ~
-                  curl -L ${{ vars.VERSION_SWIG}} > swig.rb && HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=true brew install swig.rb
-
-            - name: Install JSON parser
-              run: brew install jq
-
-            - name: Setup cmake
-              uses: jwlawson/actions-setup-cmake@v2.0.2
-              with:
-                  cmake-version: ${{ vars.VERSION_CMAKE }}
-
-            - name: Setup ninja
-              uses: clementetb/setup-ninja@master
-              with:
-                  version: ${{ vars.VERSION_NINJA  }}
-
-            - name: Install ccache
-              uses: hendrikmuhs/ccache-action@v1.2.13
-              with:
-                  key: "android-package"
-                  max-size: "2.0G"
-
-            - name: Prepend ccache executables to the PATH
-              run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-
-            # See https://github.com/hendrikmuhs/ccache-action/issues/94
-            - name: Configure ccache
-              run: |
-                  ccache --set-config="compiler_check=content"
-                  ccache --show-config
-                  echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
-                  echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
-
-            - name: Setup Android SDK
-              uses: android-actions/setup-android@v3
-              env:
-                  JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
-
-            - name: Install NDK
-              env:
-                  JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
-              run: sdkmanager --install "ndk;${{ env.NDK_VERSION }}"
-
-            - name: Build Android Base Test Apk
-              working-directory: ./
-              run: ./gradlew  :packages:test-base:assembleAndroidTest -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
-
-            - name: Build packages
-              working-directory: ./
-              run: ./gradlew publishCIPackages -Prealm.kotlin.targets=android -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
-
-            - name: Store build cache
-              uses: actions/cache@v4
-              with:
-                  path: ./packages/build/m2-buildrepo
-                  key: packages-m2-android-sync-${{ needs.check-cache.outputs.packages-sha }}
-
-            - name: Store build cache for Android Test APK
-              uses: actions/cache@v4
-              with:
-                  path: ./packages/test-base/build/outputs/apk/androidTest/debug/test-base-debug-androidTest.apk
-                  key: android-base-test-apk-key-${{ needs.check-cache.outputs.packages-sha }}
-
-            # Must match naming found in include-check-cache.yml
-            # Must match naming found in include-check-cache.yml
-            - name: Upload artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                  name: packages-android-${{ needs.check-cache.outputs.version-label }}
-                  path: ./packages/build/m2-buildrepo/**/*
-                  retention-days: 1
-
-            - name: Upload Android Base Test APK
-              uses: actions/upload-artifact@v4
-              with:
-                  name: android-base-test-apk-${{ needs.check-cache.outputs.version-label }}
-                  path: ./packages/test-base/build/outputs/apk/androidTest/debug/test-base-debug-androidTest.apk
-                  retention-days: 1
-
-    # TODO: ccache is not being used by this build for some reason
-    build-macos-x64-packages:
-        runs-on: macos-14 # x64 builds fine on an arm64 node
-        needs: check-cache
-        if: always() && !cancelled() && needs.check-cache.outputs.packages-macos-x64-cache-hit != 'true'
-
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-              with:
-                  submodules: "recursive"
-
-            - name: Setup Java 11
-              uses: actions/setup-java@v4
-              with:
-                  distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
-                  java-version: ${{ vars.VERSION_JAVA }}
-
-            - name: Setup Gradle and task/dependency caching
-              uses: gradle/actions/setup-gradle@v3
-              with:
-                  cache-read-only: false
-
-            - name: Setup cmake
-              uses: jwlawson/actions-setup-cmake@v2.0.2
-              with:
-                  cmake-version: ${{ vars.VERSION_CMAKE }}
-
-            - name: Setup ninja
-              uses: clementetb/setup-ninja@master
-              with:
-                  version: ${{ vars.VERSION_NINJA  }}
-
-            - name: Install ccache
-              uses: hendrikmuhs/ccache-action@v1.2.13
-              with:
-                  key: "macos-x64-package"
-                  max-size: "2.0G"
-
-            - name: Install SWIG
-              run: brew install swig
-
-            - name: Prepend ccache executables to the PATH
-              run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-
-            # See https://github.com/hendrikmuhs/ccache-action/issues/94
-            - name: Configure ccache
-              run: |
-                  ccache --set-config="compiler_check=content"
-                  ccache --show-config
-                  echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
-                  echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
-
-            - name: Build packages
-              working-directory: ./
-              run: ./gradlew publishCIPackages -Prealm.kotlin.targets=macosX64 -Prealm.kotlin.mainHost=false
-
-            - name: Show ccache size
-              run: |
-                  echo `du -sh ~/.ccache`
-
-            # We cannot use artifacts as they cannot be shared between workflows, so use cache instead.
-            - name: Store build cache
-              uses: actions/cache@v4
-              with:
-                  path: ./packages/build/m2-buildrepo
-                  key: packages-m2-macos-x64-sync-${{ needs.check-cache.outputs.packages-sha }}
-
-            # Must match naming found in include-check-cache.yml
-            - name: Upload artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                  name: packages-macos-x64-${{ needs.check-cache.outputs.version-label }}
-                  path: ./packages/build/m2-buildrepo/**/*
-                  retention-days: 1
-
-    build-macos-arm64-packages:
-        runs-on: macos-14
-        needs: check-cache
-        # needs: static-analysis
-        if: always() && !cancelled() && needs.check-cache.outputs.packages-macos-arm64-cache-hit != 'true'
-
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-              with:
-                  submodules: "recursive"
-
-            - name: Setup Java 11
-              uses: actions/setup-java@v4
-              with:
-                  distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
-                  java-version: ${{ vars.VERSION_JAVA }}
-
-            - name: Setup Gradle and task/dependency caching
-              uses: gradle/actions/setup-gradle@v3
-              with:
-                  cache-read-only: false
-
-            - name: Setup cmake
-              uses: jwlawson/actions-setup-cmake@v2.0.2
-              with:
-                  cmake-version: ${{ vars.VERSION_CMAKE }}
-
-            - name: Setup ninja
-              uses: clementetb/setup-ninja@master
-              with:
-                  version: ${{ vars.VERSION_NINJA  }}
-
-            - name: Install ccache
-              uses: hendrikmuhs/ccache-action@v1.2.13
-              with:
-                  key: "macos-arm64-package"
-                  max-size: "2.0G"
-
-            - name: Install SWIG
-              run: brew install swig
-
-            - name: Prepend ccache executables to the PATH
-              run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-
-            # See https://github.com/hendrikmuhs/ccache-action/issues/94
-            - name: Configure ccache
-              run: |
-                  ccache --set-config="compiler_check=content"
-                  ccache --show-config
-                  echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
-                  echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
-
-            - name: Build packages
-              working-directory: ./
-              run: ./gradlew publishCIPackages -Prealm.kotlin.targets=macosArm64 -Prealm.kotlin.mainHost=false
-
-            - name: Store build cache
-              uses: actions/cache@v4
-              with:
-                  path: ./packages/build/m2-buildrepo
-                  key: packages-m2-macos-arm64-sync-${{ needs.check-cache.outputs.packages-sha }}
-
-            # Must match naming found in include-check-cache.yml
-            - name: Upload artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                  name: packages-macos-arm64-${{ needs.check-cache.outputs.version-label }}
-                  path: ./packages/build/m2-buildrepo/**/*
-                  retention-days: 1
-
-    build-ios-x64-packages:
-        runs-on: macos-14 # x64 builds fine on an arm64 node
-        needs: check-cache
-        # needs: static-analysis
-        if: always() && !cancelled() && needs.check-cache.outputs.packages-ios-x64-cache-hit != 'true'
-
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-              with:
-                  submodules: "recursive"
-
-            - name: Setup Java 11
-              uses: actions/setup-java@v4
-              with:
-                  distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
-                  java-version: ${{ vars.VERSION_JAVA }}
-
-            - name: Setup Gradle and task/dependency caching
-              uses: gradle/actions/setup-gradle@v3
-              with:
-                  cache-read-only: false
-
-            - name: Setup cmake
-              uses: jwlawson/actions-setup-cmake@v2.0.2
-              with:
-                  cmake-version: ${{ vars.VERSION_CMAKE }}
-
-            - name: Setup ninja
-              uses: clementetb/setup-ninja@master
-              with:
-                  version: ${{ vars.VERSION_NINJA  }}
-
-            - name: Install ccache
-              uses: hendrikmuhs/ccache-action@v1.2.13
-              with:
-                  key: "ios-x64-package"
-                  max-size: "2.0G"
-
-            - name: Install SWIG
-              run: brew install swig
-
-            - name: Prepend ccache executables to the PATH
-              run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-
-            # See https://github.com/hendrikmuhs/ccache-action/issues/94
-            - name: Configure ccache
-              run: |
-                  ccache --set-config="compiler_check=content"
-                  ccache --show-config
-                  echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
-                  echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
-
-            - name: Build packages
-              working-directory: ./
-              run: ./gradlew publishCIPackages -Prealm.kotlin.targets=iosX64 -Prealm.kotlin.mainHost=false
-
-            # We cannot use artifacts as they cannot be shared between workflows, so use cache instead.
-            - name: Store build cache
-              uses: actions/cache@v4
-              with:
-                  path: ./packages/build/m2-buildrepo
-                  key: packages-m2-ios-x64-sync-${{ needs.check-cache.outputs.packages-sha }}
-
-            # Must match naming found in include-check-cache.yml
-            - name: Upload artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                  name: packages-ios-x64-${{ needs.check-cache.outputs.version-label }}
-                  path: ./packages/build/m2-buildrepo/**/*
-                  retention-days: 1
-
-    build-ios-arm64-packages:
-        runs-on: macos-14
-        needs: check-cache
-        # needs: static-analysis
-        if: always() && !cancelled() && needs.check-cache.outputs.packages-ios-arm64-cache-hit != 'true'
-
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-              with:
-                  submodules: "recursive"
-
-            - name: Setup Java 11
-              uses: actions/setup-java@v4
-              with:
-                  distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
-                  java-version: ${{ vars.VERSION_JAVA }}
-
-            - name: Setup Gradle and task/dependency caching
-              uses: gradle/actions/setup-gradle@v3
-              with:
-                  cache-read-only: false
-
-            - name: Setup cmake
-              uses: jwlawson/actions-setup-cmake@v2.0.2
-              with:
-                  cmake-version: ${{ vars.VERSION_CMAKE }}
-
-            - name: Setup ninja
-              uses: clementetb/setup-ninja@master
-              with:
-                  version: ${{ vars.VERSION_NINJA  }}
-
-            - name: Install ccache
-              uses: hendrikmuhs/ccache-action@v1.2.13
-              with:
-                  key: "ios-arm64-package"
-                  max-size: "2.0G"
-
-            - name: Install SWIG
-              run: brew install swig
-
-            - name: Prepend ccache executables to the PATH
-              run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-
-            # See https://github.com/hendrikmuhs/ccache-action/issues/94
-            - name: Configure ccache
-              run: |
-                  ccache --set-config="compiler_check=content"
-                  ccache --show-config
-                  echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
-                  echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
-
-            - name: Build packages
-              working-directory: ./
-              run: ./gradlew publishCIPackages -Prealm.kotlin.targets=iosArm64 -Prealm.kotlin.mainHost=false
-
-            # We cannot use artifacts as they cannot be shared between workflows, so use cache instead.
-            - name: Store build cache
-              uses: actions/cache@v4
-              with:
-                  path: ./packages/build/m2-buildrepo
-                  key: packages-m2-ios-arm64-sync-${{ needs.check-cache.outputs.packages-sha }}
-
-            # Must match naming found in include-check-cache.yml
-            - name: Upload artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                  name: packages-ios-arm64-${{ needs.check-cache.outputs.version-label }}
-                  path: ./packages/build/m2-buildrepo/**/*
-                  retention-days: 1
+          JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
+
+      - name: Install NDK
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
+        run: sdkmanager --install "ndk;${{ env.NDK_VERSION }}"
+
+      - name: Build Android Base Test Apk
+        working-directory: ./
+        run: ./gradlew  :packages:test-base:assembleAndroidTest -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
+
+      - name: Build packages
+        working-directory: ./
+        run: ./gradlew publishCIPackages -Prealm.kotlin.targets=android -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
+
+      - name: Store build cache
+        uses: actions/cache@v4
+        with:
+          path: ./packages/build/m2-buildrepo
+          key: packages-m2-android-sync-${{ needs.check-cache.outputs.packages-sha }}
+
+      - name: Store build cache for Android Test APK
+        uses: actions/cache@v4
+        with:
+          path: ./packages/test-base/build/outputs/apk/androidTest/debug/test-base-debug-androidTest.apk
+          key: android-base-test-apk-key-${{ needs.check-cache.outputs.packages-sha }}
+
+      # Must match naming found in include-check-cache.yml
+      # Must match naming found in include-check-cache.yml
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-android-${{ needs.check-cache.outputs.version-label }}
+          path: ./packages/build/m2-buildrepo/**/*
+          retention-days: 1
+
+      - name: Upload Android Base Test APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-base-test-apk-${{ needs.check-cache.outputs.version-label }}
+          path: ./packages/test-base/build/outputs/apk/androidTest/debug/test-base-debug-androidTest.apk
+          retention-days: 1
+
+  # TODO: ccache is not being used by this build for some reason
+  build-macos-x64-packages:
+    runs-on: macos-14 # x64 builds fine on an arm64 node
+    needs: check-cache
+    if: always() && !cancelled() && needs.check-cache.outputs.packages-macos-x64-cache-hit != 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+
+      - name: Setup Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
+          java-version: ${{ vars.VERSION_JAVA }}
+
+      - name: Setup Gradle and task/dependency caching
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v2.0.2
+        with:
+          cmake-version: ${{ vars.VERSION_CMAKE }}
+
+      - name: Setup ninja
+        uses: clementetb/setup-ninja@master
+        with:
+          version: ${{ vars.VERSION_NINJA  }}
+
+      - name: Install ccache
+        uses: hendrikmuhs/ccache-action@v1.2.13
+        with:
+          key: "macos-x64-package"
+          max-size: "2.0G"
+
+      - name: Install SWIG
+        run: brew install swig
+
+      - name: Prepend ccache executables to the PATH
+        run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
+
+      # See https://github.com/hendrikmuhs/ccache-action/issues/94
+      - name: Configure ccache
+        run: |
+          ccache --set-config="compiler_check=content"
+          ccache --show-config
+          echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
+          echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
+
+      - name: Build packages
+        working-directory: ./
+        run: ./gradlew publishCIPackages -Prealm.kotlin.targets=macosX64 -Prealm.kotlin.mainHost=false
+
+      - name: Show ccache size
+        run: |
+          echo `du -sh ~/.ccache`
+
+      # We cannot use artifacts as they cannot be shared between workflows, so use cache instead.
+      - name: Store build cache
+        uses: actions/cache@v4
+        with:
+          path: ./packages/build/m2-buildrepo
+          key: packages-m2-macos-x64-sync-${{ needs.check-cache.outputs.packages-sha }}
+
+      # Must match naming found in include-check-cache.yml
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-macos-x64-${{ needs.check-cache.outputs.version-label }}
+          path: ./packages/build/m2-buildrepo/**/*
+          retention-days: 1
+
+  build-macos-arm64-packages:
+    runs-on: macos-14
+    needs: check-cache
+    # needs: static-analysis
+    if: always() && !cancelled() && needs.check-cache.outputs.packages-macos-arm64-cache-hit != 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+
+      - name: Setup Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
+          java-version: ${{ vars.VERSION_JAVA }}
+
+      - name: Setup Gradle and task/dependency caching
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v2.0.2
+        with:
+          cmake-version: ${{ vars.VERSION_CMAKE }}
+
+      - name: Setup ninja
+        uses: clementetb/setup-ninja@master
+        with:
+          version: ${{ vars.VERSION_NINJA  }}
+
+      - name: Install ccache
+        uses: hendrikmuhs/ccache-action@v1.2.13
+        with:
+          key: "macos-arm64-package"
+          max-size: "2.0G"
+
+      - name: Install SWIG
+        run: brew install swig
+
+      - name: Prepend ccache executables to the PATH
+        run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
+
+      # See https://github.com/hendrikmuhs/ccache-action/issues/94
+      - name: Configure ccache
+        run: |
+          ccache --set-config="compiler_check=content"
+          ccache --show-config
+          echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
+          echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
+
+      - name: Build packages
+        working-directory: ./
+        run: ./gradlew publishCIPackages -Prealm.kotlin.targets=macosArm64 -Prealm.kotlin.mainHost=false
+
+      - name: Store build cache
+        uses: actions/cache@v4
+        with:
+          path: ./packages/build/m2-buildrepo
+          key: packages-m2-macos-arm64-sync-${{ needs.check-cache.outputs.packages-sha }}
+
+      # Must match naming found in include-check-cache.yml
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-macos-arm64-${{ needs.check-cache.outputs.version-label }}
+          path: ./packages/build/m2-buildrepo/**/*
+          retention-days: 1
+
+  build-ios-x64-packages:
+    runs-on: macos-14 # x64 builds fine on an arm64 node
+    needs: check-cache
+    # needs: static-analysis
+    if: always() && !cancelled() && needs.check-cache.outputs.packages-ios-x64-cache-hit != 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+
+      - name: Setup Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
+          java-version: ${{ vars.VERSION_JAVA }}
+
+      - name: Setup Gradle and task/dependency caching
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v2.0.2
+        with:
+          cmake-version: ${{ vars.VERSION_CMAKE }}
+
+      - name: Setup ninja
+        uses: clementetb/setup-ninja@master
+        with:
+          version: ${{ vars.VERSION_NINJA  }}
+
+      - name: Install ccache
+        uses: hendrikmuhs/ccache-action@v1.2.13
+        with:
+          key: "ios-x64-package"
+          max-size: "2.0G"
+
+      - name: Install SWIG
+        run: brew install swig
+
+      - name: Prepend ccache executables to the PATH
+        run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
+
+      # See https://github.com/hendrikmuhs/ccache-action/issues/94
+      - name: Configure ccache
+        run: |
+          ccache --set-config="compiler_check=content"
+          ccache --show-config
+          echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
+          echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
+
+      - name: Build packages
+        working-directory: ./
+        run: ./gradlew publishCIPackages -Prealm.kotlin.targets=iosX64 -Prealm.kotlin.mainHost=false
+
+      # We cannot use artifacts as they cannot be shared between workflows, so use cache instead.
+      - name: Store build cache
+        uses: actions/cache@v4
+        with:
+          path: ./packages/build/m2-buildrepo
+          key: packages-m2-ios-x64-sync-${{ needs.check-cache.outputs.packages-sha }}
+
+      # Must match naming found in include-check-cache.yml
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-ios-x64-${{ needs.check-cache.outputs.version-label }}
+          path: ./packages/build/m2-buildrepo/**/*
+          retention-days: 1
+
+  build-ios-arm64-packages:
+    runs-on: macos-14
+    needs: check-cache
+    # needs: static-analysis
+    if: always() && !cancelled() && needs.check-cache.outputs.packages-ios-arm64-cache-hit != 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+
+      - name: Setup Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
+          java-version: ${{ vars.VERSION_JAVA }}
+
+      - name: Setup Gradle and task/dependency caching
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v2.0.2
+        with:
+          cmake-version: ${{ vars.VERSION_CMAKE }}
+
+      - name: Setup ninja
+        uses: clementetb/setup-ninja@master
+        with:
+          version: ${{ vars.VERSION_NINJA  }}
+
+      - name: Install ccache
+        uses: hendrikmuhs/ccache-action@v1.2.13
+        with:
+          key: "ios-arm64-package"
+          max-size: "2.0G"
+
+      - name: Install SWIG
+        run: brew install swig
+
+      - name: Prepend ccache executables to the PATH
+        run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
+
+      # See https://github.com/hendrikmuhs/ccache-action/issues/94
+      - name: Configure ccache
+        run: |
+          ccache --set-config="compiler_check=content"
+          ccache --show-config
+          echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
+          echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
+
+      - name: Build packages
+        working-directory: ./
+        run: ./gradlew publishCIPackages -Prealm.kotlin.targets=iosArm64 -Prealm.kotlin.mainHost=false
+
+      # We cannot use artifacts as they cannot be shared between workflows, so use cache instead.
+      - name: Store build cache
+        uses: actions/cache@v4
+        with:
+          path: ./packages/build/m2-buildrepo
+          key: packages-m2-ios-arm64-sync-${{ needs.check-cache.outputs.packages-sha }}
+
+      # Must match naming found in include-check-cache.yml
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-ios-arm64-${{ needs.check-cache.outputs.version-label }}
+          path: ./packages/build/m2-buildrepo/**/*
+          retention-days: 1
