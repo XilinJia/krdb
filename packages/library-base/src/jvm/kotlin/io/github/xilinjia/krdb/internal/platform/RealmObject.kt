@@ -21,8 +21,6 @@ import io.github.xilinjia.krdb.types.BaseRealmObject
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
-// TODO OPTIMIZE Can we eliminate the reflective approach? Maybe by embedding the information
-//  through the compiler plugin or something similar to the Native findAssociatedObject
 @PublishedApi
 internal actual fun <T : Any> realmObjectCompanionOrNull(clazz: KClass<T>): RealmObjectCompanion? {
     // The implementation of this method was changed for performance reasons as it was using
