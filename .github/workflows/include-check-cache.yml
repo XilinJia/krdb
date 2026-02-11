@@ -77,14 +77,6 @@ jobs:
           echo "Label: $version"
           echo "label=$version" >> $GITHUB_OUTPUT
 
-      # This also include changes to Realm Core as they are hashed as part of `/packages/external/core`
-      # - name: Calculate ./packages SHAs
-      #   id: packages-cache-key
-      #   run: |
-      #     ls -R ./packages
-      #     ls -R ./buildSrc
-      #     echo "sha=${{ hashFiles('packages/**') }}" >> $GITHUB_OUTPUT
-
       # - name: Debug Working Directory and File Location
       #   run: |
       #     echo "--- 1. Where am I? ---"
@@ -114,6 +106,7 @@ jobs:
       #       echo "Generated Hash: $FILE_HASH"
       #     fi
 
+      # XJ: the original hashFiles fails somehow
       - name: Calculate ./packages SHAs
         id: packages-cache-key
         run: |
@@ -123,24 +116,6 @@ jobs:
 
           echo "Computed Hash: $HASH"
           echo "sha=$HASH" >> $GITHUB_OUTPUT
-
-      # - name: Calculate ./packages SHAs
-      #   id: packages-cache-key
-      #   # Move the hash calculation to an environment variable
-      #   env:
-      #     # Using ** ensures we find the folders even if the path is slightly different, testing
-      #     TEMP_HASH: ${{ hashFiles('**/packages/**', '**/buildSrc/**') }}
-      #   run: |
-      #     echo "--- DEBUG: Checking File Structure ---"
-      #     pwd
-      #     ls -d packages/ || echo "packages directory NOT found"
-      #     ls -d buildSrc/ || echo "buildSrc directory NOT found"
-
-      #     echo "--- DEBUG: Hash Result ---"
-      #     echo "The hash is: $TEMP_HASH"
-
-      #     # Now safely output it
-      #     echo "sha=$TEMP_HASH" >> $GITHUB_OUTPUT
 
       - name: Calculate ./benchmarks SHAs
         id: calculate-benchmarks-cache-key
