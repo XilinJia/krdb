@@ -407,7 +407,9 @@ jobs:
         # run: ./gradlew publishCIPackages -Prealm.kotlin.targets=gradlePlugin,compilerPlugin -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=true
         run: |
           ./gradlew publishCIPackages \
-            -Prealm.kotlin.targets=gradlePlugin,compilerPlugin \
+            -Psigning.keyId=12345678 \
+            -Psigning.password=fake \
+            -Psigning.secretKey=fake \
             -Psigning.required=false \
             -x signRealmPluginPluginMarkerMavenPublication \
             -x signPluginMavenPublication
