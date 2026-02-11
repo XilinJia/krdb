@@ -387,7 +387,14 @@ jobs:
       - name: Build Kotlin Metadata and Gradle and Compiler Plugin
         working-directory: ./
         # run: ./gradlew publishCIPackages -Prealm.kotlin.targets=gradlePlugin,compilerPlugin -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=true
-        run: ./gradlew publishCIPackages -Prealm.kotlin.targets=gradlePlugin,compilerPlugin -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=true -Psigning.required=false
+        run: |
+          ./gradlew publishCIPackages \
+            -Prealm.kotlin.targets=gradlePlugin,compilerPlugin \
+            -Prealm.kotlin.buildRealmCore=false \
+            -Prealm.kotlin.mainHost=true \
+            -Psigning.required=false \
+            -x signRealmPluginPluginMarkerMavenPublication \
+            -x signMavenPublication
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
