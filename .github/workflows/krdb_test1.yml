@@ -404,13 +404,13 @@ jobs:
 
       - name: Build Kotlin Metadata and Gradle and Compiler Plugin
         working-directory: ./
-        # run: ./gradlew publishCIPackages -Prealm.kotlin.targets=gradlePlugin,compilerPlugin -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=true
-        run: |
-          ./gradlew publishCIPackages \
-            -Prealm.kotlin.targets=gradlePlugin,compilerPlugin \
-            -Prealm.kotlin.buildRealmCore=false \
-            -Prealm.kotlin.mainHost=true \
-            -PsignBuild=false
+        run: ./gradlew publishCIPackages -Prealm.kotlin.targets=gradlePlugin,compilerPlugin -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=true
+        # run: |
+        #   ./gradlew publishCIPackages \
+        #     -Prealm.kotlin.targets=gradlePlugin,compilerPlugin \
+        #     -Prealm.kotlin.buildRealmCore=false \
+        #     -Prealm.kotlin.mainHost=true \
+        #     -PsignBuild=false
 
       - name: Upload Gradle Problems Report
         if: always() # Run even if the build fails

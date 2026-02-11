@@ -103,7 +103,7 @@ class RealmPublishPlugin : Plugin<Project> {
         val password: String = getPropertyValue(project, "signPasswordKotlin")
 
         with(project) {
-            plugins.apply(SigningPlugin::class.java)
+            if (signBuild) plugins.apply(SigningPlugin::class.java)
             plugins.apply(MavenPublishPlugin::class.java)
 
             // Create extension

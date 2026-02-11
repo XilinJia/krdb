@@ -1,3 +1,8 @@
+## 3.3.1
+
+* fixed signing requirement in publish to test
+* removed build for macos-x64
+
 ## 3.3.0
 
 * Kotlin is upped to 2.3.0
