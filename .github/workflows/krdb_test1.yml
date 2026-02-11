@@ -74,6 +74,15 @@ jobs:
         working-directory: ./
         run: ./gradlew :packages:jni-swig-stub:assemble -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
 
+      - name: Upload Gradle Problems Report
+        if: always() # Run even if the build fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-problems-report
+          path: build/reports/problems/
+          retention-days: 1
+          overwrite: true
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -300,6 +309,15 @@ jobs:
         working-directory: ./
         run: ./gradlew buildJVMSharedLibs -Prealm.kotlin.mainHost=false
 
+      - name: Upload Gradle Problems Report
+        if: always() # Run even if the build fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-problems-report
+          path: build/reports/problems/
+          retention-days: 1
+          overwrite: true
+
       - name: Show ccache size
         run: |
           echo `du -sh ~/.ccache`
@@ -390,11 +408,18 @@ jobs:
         run: |
           ./gradlew publishCIPackages \
             -Prealm.kotlin.targets=gradlePlugin,compilerPlugin \
-            -Prealm.kotlin.buildRealmCore=false \
-            -Prealm.kotlin.mainHost=true \
             -Psigning.required=false \
             -x signRealmPluginPluginMarkerMavenPublication \
-            -x signMavenPublication
+            -x signPluginMavenPublication
+
+      - name: Upload Gradle Problems Report
+        if: always() # Run even if the build fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-problems-report
+          path: build/reports/problems/
+          retention-days: 1
+          overwrite: true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -517,6 +542,15 @@ jobs:
         working-directory: ./
         run: ./gradlew publishCIPackages -Prealm.kotlin.targets=jvm -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.copyNativeJvmLibs=linux,windows,macos -Prealm.kotlin.mainHost=false
 
+      - name: Upload Gradle Problems Report
+        if: always() # Run even if the build fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-problems-report
+          path: build/reports/problems/
+          retention-days: 1
+          overwrite: true
+
       - name: Show ccache size
         run: |
           echo `du -sh ~/.ccache`
@@ -634,9 +668,27 @@ jobs:
         working-directory: ./
         run: ./gradlew  :packages:test-base:assembleAndroidTest -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
 
+      - name: Upload Gradle Problems Report
+        if: always() # Run even if the build fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-problems-report
+          path: build/reports/problems/
+          retention-days: 1
+          overwrite: true
+
       - name: Build packages
         working-directory: ./
         run: ./gradlew publishCIPackages -Prealm.kotlin.targets=android -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=false
+
+      - name: Upload Gradle Problems Report
+        if: always() # Run even if the build fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-problems-report
+          path: build/reports/problems/
+          retention-days: 1
+          overwrite: true
 
       - name: Store build cache
         uses: actions/cache@v4
@@ -724,6 +776,15 @@ jobs:
         working-directory: ./
         run: ./gradlew publishCIPackages -Prealm.kotlin.targets=macosArm64 -Prealm.kotlin.mainHost=false
 
+      - name: Upload Gradle Problems Report
+        if: always() # Run even if the build fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-problems-report
+          path: build/reports/problems/
+          retention-days: 1
+          overwrite: true
+
       - name: Store build cache
         uses: actions/cache@v4
         with:
@@ -794,6 +855,15 @@ jobs:
       - name: Build packages
         working-directory: ./
         run: ./gradlew publishCIPackages -Prealm.kotlin.targets=iosArm64 -Prealm.kotlin.mainHost=false
+
+      - name: Upload Gradle Problems Report
+        if: always() # Run even if the build fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-problems-report
+          path: build/reports/problems/
+          retention-days: 1
+          overwrite: true
 
       # We cannot use artifacts as they cannot be shared between workflows, so use cache instead.
       - name: Store build cache
