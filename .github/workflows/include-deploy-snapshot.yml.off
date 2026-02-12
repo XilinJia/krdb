@@ -38,7 +38,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: all-packages-${{ inputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       - name: Publish SNAPSHOT to Maven Central
         # env:    

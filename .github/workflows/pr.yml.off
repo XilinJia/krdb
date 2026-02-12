@@ -392,7 +392,7 @@ jobs:
       - name: Setup build cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-metadata-${{ needs.check-cache.outputs.packages-sha }}
           
       - name: Build Kotlin Metadata and Gradle and Compiler Plugin
@@ -403,7 +403,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: packages-metadata-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/* 
+          path: ./build/m2-buildrepo/**/* 
           retention-days: 1
 
 
@@ -490,7 +490,7 @@ jobs:
       - name: Setup build cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-jvm-sync-${{ needs.check-cache.outputs.packages-sha }}
 
       - name: Restore Linux JNI lib
@@ -523,7 +523,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: packages-jvm-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/* 
+          path: ./build/m2-buildrepo/**/* 
           retention-days: 1
 
 
@@ -633,7 +633,7 @@ jobs:
       - name: Store build cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-android-sync-${{ needs.check-cache.outputs.packages-sha }}
 
       - name: Store build cache for Android Test APK
@@ -649,7 +649,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: packages-android-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/* 
+          path: ./build/m2-buildrepo/**/* 
           retention-days: 1
 
       - name: Upload Android Base Test APK
@@ -725,7 +725,7 @@ jobs:
       - name: Store build cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-macos-x64-sync-${{ needs.check-cache.outputs.packages-sha }}
 
       # Must match naming found in include-check-cache.yml
@@ -733,7 +733,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: packages-macos-x64-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/* 
+          path: ./build/m2-buildrepo/**/* 
           retention-days: 1
 
   build-macos-arm64-packages:
@@ -796,7 +796,7 @@ jobs:
       - name: Store build cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-macos-arm64-sync-${{ needs.check-cache.outputs.packages-sha }}
 
       # Must match naming found in include-check-cache.yml
@@ -804,7 +804,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: packages-macos-arm64-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/* 
+          path: ./build/m2-buildrepo/**/* 
           retention-days: 1
 
   build-ios-x64-packages:
@@ -868,7 +868,7 @@ jobs:
       - name: Store build cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-ios-x64-sync-${{ needs.check-cache.outputs.packages-sha }}
 
       # Must match naming found in include-check-cache.yml
@@ -876,7 +876,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: packages-ios-x64-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/* 
+          path: ./build/m2-buildrepo/**/* 
           retention-days: 1
 
   build-ios-arm64-packages:
@@ -940,7 +940,7 @@ jobs:
       - name: Store build cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-ios-arm64-sync-${{ needs.check-cache.outputs.packages-sha }}
 
       # Must match naming found in include-check-cache.yml
@@ -948,7 +948,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: packages-ios-arm64-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/* 
+          path: ./build/m2-buildrepo/**/* 
           retention-days: 1
 
 
@@ -1021,19 +1021,19 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: packages-metadata-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       - name: Restore m2-buildrepo (Android)
         uses: actions/download-artifact@v4
         with:
           name: packages-android-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       - name: Restore m2-buildrepo (JVM)
         uses: actions/download-artifact@v4
         with:
           name: packages-jvm-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       # We poll the previously started BAAS container to get the hostname of the container to use with Device Farm tests
       - name: Fetching the BAAS CLI hostname
@@ -1274,13 +1274,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: packages-${{ matrix.package-prefix }}-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       - name: Restore Kotlin metadata artifacts
         uses: actions/download-artifact@v4
         with:
           name: packages-metadata-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
 
       # We poll the previously started BAAS container to get the hostname of the container to use with Device Farm tests
@@ -1403,13 +1403,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: packages-ios-${{ matrix.package-prefix }}-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       - name: Restore Kotlin metadata artifacts
         uses: actions/download-artifact@v4
         with:
           name: packages-metadata-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
 
       # We poll the previously started BAAS container to get the hostname of the container to use with Device Farm tests
@@ -1545,13 +1545,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: packages-metadata-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       - name: Restore m2-buildrepo
         uses: actions/download-artifact@v4
         with:
           name: packages-jvm-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       # We poll the previously started BAAS container to get the hostname of the container to use with Device Farm tests
       - name: Fetching the BAAS CLI hostname
@@ -1614,49 +1614,49 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: packages-metadata-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       - name: Restore Android artifacts
         uses: actions/download-artifact@v4
         with:
           name: packages-android-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       - name: Restore JVM artifacts
         uses: actions/download-artifact@v4
         with:
           name: packages-jvm-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       - name: Restore MacOS x64 artifacts
         uses: actions/download-artifact@v4
         with:
           name: packages-macos-x64-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       - name: Restore MacOS arm64 artifacts
         uses: actions/download-artifact@v4
         with:
           name: packages-macos-arm64-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       - name: Restore iOS x64 artifacts
         uses: actions/download-artifact@v4
         with:
           name: packages-ios-x64-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       - name: Restore iOS arm64 artifacts
         uses: actions/download-artifact@v4
         with:
           name: packages-ios-arm64-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       - name: Upload artifacts bundle
         uses: actions/upload-artifact@v4
         with:
           name: all-packages-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           retention-days: 7
 
   integration-tests:

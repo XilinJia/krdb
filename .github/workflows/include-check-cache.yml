@@ -77,34 +77,9 @@ jobs:
           echo "Label: $version"
           echo "label=$version" >> $GITHUB_OUTPUT
 
-      # - name: Debug Working Directory and File Location
-      #   run: |
-      #     echo "--- 1. Where am I? ---"
-      #     pwd
-
-      #     echo "--- 2. What is in the root? ---"
-      #     ls -F
-
-      #     echo "--- 3. Searching for 'packages' folder ---"
-      #     find . -maxdepth 3 -name "packages" -type d
-
-      #     echo "--- 4. Checking if 'packages' is empty ---"
-      #     ls -R packages/ || echo "Cannot look inside packages/"
-
       # - name: Calculate ./packages SHAs
       #   id: packages-cache-key
-      #   run: |
-      #     # 1. Check if the directory exists
-      #     if [ ! -d "packages" ]; then
-      #       echo "Warning: packages directory not found! Using fallback hash."
-      #       echo "sha=empty-${{ github.run_id }}" >> $GITHUB_OUTPUT
-      #     else
-      #       # 2. Generate a hash of all file names and timestamps in the folders
-      #       # This is a safe alternative to hashFiles()
-      #       FILE_HASH=$(find packages/ buildSrc/ -type f -not -path '*/.*' | sort | xargs cksum | shasum | cut -d' ' -f1)
-      #       echo "sha=$FILE_HASH" >> $GITHUB_OUTPUT
-      #       echo "Generated Hash: $FILE_HASH"
-      #     fi
+      #   run: echo "sha=${{ hashFiles('./packages/**', './buildSrc/**') }}" >> $GITHUB_OUTPUT
 
       # XJ: the original hashFiles fails somehow
       - name: Calculate ./packages SHAs
@@ -329,36 +304,6 @@ jobs:
           name: android-base-test-apk-${{ needs.checksum.outputs.version-label }}
           path: ./packages/test-base/build/outputs/apk/androidTest/debug/test-base-debug-androidTest.apk
           retention-days: 1
-
-  #
-  # Android Sync Test APK
-  #
-  #  android-test-sync:
-  #    runs-on: ubuntu-latest
-  #    needs: checksum
-  #    name: Android Sync Test APK
-  #    outputs:
-  #      android-test-sync-apk-cache-hit: ${{ steps.android-test-sync-apk.outputs.cache-hit }}
-  #
-  #    steps:
-  #    - name: Check Android Sync Test APK
-  #      id: android-test-sync-apk
-  #      uses: actions/cache@v4
-  #      with:
-  #        key: android-sync-test-apk-key-${{ needs.checksum.outputs.packages-sha }}
-  #        path: |
-  #          ./packages/test-sync/build/outputs/apk/androidTest/debug/test-sync-debug-androidTest.apk
-  #          ./packages/test-sync/build/outputs/apk/debug/test-sync-debug.apk
-  #
-  #    - name: Save Android Sync Test APK
-  #      uses: actions/upload-artifact@v4
-  #      if: always() && !cancelled() && steps.android-test-sync-apk.outputs.cache-hit == 'true'
-  #      with:
-  #        name: android-sync-test-apk-${{ needs.checksum.outputs.version-label }}
-  #        retention-days: 1
-  #        path: |
-  #          ./packages/test-sync/build/outputs/apk/androidTest/debug/test-sync-debug-androidTest.apk
-  #          ./packages/test-sync/build/outputs/apk/debug/test-sync-debug.apk
 
   #
   # MacOS arm64

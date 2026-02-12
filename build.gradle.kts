@@ -126,7 +126,6 @@ tasks {
     register<GradleBuild>("mavenCentralUpload") {
         description = "Push all Realm artifacts to Maven Central"
         group = "Publishing"
-//        buildFile = file("${rootDir}/packages/build.gradle.kts")
         dir = file("${rootDir}/packages")  // use dir instead of buildFile
         tasks = listOf("publishToSonatype")
         copyProperties(this)

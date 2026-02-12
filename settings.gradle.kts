@@ -53,4 +53,3 @@ include(":packages:cinterop")
 include(":packages:jni-swig-stub")
 
 include(":packages:test-base")
-// include(":packages:test-sync")

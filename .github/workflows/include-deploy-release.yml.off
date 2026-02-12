@@ -73,7 +73,7 @@ jobs:
       - name: Setup build cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-jvm-sync-${{ inputs.packages-sha-label }}
 
       - name: Restore Linux JNI lib
@@ -98,7 +98,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: all-packages-${{ inputs.version-label }}
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
 
       - name: Publish release to Maven Central
         run: |

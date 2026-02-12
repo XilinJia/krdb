@@ -36,7 +36,7 @@ jobs:
   #       uses: actions/download-artifact@v4
   #       with:
   #         name: all-packages-${{ needs.check-cache.outputs.version-label }}
-  #         path: ./packages/build/m2-buildrepo 
+  #         path: ./build/m2-buildrepo 
 
   #     # TODO Can we read api level from Config.kt
   #     - name: Run Monkey on Android Sample 
@@ -77,7 +77,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: all-packages-${{ inputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       # TODO Can we read api level from Config.kt
       - name: Build Android on minimum versions 
@@ -107,7 +107,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: all-packages-${{ inputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       # - name: AVD cache
       #   uses: actions/cache@v4
@@ -191,7 +191,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: all-packages-${{ inputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       - name: Build benchmarks
         working-directory: benchmarks
@@ -233,7 +233,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: all-packages-${{ inputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       # - name: AVD cache
       #   uses: actions/cache@v4
@@ -314,7 +314,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: all-packages-${{ inputs.version-label }}
-          path: ./packages/build/m2-buildrepo 
+          path: ./build/m2-buildrepo 
 
       # - name: AVD cache
       #   uses: actions/cache@v4

@@ -879,3 +879,63 @@ jobs:
           name: packages-ios-arm64-${{ needs.check-cache.outputs.version-label }}
           path: ./build/m2-buildrepo/**/*
           retention-days: 1
+
+  package-all-artifacts:
+    runs-on: ubuntu-latest
+    needs:
+      [
+        check-cache,
+        build-jvm-packages,
+        build-android-packages,
+        build-macos-arm64-packages,
+        build-ios-arm64-packages,
+        build-kotlin-metadata-package,
+      ]
+    if: |
+      always() && 
+      !cancelled() && 
+      !contains(needs.*.result, 'failure') && 
+      !contains(needs.*.result, 'cancelled')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # The Metadata artifact contain broken JVM publications, so it needs to be
+      # restored first, it so they can be overidden with the correct ones.
+      - name: Restore Kotlin metadata artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: packages-metadata-${{ needs.check-cache.outputs.version-label }}
+          path: ./build/m2-buildrepo
+
+      - name: Restore Android artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: packages-android-${{ needs.check-cache.outputs.version-label }}
+          path: ./build/m2-buildrepo
+
+      - name: Restore JVM artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: packages-jvm-${{ needs.check-cache.outputs.version-label }}
+          path: ./build/m2-buildrepo
+
+      - name: Restore MacOS arm64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: packages-macos-arm64-${{ needs.check-cache.outputs.version-label }}
+          path: ./build/m2-buildrepo
+
+      - name: Restore iOS arm64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: packages-ios-arm64-${{ needs.check-cache.outputs.version-label }}
+          path: ./build/m2-buildrepo
+
+      - name: Upload artifacts bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: all-packages-${{ needs.check-cache.outputs.version-label }}
+          path: ./build/m2-buildrepo
+          retention-days: 7
