@@ -41,7 +41,7 @@ fi
 STARTING_DIR=`pwd`
 HERE=$(dirname `realpath "$0"`)
 REALM_KOTLIN_PATH="$HERE/.."
-PACKAGE_DIR="$REALM_KOTLIN_PATH/packages/build/m2-buildrepo/io/github/xilinjia/krdb"
+PACKAGE_DIR="$REALM_KOTLIN_PATH/build/m2-buildrepo/io/github/xilinjia/krdb"
 VERSION="$1"
 OUTPUT_FILE="$2"
 

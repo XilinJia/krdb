@@ -399,7 +399,7 @@ jobs:
       - name: Setup build cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-metadata-${{ needs.check-cache.outputs.packages-sha }}
 
       - name: Build Kotlin Metadata and Gradle and Compiler Plugin
@@ -425,7 +425,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: packages-metadata-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/*
+          path: ./build/m2-buildrepo/**/*
           retention-days: 1
 
   # This task is also responsible for creating the Gradle and Compiler Plugin as well as
@@ -517,7 +517,7 @@ jobs:
       - name: Setup build cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-jvm-sync-${{ needs.check-cache.outputs.packages-sha }}
 
       - name: Restore Linux JNI lib
@@ -559,7 +559,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: packages-jvm-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/*
+          path: ./build/m2-buildrepo/**/*
           retention-days: 1
 
   build-android-packages:
@@ -693,7 +693,7 @@ jobs:
       - name: Store build cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-android-sync-${{ needs.check-cache.outputs.packages-sha }}
 
       - name: Store build cache for Android Test APK
@@ -708,7 +708,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: packages-android-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/*
+          path: ./build/m2-buildrepo/**/*
           retention-days: 1
 
       - name: Upload Android Base Test APK
@@ -788,7 +788,7 @@ jobs:
       - name: Store build cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-macos-arm64-sync-${{ needs.check-cache.outputs.packages-sha }}
 
       # Must match naming found in include-check-cache.yml
@@ -796,7 +796,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: packages-macos-arm64-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/*
+          path: ./build/m2-buildrepo/**/*
           retention-days: 1
 
   build-ios-arm64-packages:
@@ -869,7 +869,7 @@ jobs:
       - name: Store build cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-ios-arm64-sync-${{ needs.check-cache.outputs.packages-sha }}
 
       # Must match naming found in include-check-cache.yml
@@ -877,5 +877,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: packages-ios-arm64-${{ needs.check-cache.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/*
+          path: ./build/m2-buildrepo/**/*
           retention-days: 1

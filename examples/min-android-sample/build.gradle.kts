@@ -8,7 +8,7 @@ buildscript {
         }
 
     repositories {
-        maven(url = "file://${rootProject.rootDir.absolutePath}/../../packages/build/m2-buildrepo")
+        maven(url = "file://${rootProject.rootDir.absolutePath}/../../build/m2-buildrepo")
         gradlePluginPortal()
         google()
         mavenCentral()
@@ -27,7 +27,7 @@ tasks.create("clean", Delete::class) {
 
 allprojects {
     repositories {
-        maven(url = "file://${rootProject.rootDir.absolutePath}/../../packages/build/m2-buildrepo")
+        maven(url = "file://${rootProject.rootDir.absolutePath}/../../build/m2-buildrepo")
         google()
         mavenCentral()
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")

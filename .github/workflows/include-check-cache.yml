@@ -140,7 +140,7 @@ jobs:
         id: kotlin-metadata-cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-metadata-${{ needs.checksum.outputs.packages-sha }}
 
       - name: Save Kotlin Metadata packages
@@ -148,7 +148,7 @@ jobs:
         if: always() && !cancelled() && steps.kotlin-metadata-cache.outputs.cache-hit == 'true'
         with:
           name: packages-metadata-${{ needs.checksum.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/*
+          path: ./build/m2-buildrepo/**/*
           retention-days: 1
 
   #
@@ -166,7 +166,7 @@ jobs:
         id: jvm-cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-jvm-sync-${{ needs.checksum.outputs.packages-sha }}
 
       - name: Save JVM packages
@@ -174,7 +174,7 @@ jobs:
         if: always() && !cancelled() && steps.jvm-cache.outputs.cache-hit == 'true'
         with:
           name: packages-jvm-${{ needs.checksum.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/*
+          path: ./build/m2-buildrepo/**/*
           retention-days: 1
 
   #
@@ -294,7 +294,7 @@ jobs:
         id: android-cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-android-sync-${{ needs.checksum.outputs.packages-sha }}
 
       - name: Save Android packages
@@ -302,7 +302,7 @@ jobs:
         if: always() && !cancelled() && steps.android-cache.outputs.cache-hit == 'true'
         with:
           name: packages-android-${{ needs.checksum.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/*
+          path: ./build/m2-buildrepo/**/*
           retention-days: 1
 
   #
@@ -375,7 +375,7 @@ jobs:
         id: macos-arm64-cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-macos-arm64-sync-${{ needs.checksum.outputs.packages-sha }}
 
       - name: Save MacOS arm64 packages
@@ -383,7 +383,7 @@ jobs:
         if: always() && !cancelled() && steps.macos-arm64-cache.outputs.cache-hit == 'true'
         with:
           name: packages-macos-arm64-${{ needs.checksum.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/*
+          path: ./build/m2-buildrepo/**/*
           retention-days: 1
 
   #
@@ -401,7 +401,7 @@ jobs:
         id: macos-x64-cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-macos-x64-sync-${{ needs.checksum.outputs.packages-sha }}
 
       - name: Save MacOS x64 packages
@@ -409,7 +409,7 @@ jobs:
         if: always() && !cancelled() && steps.macos-x64-cache.outputs.cache-hit == 'true'
         with:
           name: packages-macos-x64-${{ needs.checksum.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/*
+          path: ./build/m2-buildrepo/**/*
           retention-days: 1
 
   #
@@ -427,7 +427,7 @@ jobs:
         id: ios-arm64-cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-ios-arm64-sync-${{ needs.checksum.outputs.packages-sha }}
 
       - name: Save iOS arm64 packages
@@ -435,7 +435,7 @@ jobs:
         if: always() && !cancelled() && steps.ios-arm64-cache.outputs.cache-hit == 'true'
         with:
           name: packages-ios-arm64-${{ needs.checksum.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/*
+          path: ./build/m2-buildrepo/**/*
           retention-days: 1
 
   #
@@ -453,7 +453,7 @@ jobs:
         id: ios-x64-cache
         uses: actions/cache@v4
         with:
-          path: ./packages/build/m2-buildrepo
+          path: ./build/m2-buildrepo
           key: packages-m2-ios-x64-sync-${{ needs.checksum.outputs.packages-sha }}
 
       - name: Save iOS x64 packages
@@ -461,5 +461,5 @@ jobs:
         if: always() && !cancelled() && steps.ios-x64-cache.outputs.cache-hit == 'true'
         with:
           name: packages-ios-x64-${{ needs.checksum.outputs.version-label }}
-          path: ./packages/build/m2-buildrepo/**/*
+          path: ./build/m2-buildrepo/**/*
           retention-days: 1

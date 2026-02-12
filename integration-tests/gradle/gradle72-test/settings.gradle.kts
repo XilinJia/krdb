@@ -22,14 +22,14 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
-        maven("file://${rootDir.absolutePath}/../../../packages/build/m2-buildrepo")
+        maven("file://${rootDir.absolutePath}/../../../build/m2-buildrepo")
     }
 }
 dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven("file://${rootDir.absolutePath}/../../../packages/build/m2-buildrepo")
+        maven("file://${rootDir.absolutePath}/../../../build/m2-buildrepo")
     }
 }
 

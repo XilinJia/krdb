@@ -1,6 +1,7 @@
 ## 3.3.1
 
 * fixed signing requirement in publish to test
+* corrected reference to build directory
 * removed build for macos-x64
 
 ## 3.3.0
