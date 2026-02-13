@@ -483,15 +483,14 @@ jobs:
         with:
           version: ${{ vars.VERSION_NINJA  }}
 
+      - name: Install SWIG
+        run: brew install swig
+
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1.2.13
         with:
           key: "jvm-package"
           max-size: "2.0G"
-
-      - name: Install SWIG
-        run: brew install swig
-
       - name: Prepend ccache executables to the PATH
         run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
 
@@ -752,14 +751,14 @@ jobs:
         with:
           version: ${{ vars.VERSION_NINJA  }}
 
+      - name: Install SWIG
+        run: brew install swig
+
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1.2.13
         with:
           key: "macos-arm64-package"
           max-size: "2.0G"
-
-      - name: Install SWIG
-        run: brew install swig
 
       - name: Prepend ccache executables to the PATH
         run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
@@ -832,14 +831,14 @@ jobs:
         with:
           version: ${{ vars.VERSION_NINJA  }}
 
+      - name: Install SWIG
+        run: brew install swig
+
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1.2.13
         with:
           key: "ios-arm64-package"
           max-size: "2.0G"
-
-      - name: Install SWIG
-        run: brew install swig
 
       - name: Prepend ccache executables to the PATH
         run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
@@ -942,6 +941,23 @@ jobs:
             echo "C:\ProgramData\chocolatey\bin" >> $GITHUB_PATH
           fi
         shell: bash
+
+      - name: Install ccache
+        uses: hendrikmuhs/ccache-action@v1.2.13
+        with:
+          key: "metadata-package"
+          max-size: "2.0G"
+
+      - name: Prepend ccache executables to the PATH
+        run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
+
+      # See https://github.com/hendrikmuhs/ccache-action/issues/94
+      - name: Configure ccache
+        run: |
+          ccache --set-config="compiler_check=content"
+          ccache --show-config
+          echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
+          echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
 
       - name: Restore Kotlin metadata artifacts
         uses: actions/download-artifact@v4
