@@ -256,9 +256,24 @@ kotlin {
         iosX64("ios")
         macosX64("macos")
     }
+    // targets.filterIsInstance<KotlinNativeTargetWithSimulatorTests>().forEach { simulatorTargets ->
+    //     simulatorTargets.testRuns.forEach { testRun ->
+    //         testRun.deviceId = project.findProperty("iosDevice")?.toString() ?: "iPhone 14"
+    //     }
+    // }
     targets.filterIsInstance<KotlinNativeTargetWithSimulatorTests>().forEach { simulatorTargets ->
         simulatorTargets.testRuns.forEach { testRun ->
-            testRun.deviceId = project.findProperty("iosDevice")?.toString() ?: "iPhone 14"
+            testRun.deviceId = project.findProperty("iosDevice")?.toString() ?: run {
+                val device = providers.exec {
+                    commandLine("xcrun", "simctl", "list", "devices", "available")
+                }.standardOutput.asText.get().lineSequence()
+                    .find { it.contains("iPhone") }
+                    ?.substringAfter("    ")
+                    ?.substringBefore(" (")
+                    ?: "iPhone 15" // Last resort fallback
+                
+                device.trim()
+            }
         }
     }
     sourceSets {

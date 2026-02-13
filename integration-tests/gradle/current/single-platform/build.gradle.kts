@@ -51,6 +51,8 @@ plugins {
 // }
 
 android {
+    namespace = "com.example.krdb.integration.singleplatform"
+    
     compileSdk = Versions.Android.compileSdkVersion
 
     defaultConfig {
