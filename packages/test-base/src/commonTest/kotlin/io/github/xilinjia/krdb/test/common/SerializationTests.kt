@@ -263,8 +263,8 @@ class SerializationTests {
             else -> assertEquals(expected, actual)
         }
     }
-
-    @Ignore("Serialization of RealmObjects is temporarily disabled for Kotlin 2.3.0 compatibility")
+    // ("Serialization of RealmObjects is temporarily disabled for Kotlin 2.3.0 compatibility")
+    @Ignore
     @Test
     fun exhaustiveElementTypesTester() {
         val expected = SerializableSample().apply {
@@ -287,7 +287,8 @@ class SerializationTests {
             }
     }
 
-    @Ignore("Serialization of RealmObjects is temporarily disabled for Kotlin 2.3.0 compatibility")
+    // ("Serialization of RealmObjects is temporarily disabled for Kotlin 2.3.0 compatibility")
+    @Ignore
     @Test
     fun exhaustiveRealmAnyTester() {
         RealmAny.Type.values()
@@ -381,7 +382,8 @@ class SerializationTests {
      *   would be serialized and deserialized, and then validate that the deserialized and original
      *   values match.
      */
-    @Ignore("Serialization of RealmObjects is temporarily disabled for Kotlin 2.3.0 compatibility")
+     //("Serialization of RealmObjects is temporarily disabled for Kotlin 2.3.0 compatibility")
+    @Ignore
     @Test
     fun exhaustiveRealmListTest() {
         TypeDescriptor
@@ -405,8 +407,9 @@ class SerializationTests {
      *   would be serialized and deserialized, and then validate that the deserialized and original
      *   values match.
      */
-    @Ignore("Serialization of RealmObjects is temporarily disabled for Kotlin 2.3.0 compatibility")
+     // ("Serialization of RealmObjects is temporarily disabled for Kotlin 2.3.0 compatibility")
     @Test
+    @Ignore
     fun exhaustiveRealmSetTest() {
         TypeDescriptor
             .allSetFieldTypes
@@ -428,7 +431,8 @@ class SerializationTests {
      * - Instantiate a managed and an unmanaged RealmObjects, each one would be serialized and
      *   deserialized, and then validate that the deserialized and original values match.
      */
-    @Ignore("Serialization of RealmObjects is temporarily disabled for Kotlin 2.3.0 compatibility")
+     // ("Serialization of RealmObjects is temporarily disabled for Kotlin 2.3.0 compatibility")
+    @Ignore
     @Test
     fun exhaustiveRealmDictTest() {
         TypeDescriptor

@@ -122,6 +122,23 @@ jobs:
           distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
           java-version: ${{ vars.VERSION_JAVA }}
 
+      - name: Install ccache
+        uses: hendrikmuhs/ccache-action@v1.2.13
+        with:
+          key: "metadata-package"
+          max-size: "2.0G"
+
+      - name: Prepend ccache executables to the PATH
+        run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
+
+      # See https://github.com/hendrikmuhs/ccache-action/issues/94
+      - name: Configure ccache
+        run: |
+          ccache --set-config="compiler_check=content"
+          ccache --show-config
+          echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
+          echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
+
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v2.0.2
         with:
@@ -208,7 +225,7 @@ jobs:
 
       - name: Build packages
         working-directory: ./
-        run: ./gradlew buildJVMSharedLibs -Prealm.kotlin.mainHost=false
+        run: ./gradlew buildJVMSharedLibs
 
       # - name: Build native lib
       #   shell: powershell
