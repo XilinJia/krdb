@@ -29,7 +29,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath ("io.realm:realm-gradle-plugin:10.11.0")
+        // classpath ("io.realm:realm-gradle-plugin:10.11.0")
         classpath ("io.github.xilinjia.krdb:gradle-plugin:${Realm.version}")
     }
 }

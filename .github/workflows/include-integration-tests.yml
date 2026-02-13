@@ -151,7 +151,11 @@ jobs:
           ram-size: 2048M
           heap-size: 1024M
           channel: canary
-          script: cd examples/realm-java-compatibility && ./gradlew connectedAndroidTest -PincludeSdkModules=false --info
+          script: |
+            adb wait-for-device
+            # Ensure the settings service is actually responsive
+            timeout 60s bash -c 'until adb shell service check settings | grep -q "found"; do sleep 2; done'
+            cd examples/realm-java-compatibility && ./gradlew connectedAndroidTest -PincludeSdkModules=false --info
 
       # TODO: This fails with `Error: Cannot read property 'trim' of undefined`. Possible a bug in the action.
       #  For now, just disable this as there is only a single unit test anyway.
@@ -254,24 +258,43 @@ jobs:
       #     script: echo "Generated AVD snapshot for caching."
 
       # TODO Can we read api level from Config.kt
+      # - name: Run Gradle Plugin Test project
+      #   env:
+      #     SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      #   uses: reactivecircus/android-emulator-runner@v2
+      #   with:
+      #     emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+      #     disable-animations: true
+      #     force-avd-creation: false
+      #     api-level: ${{ vars.VERSION_ANDROID_EMULATOR_API_LEVEL }}
+      #     target: default
+      #     # target: aosp_atd
+      #     arch: x86_64
+      #     # profile: Nexus 6
+      #     disk-size: 4096M
+      #     ram-size: 2048M
+      #     heap-size: 1024M
+      #     channel: canary
+      #     script: cd ${{ matrix.path }} && ./gradlew ${{ matrix.arguments }} --info
       - name: Run Gradle Plugin Test project
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: true
-          force-avd-creation: false
           api-level: ${{ vars.VERSION_ANDROID_EMULATOR_API_LEVEL }}
           target: default
-          # target: aosp_atd
           arch: x86_64
-          # profile: Nexus 6
           disk-size: 4096M
           ram-size: 2048M
-          heap-size: 1024M
-          channel: canary
-          script: cd ${{ matrix.path }} && ./gradlew ${{ matrix.arguments }} --info
+          heap-size: 512M # Slightly lowered for stability
+          channel: stable # More reliable for CI
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            adb wait-for-device
+            # Ensure the settings service is actually responsive
+            timeout 60s bash -c 'until adb shell service check settings | grep -q "found"; do sleep 2; done'
+            cd ${{ matrix.path }} && ./gradlew ${{ matrix.arguments }} --info
 
   gradle-plugin-integration-java-17:
     strategy:
@@ -352,4 +375,9 @@ jobs:
           ram-size: 2048M
           heap-size: 1024M
           channel: canary
-          script: cd ${{ matrix.path }} && ./gradlew ${{ matrix.arguments }} --info
+          # script: cd ${{ matrix.path }} && ./gradlew ${{ matrix.arguments }} --info
+          script: |
+            adb wait-for-device
+            # Ensure the settings service is actually responsive
+            timeout 60s bash -c 'until adb shell service check settings | grep -q "found"; do sleep 2; done'
+            cd ${{ matrix.path }} && ./gradlew ${{ matrix.arguments }} --info

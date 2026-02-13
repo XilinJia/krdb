@@ -29,10 +29,10 @@ pluginManagement {
 //                useModule("org.example:buildSrc:${pluginManagement.version}")
 //            }
             if (requested.id.id == "kotlinx-atomicfu") {
-                useModule("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.27.0")
+                useModule("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.31.0")
             }
             if (requested.id.id == "org.gradle.kotlin.kotlin-dsl") {
-                useVersion("2.1.0")
+                useVersion("2.3.0")
             }
         }
     }

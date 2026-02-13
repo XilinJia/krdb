@@ -4,6 +4,8 @@
 * corrected reference to build directory
 * removed build for macos-x64
 * Integration tests of gradle72 and gradle75 are removed, gradle8 is changed to gradle83, current is 9.2.1
+* force core version to 14.14.1
+* in resolution, kotlin version set to 2.3.0, atomicfu-gradle-plugin to 0.31.0
 
 ## 3.3.0
 
