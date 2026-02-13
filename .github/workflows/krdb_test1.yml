@@ -902,6 +902,10 @@ jobs:
             test-title: Unit Test Results - Base JVM Windows
 
     runs-on: ${{ matrix.os }}
+    permissions:
+      checks: write # Permissions to create the report
+      pull-requests: write # Permissions to comment on the PR
+      contents: read # Permissions to read the code
     needs: [check-cache, build-jvm-packages, build-kotlin-metadata-package]
     if: |
       always() && 
@@ -925,6 +929,19 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
         with:
           cache-read-only: false
+
+      - name: Install SWIG
+        run: |
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            brew install swig
+          elif [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get update
+            sudo apt-get install -y swig
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            choco install swig
+            echo "C:\ProgramData\chocolatey\bin" >> $GITHUB_PATH
+          fi
+        shell: bash
 
       - name: Restore Kotlin metadata artifacts
         uses: actions/download-artifact@v4
@@ -987,6 +1004,9 @@ jobs:
         uses: actions/checkout@v6
         with:
           submodules: "recursive"
+
+      - name: Install SWIG
+        run: brew install swig
 
       - name: Setup Java 21
         uses: actions/setup-java@v4
@@ -1066,6 +1086,9 @@ jobs:
           distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
           java-version: ${{ vars.VERSION_JAVA }}
 
+      - name: Install SWIG
+        run: brew install swig
+
       - name: Setup Gradle and task/dependency caching
         uses: gradle/actions/setup-gradle@v3
         with:
@@ -1131,6 +1154,18 @@ jobs:
         uses: actions/checkout@v6
         with:
           submodules: "recursive"
+
+      - name: Install ccache
+        if: runner.os == 'Linux'
+        run: sudo apt-get install -y ccache
+
+      - name: ccache Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ${{ runner.os }}-ccache-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-
 
       - name: Setup Java 21
         uses: actions/setup-java@v4

@@ -641,12 +641,43 @@ fun Task.buildSharedLibrariesForJVMLinux() {
 
     val injectedExecOps = project.objects.newInstance<ExecOpsProvider>()
 
+    // doLast {
+    //     injectedExecOps.execOps.exec {
+    //         commandLine("mkdir", "-p", directory)
+    //     }
+    //     injectedExecOps.execOps.exec {
+    //         workingDir(project.file(directory))
+    //         commandLine(
+    //             "cmake",
+    //             *getSharedCMakeFlags(BuildType.RELEASE),
+    //             "-DCPACK_PACKAGE_DIRECTORY=..",
+    //             project.file("src/jvm/")
+    //         )
+    //     }
+    //     injectedExecOps.execOps.exec {
+    //         workingDir(project.file(directory))
+    //         commandLine("cmake", "--build", ".", "-j8")
+    //     }
+
+    //     // copy files (macos)
+    //     injectedExecOps.execOps.exec {
+    //         commandLine("mkdir", "-p", project.file("$jvmJniPath/linux"))
+    //     }
+    //     File("$directory/librealmc.so")
+    //         .copyTo(project.file("$jvmJniPath/linux/librealmc.so"), overwrite = true)
+    // }
+
     doLast {
+        val buildDir = project.file(directory)
+        val targetDir = project.file("$jvmJniPath/linux")
+        
+        // 1. Native Kotlin directory creation (No 'exec' overhead)
+        buildDir.mkdirs()
+        targetDir.mkdirs()
+
+        // 2. Run CMake Configure
         injectedExecOps.execOps.exec {
-            commandLine("mkdir", "-p", directory)
-        }
-        injectedExecOps.execOps.exec {
-            workingDir(project.file(directory))
+            workingDir = buildDir
             commandLine(
                 "cmake",
                 *getSharedCMakeFlags(BuildType.RELEASE),
@@ -654,17 +685,20 @@ fun Task.buildSharedLibrariesForJVMLinux() {
                 project.file("src/jvm/")
             )
         }
+
+        // 3. Build (Using --parallel is safer than -j8 on 2-core runners)
         injectedExecOps.execOps.exec {
-            workingDir(project.file(directory))
-            commandLine("cmake", "--build", ".", "-j8")
+            workingDir = buildDir
+            commandLine("cmake", "--build", ".", "--parallel")
         }
 
-        // copy files (macos)
-        injectedExecOps.execOps.exec {
-            commandLine("mkdir", "-p", project.file("$jvmJniPath/linux"))
+        // 4. Copy the shared object
+        val sourceSo = File(buildDir, "librealmc.so")
+        if (sourceSo.exists()) {
+            sourceSo.copyTo(File(targetDir, "librealmc.so"), overwrite = true)
+        } else {
+            throw GradleException("Build failed: librealmc.so not found at ${sourceSo.absolutePath}")
         }
-        File("$directory/librealmc.so")
-            .copyTo(project.file("$jvmJniPath/linux/librealmc.so"), overwrite = true)
     }
 
     inputs.dir(project.file("src/jvm"))
