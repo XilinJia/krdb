@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-rootProject.name = "gradle75-plugin-test"
+rootProject.name = "gradle83-plugin-test"
 
 pluginManagement {
     repositories {

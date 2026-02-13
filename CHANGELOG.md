@@ -3,6 +3,7 @@
 * fixed signing requirement in publish to test
 * corrected reference to build directory
 * removed build for macos-x64
+* Integration tests of gradle72 and gradle75 are removed, gradle8 is changed to gradle83, current is 9.2.1
 
 ## 3.3.0
 

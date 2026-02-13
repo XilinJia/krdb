@@ -18,7 +18,7 @@ jobs:
     if: always() && !cancelled() && needs.check-cache.outputs.jni-swig-stub-cache-hit != 'true'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: "recursive"
 
@@ -102,7 +102,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: "recursive"
 
@@ -171,7 +171,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           # TODO See https://github.com/microsoft/vcpkg/issues/25349 which might describe the error here https://github.com/realm/realm-kotlin/runs/8099890473?check_suite_focus=true
           # -- Building for: Visual Studio 17 2022
@@ -242,7 +242,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: "recursive"
 
@@ -344,7 +344,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: "recursive"
 
@@ -450,7 +450,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: "recursive"
 
@@ -581,7 +581,7 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: "recursive"
 
@@ -727,7 +727,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: "recursive"
 
@@ -807,7 +807,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: "recursive"
 
@@ -880,6 +880,320 @@ jobs:
           path: ./build/m2-buildrepo/**/*
           retention-days: 1
 
+  test-jvm-packages:
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14, ubuntu-latest, windows-latest]
+        type: [base]
+        include:
+          - os: macos-14
+            os-id: mac
+            type: base
+            test-title: Unit Test Results - Base JVM MacOS arm64
+          - os: ubuntu-latest
+            os-id: ubu
+            type: base
+            test-title: Unit Test Results - Base JVM Linux
+          - os: windows-latest
+            os-id: win
+            type: base
+            test-title: Unit Test Results - Base JVM Windows
+
+    runs-on: ${{ matrix.os }}
+    needs: [check-cache, build-jvm-packages, build-kotlin-metadata-package]
+    if: |
+      always() && 
+      !cancelled() && 
+      !contains(needs.*.result, 'failure') && 
+      !contains(needs.*.result, 'cancelled')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
+          java-version: ${{ vars.VERSION_JAVA }}
+
+      - name: Setup Gradle and task/dependency caching
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+
+      - name: Restore Kotlin metadata artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: packages-metadata-${{ needs.check-cache.outputs.version-label }}
+          path: ./build/m2-buildrepo
+
+      - name: Restore m2-buildrepo
+        uses: actions/download-artifact@v4
+        with:
+          name: packages-jvm-${{ needs.check-cache.outputs.version-label }}
+          path: ./build/m2-buildrepo
+
+      # App names are limited to 32 characters, so the appNamePrefix should not exceed 22 characters.
+      - name: Run tests
+        working-directory: ./
+        run: >
+          ./gradlew :test-${{ matrix.type }}:jvmTest
+          -PincludeSdkModules=false 
+          --info --no-daemon
+
+      - name: Publish Unit Test Results
+        uses: dorny/test-reporter@v1
+        if: always() || failure()
+        with:
+          name: ${{ matrix.test-title }}
+          path: ./packages/test-${{ matrix.type }}/build/**/TEST-*.xml
+          reporter: java-junit
+          list-suites: failed
+          list-tests: failed
+          fail-on-error: true
+
+  test-macos-packages:
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14]
+        type: [base]
+        include:
+          - os: macos-14
+            type: base
+            os-id: macos
+            package-prefix: macos-arm64
+            test-title: Unit Test Results - MacOS arm64 Base
+
+    runs-on: ${{ matrix.os }}
+    # TODO Unclear why MacOS needs the metadata package when the Android Tests do not
+    # Disable macos-arm for now as the host needs to have the Android SDK installed even though it isn't really using it.
+    needs:
+      [check-cache, build-kotlin-metadata-package, build-macos-arm64-packages]
+    if: |
+      always() && 
+      !cancelled() && 
+      !contains(needs.*.result, 'failure') && 
+      !contains(needs.*.result, 'cancelled')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
+          java-version: ${{ vars.VERSION_JAVA }}
+
+      - name: Setup Gradle and task/dependency caching
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+
+      - name: Restore m2-buildrepo
+        uses: actions/download-artifact@v4
+        with:
+          name: packages-${{ matrix.package-prefix }}-${{ needs.check-cache.outputs.version-label }}
+          path: ./build/m2-buildrepo
+
+      - name: Restore Kotlin metadata artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: packages-metadata-${{ needs.check-cache.outputs.version-label }}
+          path: ./build/m2-buildrepo
+
+      - name: Run tests
+        working-directory: ./
+        run: >
+          ./gradlew :test-${{ matrix.type }}:macosTest
+          -PincludeSdkModules=false 
+          --info --no-daemon
+
+      - name: Publish Unit Test Results
+        uses: dorny/test-reporter@v1
+        if: always() || failure()
+        with:
+          name: ${{ matrix.test-title }}
+          path: ./packages/test-${{ matrix.type }}/build/**/TEST-*.xml
+          reporter: java-junit
+          list-suites: failed
+          list-tests: failed
+          fail-on-error: true
+
+  test-ios-packages:
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14]
+        type: [base]
+        include:
+          - os: macos-14
+            type: base
+            package-prefix: arm64
+            test-title: Unit Test Results - iOS arm64 Base
+            test-task: iosTest
+
+    runs-on: ${{ matrix.os }}
+    # TODO Unclear why MacOS needs the metadata package when the Android Tests do not
+    # Disable macos-arm for now as the host needs to have the Android SDK installed even though it isn't really using it.
+    needs:
+      [check-cache, build-kotlin-metadata-package, build-ios-arm64-packages]
+    if: |
+      always() && 
+      !cancelled() && 
+      !contains(needs.*.result, 'failure') && 
+      !contains(needs.*.result, 'cancelled')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
+          java-version: ${{ vars.VERSION_JAVA }}
+
+      - name: Setup Gradle and task/dependency caching
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+
+      - name: Restore m2-buildrepo (ios)
+        uses: actions/download-artifact@v4
+        with:
+          name: packages-ios-${{ matrix.package-prefix }}-${{ needs.check-cache.outputs.version-label }}
+          path: ./build/m2-buildrepo
+
+      - name: Restore Kotlin metadata artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: packages-metadata-${{ needs.check-cache.outputs.version-label }}
+          path: ./build/m2-buildrepo
+
+      # App names are limited to 32 characters, so the appNamePrefix should not exceed 22 characters.
+      - name: Run tests
+        working-directory: ./
+        run: >
+          ./gradlew :test-${{ matrix.type }}:${{ matrix.test-task }}
+          -PincludeSdkModules=false 
+          --info --no-daemon
+
+      - name: Publish Unit Test Results
+        uses: dorny/test-reporter@v1
+        if: always() || failure()
+        with:
+          name: ${{ matrix.test-title }}
+          path: ./packages/test-${{ matrix.type }}/build/**/TEST-*.xml
+          reporter: java-junit
+          list-suites: failed
+          list-tests: failed
+          fail-on-error: true
+
+  test-android-packages-emulator:
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [base]
+        include:
+          - type: base
+            test-title: Unit Test Results - Android Base (Emulator)
+
+    runs-on: ubuntu-latest
+    needs:
+      [
+        check-cache,
+        build-android-packages,
+        build-jvm-packages,
+        build-kotlin-metadata-package,
+      ]
+    if: |
+      always() && 
+      !cancelled() && 
+      !contains(needs.*.result, 'failure') && 
+      !contains(needs.*.result, 'cancelled')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          submodules: "recursive"
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ vars.VERSION_JAVA_DISTRIBUTION }}
+          java-version: ${{ vars.VERSION_JAVA }}
+
+      - name: Setup Gradle and task/dependency caching
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+
+      - name: Restore Kotlin metadata artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: packages-metadata-${{ needs.check-cache.outputs.version-label }}
+          path: ./build/m2-buildrepo
+
+      - name: Restore m2-buildrepo (Android)
+        uses: actions/download-artifact@v4
+        with:
+          name: packages-android-${{ needs.check-cache.outputs.version-label }}
+          path: ./build/m2-buildrepo
+
+      - name: Restore m2-buildrepo (JVM)
+        uses: actions/download-artifact@v4
+        with:
+          name: packages-jvm-${{ needs.check-cache.outputs.version-label }}
+          path: ./build/m2-buildrepo
+
+      # TODO This action does not support using `\` to split multiline scripts.
+      - name: Run Integration Tests
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          api-level: ${{ vars.VERSION_ANDROID_EMULATOR_API_LEVEL }} # Must be 30 to support aosp_atd
+          target: default
+          arch: x86_64
+          disk-size: 4096M
+          ram-size: 2048M
+          heap-size: 1024M
+          channel: canary
+          script: |
+            adb logcat -c
+            adb logcat > logcat.txt &
+            ./gradlew :test-${{ matrix.type }}:connectedCheck -PsyncUsePlatformNetworking=true -PsyncTestUrl=${{ steps.baas_cli_poll.outputs.baas_container_hostname }} -PincludeSdkModules=false --info --no-daemon
+
+      - name: Archive LogCat data
+        uses: actions/upload-artifact@v4
+        if: always() || failure()
+        with:
+          name: logcat-${{ matrix.type }}-emulator.txt
+          path: logcat.txt
+          retention-days: 1
+
+      - name: Publish Unit Test Results
+        uses: dorny/test-reporter@v1
+        if: always() || failure()
+        with:
+          name: ${{ matrix.test-title }}
+          path: ./packages/test-${{ matrix.type }}/build/**/TEST-*.xml
+          reporter: java-junit
+          list-suites: failed
+          list-tests: failed
+          fail-on-error: true
+
   package-all-artifacts:
     runs-on: ubuntu-latest
     needs:
@@ -899,7 +1213,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # The Metadata artifact contain broken JVM publications, so it needs to be
       # restored first, it so they can be overidden with the correct ones.
@@ -939,3 +1253,123 @@ jobs:
           name: all-packages-${{ needs.check-cache.outputs.version-label }}
           path: ./build/m2-buildrepo
           retention-days: 7
+
+  integration-tests:
+    uses: ./.github/workflows/include-integration-tests.yml
+    needs: [check-cache, package-all-artifacts]
+    if: |
+      always() && 
+      !cancelled() && 
+      !contains(needs.*.result, 'failure') && 
+      !contains(needs.*.result, 'cancelled')
+    with:
+      version-label: ${{ needs.check-cache.outputs.version-label }}
+
+  sign-package:
+    runs-on: ubuntu-latest
+    needs:
+      [
+        check-cache,
+        integration-tests,
+        test-jvm-packages,
+        test-macos-packages,
+        test-ios-packages,
+        test-android-packages-emulator,
+        package-all-artifacts,
+      ]
+    # Maintains your logic: Run only if preceding jobs succeeded and on specific branches
+    if: |
+      always() && 
+      !cancelled() && 
+      !contains(needs.*.result, 'failure') && 
+      !contains(needs.*.result, 'cancelled') &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/releases' || github.ref == 'refs/heads/release/k2')
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Download Unsigned Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          # Uses the version-label from the check-cache job
+          name: all-packages-${{ needs.check-cache.outputs.version-label }}
+          path: ./build/m2-buildrepo
+
+      - name: Import GPG Key
+        env:
+          GPG_KEY: ${{ secrets.SIGNING_SECRET_KEY_RING }}
+        run: |
+          # Convert the '#' placeholder back to newlines and import
+          echo -e "$GPG_KEY" | tr '#' '\n' | gpg --batch --import
+
+      - name: Sign Maven Artifacts
+        env:
+          GPG_ID: ${{ secrets.SIGNING_KEY_ID }}
+          GPG_PASS: ${{ secrets.SIGNING_PASSWORD }}
+        run: |
+          echo "Signing artifacts in ./build/m2-buildrepo..."
+          # Recursively find jars, poms, and aars to sign
+          find ./build/m2-buildrepo -type f \( -name "*.jar" -o -name "*.pom" -o -name "*.aar" \) | while read -r file; do
+            echo "Signing $file"
+            gpg --batch --yes --pinentry-mode loopback \
+                --local-user "$GPG_ID" \
+                --passphrase "$GPG_PASS" \
+                --detach-sign --armor "$file"
+          done
+
+      - name: Verify Signatures
+        run: |
+          # Ensure every artifact now has a corresponding .asc file
+          find ./build/m2-buildrepo -type f \( -name "*.jar" -o -name "*.pom" -o -name "*.aar" \) | while read -r file; do
+            if [ ! -f "${file}.asc" ]; then
+              echo "::error::Missing signature for $file"
+              exit 1
+            fi
+          done
+
+      - name: Create Signed Bundle
+        run: |
+          cd ./build/m2-buildrepo
+          zip -r ../../signed-all-packages-${{ needs.check-cache.outputs.version-label }}.zip .
+
+      - name: Upload Signed Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-all-packages-${{ needs.check-cache.outputs.version-label }}
+          path: signed-all-packages-${{ needs.check-cache.outputs.version-label }}.zip
+
+  # This job sets an output `is_publish_build` to `true` if this is a release build
+  check-release-build:
+    runs-on: ubuntu-latest
+    needs: [check-cache]
+    outputs:
+      is_publish_build: ${{ steps.check_release.outputs.is_publish_build }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check if release build
+        id: check_release
+        run: |
+          git fetch --tags
+          gitTag=$(git describe --tags --exact-match HEAD) || echo "NONE"
+          echo "Git branch/tag: ${GITHUB_REF}/${gitTag:-'none'}"
+
+          if [[ -z "$gitTag" ]]; then
+            gitSha=$(git rev-parse HEAD | cut -c1-8)
+            echo "Building commit: ${{ needs.check-cache.outputs.version-label }} - ${gitSha}"
+            echo "is_publish_build=false" >> $GITHUB_OUTPUT
+          else
+            if [[ "$gitTag" != "v${{ needs.check-cache.outputs.version-label }}" ]]; then
+              echo "Git tag '${gitTag}' does not match v${{ needs.check-cache.outputs.version-label }}"
+              echo "is_publish_build=false" >> $GITHUB_OUTPUT
+            else
+              echo "Building release: '${gitTag}'"
+              echo "is_publish_build=true" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Print is release build
+        run: |
+          echo "Is release build: ${{ steps.check_release.outputs.is_publish_build }}"
