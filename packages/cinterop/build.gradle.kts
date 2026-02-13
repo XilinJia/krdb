@@ -641,37 +641,10 @@ fun Task.buildSharedLibrariesForJVMLinux() {
 
     val injectedExecOps = project.objects.newInstance<ExecOpsProvider>()
 
-    // doLast {
-    //     injectedExecOps.execOps.exec {
-    //         commandLine("mkdir", "-p", directory)
-    //     }
-    //     injectedExecOps.execOps.exec {
-    //         workingDir(project.file(directory))
-    //         commandLine(
-    //             "cmake",
-    //             *getSharedCMakeFlags(BuildType.RELEASE),
-    //             "-DCPACK_PACKAGE_DIRECTORY=..",
-    //             project.file("src/jvm/")
-    //         )
-    //     }
-    //     injectedExecOps.execOps.exec {
-    //         workingDir(project.file(directory))
-    //         commandLine("cmake", "--build", ".", "-j8")
-    //     }
-
-    //     // copy files (macos)
-    //     injectedExecOps.execOps.exec {
-    //         commandLine("mkdir", "-p", project.file("$jvmJniPath/linux"))
-    //     }
-    //     File("$directory/librealmc.so")
-    //         .copyTo(project.file("$jvmJniPath/linux/librealmc.so"), overwrite = true)
-    // }
-
     doLast {
         val buildDir = project.file(directory)
         val targetDir = project.file("$jvmJniPath/linux")
         
-        // 1. Native Kotlin directory creation (No 'exec' overhead)
         buildDir.mkdirs()
         targetDir.mkdirs()
 
@@ -705,39 +678,6 @@ fun Task.buildSharedLibrariesForJVMLinux() {
     inputs.dir(project.file("$absoluteCorePath/src"))
     outputs.file(project.file("$jvmJniPath/linux/librealmc.so"))
 }
-
-//fun Task.buildSharedLibrariesForJVMWindows() {
-//    group = "Build"
-//    description = "Compile dynamic libraries loaded by the JVM fat jar for supported platforms."
-//    val directory = "$buildDir/realmWindowsBuild"
-//
-//    doLast {
-//        file(directory).mkdirs()
-//        exec {
-//            workingDir(project.file(directory))
-//            commandLine(
-//                "cmake",
-//                *getSharedCMakeFlags(BuildType.RELEASE, ccache = false),
-//                "-DCMAKE_GENERATOR_PLATFORM=x64",
-//                "-DCMAKE_SYSTEM_VERSION=8.1",
-//                "-DVCPKG_TARGET_TRIPLET=x64-windows-static",
-//                project.file("src/jvm/")
-//            )
-//        }
-//        exec {
-//            workingDir(project.file(directory))
-//            commandLine("cmake", "--build", ".", "--config", "Release")
-//        }
-//
-//        // copy files (Windows)
-//        project.file("$jvmJniPath/windows").mkdirs()
-//        File("$directory/Release/realmc.dll")
-//            .copyTo(project.file("$jvmJniPath/windows/realmc.dll"), overwrite = true)
-//    }
-//
-//    inputs.dir(project.file("$absoluteCorePath/src"))
-//    outputs.file(project.file("$jvmJniPath/windows/realmc.dll"))
-//}
 
 // 1. Define an interface to allow Gradle to inject the ExecOperations service.
 // This is the required mechanism for running external processes inside non-Exec tasks.
