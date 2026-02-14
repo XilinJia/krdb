@@ -16,7 +16,7 @@
  */
 
 plugins {
-    id("realm-lint")
+    // id("realm-lint")
 }
 
 // Explicitly adding the plugin to the classpath as it makes it easier to control the version

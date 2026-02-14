@@ -5,8 +5,10 @@ plugins {
 
 android {
     compileSdk = 31
+    namespace = "io.github.xilinjia.krdb.example.minandroidsample"
+
     defaultConfig {
-        applicationId = "io.realm.example.minandroidsample.android"
+        applicationId = "io.github.xilinjia.krdb.example.minandroidsample"
         minSdk = 21
         targetSdk = 31
         versionCode = 1

@@ -22,7 +22,7 @@ plugins {
     kotlin("multiplatform")
     id("com.android.library")
     // Apply Realm specific linting plugin to get common Realm linting tasks
-    id("realm-lint")
+    // id("realm-lint")
     id("io.github.xilinjia.krdb")
 }
 

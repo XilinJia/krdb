@@ -85,7 +85,7 @@ jobs:
           ./gradlew assembleDebug jvmJar
 
   realm-java-compatibiliy:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -132,34 +132,21 @@ jobs:
       #       cd examples/realm-java-compatibility && ./gradlew connectedAndroidTest -PincludeSdkModules=false --info
 
       - name: Run Gradle Plugin Test project
-        env:
-          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          arch: arm64-v8a
-
-          # 2. Use 'google_apis' target for better stability on Mac
-          target: google_apis
-
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: true
-          force-avd-creation: false
           api-level: ${{ vars.VERSION_ANDROID_EMULATOR_API_LEVEL }}
-
+          target: google_apis
+          arch: x86_64
+          channel: stable
+          ram-size: 3072M
+          heap-size: 2048M
           disk-size: 4096M
-          ram-size: 2048M
-          heap-size: 1024M
-          channel: canary
-
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           script: |
-            # Wait for the emulator to reach the 'ready' state
             adb wait-for-device
-            echo "Waiting for full system boot..."
-            timeout 300s bash -c 'until [ "$(adb shell getprop sys.boot_completed | tr -d "\r")" = "1" ]; do sleep 5; done'
-            echo "Verifying system services..."
-            timeout 60s bash -c 'until adb shell service check settings | grep -q "found"; do sleep 2; done'
-            sleep 5
-            cd examples/realm-java-compatibility && ./gradlew connectedAndroidTest -PincludeSdkModules=false --info
+            cd examples/realm-java-compatibility
+            ./gradlew connectedAndroidTest -PincludeSdkModules=false --info
 
       # TODO: This fails with `Error: Cannot read property 'trim' of undefined`. Possible a bug in the action.
       #  For now, just disable this as there is only a single unit test anyway.

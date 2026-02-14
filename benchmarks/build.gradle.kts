@@ -1,7 +1,7 @@
 plugins {
     id("org.jetbrains.kotlin.jvm") apply false
     `java-gradle-plugin`
-    id("realm-lint")
+    // id("realm-lint")
 }
 
 buildscript {

@@ -25,6 +25,7 @@ apply plugin: "realm-android"
 
 android {
     compileSdkVersion = 35
+    namespace = "io.github.xilinjia.krdb.demo.javacompatibility"
 
     defaultConfig {
         applicationId "io.github.xilinjia.krdb.demo.javacompatibility"

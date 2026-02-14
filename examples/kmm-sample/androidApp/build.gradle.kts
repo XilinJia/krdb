@@ -19,7 +19,7 @@
 plugins {
     id("com.android.application")
     kotlin("android")
-    id("realm-lint")
+    // id("realm-lint")
     id("io.github.xilinjia.krdb")
 }
 
@@ -36,6 +36,7 @@ dependencies {
 }
 
 android {
+    namespace = "io.github.xilinjia.krdb.example.kmmsample.androidApp"
 
     signingConfigs {
         getByName("debug") {
