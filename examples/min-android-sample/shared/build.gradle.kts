@@ -1,9 +1,14 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
+// plugins {
+//     kotlin("multiplatform")
+//     id("com.android.library")
+//     id("io.github.xilinjia.krdb")
+// }
+
 plugins {
     kotlin("multiplatform")
-    id("com.android.library")
-    id("io.github.xilinjia.krdb")
+    id("com.android.kotlin.multiplatform.library") version "9.0.0" 
 }
 
 version = "1.0"
@@ -26,6 +31,7 @@ kotlin {
 }
 
 android {
+    namespace = "io.github.xilinjia.krdb.example.minandroidsample"
     compileSdk = 31
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {

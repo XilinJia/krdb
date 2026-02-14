@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget // 1. Add this import
+
 plugins {
     id("org.jetbrains.kotlin.jvm") apply false
     `java-gradle-plugin`
@@ -31,8 +33,14 @@ allprojects {
         mavenCentral()
     }
 
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions.jvmTarget = Versions.kotlinJvmTarget
+    // tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    //     kotlinOptions.jvmTarget = Versions.kotlinJvmTarget
+    // }
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        compilerOptions {
+            // 2. Use 'jvmTarget.set()' and the 'JvmTarget' type
+            jvmTarget.set(JvmTarget.fromTarget(Versions.kotlinJvmTarget))
+        }
     }
 }
 
