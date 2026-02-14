@@ -88,7 +88,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.5.1")
     implementation("androidx.multidex:multidex:2.0.1")
     implementation("io.github.xilinjia.krdb:library-base:${Realm.version}")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.3")
+    testImplementation("junit:junit:${Versions.junit}")
+    androidTestImplementation("androidx.test.ext:junit:${Versions.androidxJunit}")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
 }

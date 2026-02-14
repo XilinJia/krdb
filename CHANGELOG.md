@@ -7,6 +7,7 @@
 * force core version to 14.14.1
 * in resolution, kotlin version set to 2.3.0, atomicfu-gradle-plugin to 0.31.0
 * min Android test version upped to 21, and all Java 1.8 upped to 17
+* amended build.gradle.kts in buildSrc for Kotlin and Java version compatibility
 
 ## 3.3.0
 

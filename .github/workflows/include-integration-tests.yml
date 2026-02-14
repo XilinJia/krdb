@@ -85,7 +85,7 @@ jobs:
           ./gradlew assembleDebug jvmJar
 
   realm-java-compatibiliy:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -107,54 +107,58 @@ jobs:
           name: all-packages-${{ inputs.version-label }}
           path: ./build/m2-buildrepo
 
-      # - name: AVD cache
-      #   uses: actions/cache@v4
-      #   id: avd-cache
-      #   with:
-      #     path: |
-      #       ~/.android/avd/*
-      #       ~/.android/adb*
-      #     key: android-emulator-avd-33
-
-      # - name: create AVD and generate snapshot for caching
-      #   if: steps.avd-cache.outputs.cache-hit != 'true'
+      # TODO Can we read api level from Config.kt
+      # - name: Run Gradle Plugin Test project
+      #   env:
+      #     SSH_AUTH_SOCK: /tmp/ssh_agent.sock
       #   uses: reactivecircus/android-emulator-runner@v2
       #   with:
-      #     api-level: 33
+      #     emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+      #     disable-animations: true
+      #     force-avd-creation: false
+      #     api-level: ${{ vars.VERSION_ANDROID_EMULATOR_API_LEVEL }}
       #     target: default
       #     # target: aosp_atd
       #     arch: x86_64
+      #     # profile: Nexus 6
       #     disk-size: 4096M
       #     ram-size: 2048M
       #     heap-size: 1024M
-      #     force-avd-creation: false
-      #     emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-      #     disable-animations: true
       #     channel: canary
-      #     script: echo "Generated AVD snapshot for caching."
+      #     script: |
+      #       adb wait-for-device
+      #       # Ensure the settings service is actually responsive
+      #       timeout 60s bash -c 'until adb shell service check settings | grep -q "found"; do sleep 2; done'
+      #       cd examples/realm-java-compatibility && ./gradlew connectedAndroidTest -PincludeSdkModules=false --info
 
-      # TODO Can we read api level from Config.kt
       - name: Run Gradle Plugin Test project
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         uses: reactivecircus/android-emulator-runner@v2
         with:
+          arch: arm64-v8a
+
+          # 2. Use 'google_apis' target for better stability on Mac
+          target: google_apis
+
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           force-avd-creation: false
           api-level: ${{ vars.VERSION_ANDROID_EMULATOR_API_LEVEL }}
-          target: default
-          # target: aosp_atd
-          arch: x86_64
-          # profile: Nexus 6
+
           disk-size: 4096M
           ram-size: 2048M
           heap-size: 1024M
           channel: canary
+
           script: |
+            # Wait for the emulator to reach the 'ready' state
             adb wait-for-device
-            # Ensure the settings service is actually responsive
+            echo "Waiting for full system boot..."
+            timeout 300s bash -c 'until [ "$(adb shell getprop sys.boot_completed | tr -d "\r")" = "1" ]; do sleep 5; done'
+            echo "Verifying system services..."
             timeout 60s bash -c 'until adb shell service check settings | grep -q "found"; do sleep 2; done'
+            sleep 5
             cd examples/realm-java-compatibility && ./gradlew connectedAndroidTest -PincludeSdkModules=false --info
 
       # TODO: This fails with `Error: Cannot read property 'trim' of undefined`. Possible a bug in the action.

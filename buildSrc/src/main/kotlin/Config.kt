@@ -105,7 +105,7 @@ object Versions {
         const val ndkVersion = "29.0.14206865"
         const val r8 = "8.10.21" // See https://developer.android.com/build/kotlin-support
     }
-    const val androidxBenchmarkPlugin = "1.3.3" // https://maven.google.com/web/index.html#androidx.benchmark:androidx.benchmark.gradle.plugin
+    const val androidxBenchmarkPlugin = "1.4.1" // https://maven.google.com/web/index.html#androidx.benchmark:androidx.benchmark.gradle.plugin
     const val androidxStartup = "1.2.0" // https://maven.google.com/web/index.html?q=startup#androidx.startup:startup-runtime
     const val androidxJunit = "1.2.1" // https://maven.google.com/web/index.html#androidx.test.ext:junit
     const val androidxTest = "1.6.1" // https://maven.google.com/web/index.html#androidx.test:rules
