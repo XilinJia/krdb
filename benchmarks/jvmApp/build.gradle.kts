@@ -1,5 +1,6 @@
 plugins {
     java
+    kotlin("jvm") // This is what makes the 'kotlin { }' block work
     id("me.champeau.jmh") version Versions.jmhPlugin
 }
 apply(plugin = "kotlin")
