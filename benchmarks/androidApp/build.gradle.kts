@@ -53,7 +53,7 @@ android {
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(Versions.kotlinJvmTarget)
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(Versions.kotlinJvmTarget))
     }
 }
 

@@ -1,46 +1,30 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
-// plugins {
-//     kotlin("multiplatform")
-//     id("com.android.library")
-//     id("io.github.xilinjia.krdb")
-// }
-
 plugins {
     kotlin("multiplatform")
-    id("com.android.kotlin.multiplatform.library")
+    id("com.android.kotlin.multiplatform.library") version "8.12.3" // Ensure version is specified here or in libs.versions.toml
 }
 
 version = "1.0"
 
 kotlin {
     jvm()
-    // androidTarget()
+
+    androidLibrary {
+        registerTarget() 
+        namespace = "io.github.xilinjia.krdb.example.minandroidsample"
+        compileSdk = 31
+        minSdk = 16
+    }
 
     sourceSets {
-        val commonMain by getting
-        val commonTest by getting
-        val androidMain by getting {
-            dependencies {
-                implementation("io.github.xilinjia.krdb:library-base:${rootProject.ext["realmVersion"]}")
-            }
+        commonMain.dependencies {
+            implementation("io.github.xilinjia.krdb:library-base:${rootProject.ext["realmVersion"]}")
         }
-        val androidInstrumentedTest by getting
-        val jvmMain by getting
     }
 }
 
-androidLibrary {
-    namespace = "io.github.xilinjia.krdb.example.minandroidsample"
-    compileSdk = 31
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    defaultConfig {
-        minSdk = 16
-        targetSdk = 31
-    }
-}
-
-tasks.withType<KotlinCompilationTask<*>>().configureEach {
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
