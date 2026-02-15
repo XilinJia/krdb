@@ -15,7 +15,7 @@ version = "1.0"
 
 kotlin {
     jvm()
-    androidTarget()
+    // androidTarget()
 
     sourceSets {
         val commonMain by getting
@@ -30,7 +30,7 @@ kotlin {
     }
 }
 
-android {
+androidLibrary {
     namespace = "io.github.xilinjia.krdb.example.minandroidsample"
     compileSdk = 31
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")

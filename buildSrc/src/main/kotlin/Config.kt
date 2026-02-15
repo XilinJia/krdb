@@ -62,7 +62,7 @@ val HOST_OS: OperatingSystem = findHostOs()
 
 object Realm {
     val ciBuild = (System.getenv("CI") != null)
-    const val version = "3.3.0"
+    const val version = "3.3.1"
     const val group = "io.github.xilinjia.krdb"
     const val projectUrl = "https://realm.io"
     const val pluginPortalId = "io.github.xilinjia.krdb"
