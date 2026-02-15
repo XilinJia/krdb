@@ -91,7 +91,7 @@ jobs:
           retention-days: 1
 
   build-jvm-linux-native-lib:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     needs: [check-cache, build-jni-swig-stub]
     if: |
       always() && 
@@ -1432,19 +1432,19 @@ jobs:
       - name: Restore Linux JNI lib
         uses: actions/download-artifact@v4
         with:
-          name: jni-linux-lib-${{ inputs.version-label }}
+          name: jni-linux-lib-${{ needs.check-cache.outputs.version-label }}
           path: ./packages/cinterop/build/realmLinuxBuild
 
       - name: Restore Windows JNI lib
         uses: actions/download-artifact@v4
         with:
-          name: jni-windows-lib-${{ inputs.version-label }}
+          name: jni-windows-lib-${{ needs.check-cache.outputs.version-label }}
           path: ./packages/cinterop/build/realmWindowsBuild/Release
 
       - name: Restore MacOS JNI lib
         uses: actions/download-artifact@v4
         with:
-          name: jni-macos-lib-${{ inputs.version-label }}
+          name: jni-macos-lib-${{ needs.check-cache.outputs.version-label }}
           path: ./packages/cinterop/build/realmMacOsBuild
 
       - name: Download Unsigned Artifacts
