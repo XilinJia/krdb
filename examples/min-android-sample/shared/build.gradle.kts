@@ -8,7 +8,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
     kotlin("multiplatform")
-    id("com.android.kotlin.multiplatform.library") version "9.0.0" 
+    id("com.android.kotlin.multiplatform.library")
 }
 
 version = "1.0"

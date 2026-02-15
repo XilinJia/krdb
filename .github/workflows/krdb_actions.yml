@@ -1,4 +1,4 @@
-name: Test on Multiple Platforms
+name: build and Test on Multiple Platforms
 
 on:
   push:
@@ -1310,7 +1310,7 @@ jobs:
           script: |
             adb logcat -c
             adb logcat > logcat.txt &
-            ./gradlew :packages:test-${{ matrix.type }}:connectedCheck -PsyncUsePlatformNetworking=true -PsyncTestUrl=${{ steps.baas_cli_poll.outputs.baas_container_hostname }} -PincludeSdkModules=false --info --no-daemon
+            ./gradlew :packages:test-${{ matrix.type }}:connectedCheck -PincludeSdkModules=false --info --no-daemon
 
       - name: Archive LogCat data
         uses: actions/upload-artifact@v4
