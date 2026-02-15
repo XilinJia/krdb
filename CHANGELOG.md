@@ -1,5 +1,6 @@
 ## 3.3.1
 
+* all platforms are tested and published to maven
 * fixed signing requirement in publish to test
 * corrected reference to build directory
 * removed build for macos-x64
@@ -8,6 +9,7 @@
 * in resolution, kotlin version set to 2.3.0, atomicfu-gradle-plugin to 0.31.0
 * min Android test version upped to 21, and all Java 1.8 upped to 17
 * amended build.gradle.kts in buildSrc for Kotlin and Java version compatibility
+* Need further investigation:  min version test, benchmark, current integration tests don't launch properly
 
 ## 3.3.0
 
