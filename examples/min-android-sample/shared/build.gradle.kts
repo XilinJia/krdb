@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
     kotlin("multiplatform")
-    id("com.android.kotlin.multiplatform.library") version "8.12.3" // Ensure version is specified here or in libs.versions.toml
+    id("com.android.kotlin.multiplatform.library")
 }
 
 version = "1.0"

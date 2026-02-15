@@ -16,15 +16,10 @@ android {
         targetCompatibility = Versions.targetCompatibilityVersion
     }
 
-    // kotlinOptions {
-    //     jvmTarget.set(JvmTarget.fromTarget(Versions.kotlinJvmTarget))
-    // }
-
     defaultConfig {
         // Use minSdk = 32 because minSdk = 33 is throwing build time warnings saying it isn't supported,
         // also we want to test performance against the latest release rather than the oldest.
         minSdk = 32
-        // targetSdk = Versions.Android.targetSdk
         testInstrumentationRunner = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
         testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "EMULATOR,UNLOCKED"
         // Disable profiling. See https://developer.android.com/studio/profile/microbenchmark-profile

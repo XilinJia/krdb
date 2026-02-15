@@ -18,6 +18,12 @@ jmh {
     resultsFile.set(file("build/reports/benchmarks.json"))
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = Versions.kotlinJvmTarget
+// tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+//     kotlinOptions.jvmTarget = Versions.kotlinJvmTarget
+// }
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(Versions.kotlinJvmTarget))
+    }
 }

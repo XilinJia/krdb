@@ -1468,22 +1468,26 @@ jobs:
         run: |
           echo "Signing artifacts in ./build/m2-buildrepo..."
           # Recursively find jars, poms, and aars to sign
-          find ./build/m2-buildrepo -type f \( -name "*.jar" -o -name "*.pom" -o -name "*.aar" \) | while read -r file; do
+          find ./build/m2-buildrepo -type f -regextype posix-extended -regex '.*\.(jar|pom|aar|klib|module|json)$' | while read -r file; do
             echo "Signing $file"
             gpg --batch --yes --pinentry-mode loopback \
                 --local-user "$GPG_ID" \
                 --passphrase "$GPG_PASS" \
                 --detach-sign --armor "$file"
           done
-
       - name: Verify Signatures
         run: |
-          # Ensure every artifact now has a corresponding .asc file
-          find ./build/m2-buildrepo -type f \( -name "*.jar" -o -name "*.pom" -o -name "*.aar" \) | while read -r file; do
+          find ./build/m2-buildrepo -type f -regextype posix-extended -regex '.*\.(jar|pom|aar|klib|module|json)$' | while read -r file; do
             if [ ! -f "${file}.asc" ]; then
-              echo "::error::Missing signature for $file"
-              exit 1
-            fi
+                echo "::error file=$file::Missing signature file (.asc) for $file"
+                exit 1
+              fi
+              echo "Verifying signature for $file"
+              gpg --batch --verify "${file}.asc" "$file" > /dev/null 2>&1
+              if [ $? -ne 0 ]; then
+                echo "::error file=$file::Invalid GPG signature for $file"
+                exit 1
+              fi
           done
 
       - name: Create Signed Bundle
