@@ -72,6 +72,7 @@ jobs:
           name: jni-stub-${{ needs.check-cache.outputs.version-label }}
           path: ./packages/jni-swig-stub/build/generated/sources/jni/*
           retention-days: 1
+          overwrite: true
 
   build-jvm-linux-native-lib:
     runs-on: ubuntu-latest
@@ -391,6 +392,7 @@ jobs:
           name: packages-metadata-${{ needs.check-cache.outputs.version-label }}
           path: ./build/m2-buildrepo/**/*
           retention-days: 1
+          overwrite: true
 
   # This task is also responsible for creating the Gradle and Compiler Plugin as well as all Kotlin Multiplatform Metadata
   build-jvm-packages:
@@ -523,6 +525,7 @@ jobs:
           name: packages-jvm-${{ needs.check-cache.outputs.version-label }}
           path: ./build/m2-buildrepo/**/*
           retention-days: 1
+          overwrite: true
 
   build-android-packages:
     runs-on: ubuntu-latest
@@ -654,6 +657,7 @@ jobs:
           name: packages-android-${{ needs.check-cache.outputs.version-label }}
           path: ./build/m2-buildrepo/**/*
           retention-days: 1
+          overwrite: true
 
       - name: Upload Android Base Test APK
         uses: actions/upload-artifact@v4
@@ -741,6 +745,7 @@ jobs:
           name: packages-macos-arm64-${{ needs.check-cache.outputs.version-label }}
           path: ./build/m2-buildrepo/**/*
           retention-days: 1
+          overwrite: true
 
   build-ios-arm64-packages:
     runs-on: macos-14
@@ -821,6 +826,7 @@ jobs:
           name: packages-ios-arm64-${{ needs.check-cache.outputs.version-label }}
           path: ./build/m2-buildrepo/**/*
           retention-days: 1
+          overwrite: true
 
   test-jvm-packages:
     timeout-minutes: 60
@@ -1237,6 +1243,7 @@ jobs:
           name: logcat-${{ matrix.type }}-emulator.txt
           path: logcat.txt
           retention-days: 1
+          overwrite: true
 
       - name: Publish Unit Test Results
         uses: dorny/test-reporter@v1
@@ -1310,6 +1317,7 @@ jobs:
           name: all-packages-${{ needs.check-cache.outputs.version-label }}
           path: ./build/m2-buildrepo
           retention-days: 7
+          overwrite: true
 
   integration-tests:
     uses: ./.github/workflows/include-integration-tests.yml
@@ -1418,6 +1426,7 @@ jobs:
         with:
           name: signed-all-packages-${{ needs.check-cache.outputs.version-label }}
           path: signed-all-packages-${{ needs.check-cache.outputs.version-label }}.zip
+          overwrite: true
 
   # This job sets an output `is_publish_build` to `true` if this is a release build
   check-release-build:
