@@ -532,8 +532,6 @@ jobs:
     needs: check-cache
     env:
       NDK_VERSION: 29.0.14206865
-    outputs:
-      baas-container-id: ${{ steps.baas_cli_start.outputs.baas_container_id }}
     if: |
       always() && !cancelled() &&
       (needs.check-cache.outputs.packages-android-cache-hit != 'true' ||
