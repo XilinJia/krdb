@@ -578,10 +578,10 @@ jobs:
         with:
           cmake-version: ${{ vars.VERSION_CMAKE }}
 
-      - name: Setup ninja
-        uses: clementetb/setup-ninja@master
-        with:
-          version: ${{ vars.VERSION_NINJA  }}
+      # - name: Setup ninja
+      #   uses: clementetb/setup-ninja@master
+      #   with:
+      #     version: ${{ vars.VERSION_NINJA  }}
 
       - name: Debug Tools
         run: |

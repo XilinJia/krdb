@@ -382,7 +382,7 @@ android {
                 val ninjaPath = try {
                     providers.exec { commandLine("which", "ninja") }.standardOutput.asText.get().trim()
                 } catch (e: Exception) {
-                    "ninja" // Fallback to system default if 'which' fails
+                    "ninja"
                 }
                 arguments("-DCMAKE_MAKE_PROGRAM=$ninjaPath")
                 if (!HOST_OS.isWindows()) {
@@ -400,12 +400,6 @@ android {
     // Inner externalNativeBuild (inside defaultConfig) does not seem to have correct type for setting path
     externalNativeBuild {
         cmake {
-            val ninjaPath = try {
-                    providers.exec { commandLine("which", "ninja") }.standardOutput.asText.get().trim()
-                } catch (e: Exception) {
-                    "ninja" // Fallback to system default if 'which' fails
-                }
-            arguments("-DCMAKE_MAKE_PROGRAM=$ninjaPath")
             // We need to grab cmake version from `cmake --version` on the path and set it here
             // otherwise the build system will use the one from the NDK
             @Suppress("UnstableApiUsage")
