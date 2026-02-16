@@ -585,6 +585,12 @@ jobs:
         with:
           version: ${{ vars.VERSION_NINJA  }}
 
+      - name: Debug Tools
+        run: |
+          cmake --version
+          ninja --version
+          which ninja
+
       - name: Fix Ninja Path for Android AGP
         run: |
           # 1. Locate where your custom CMake is installed
