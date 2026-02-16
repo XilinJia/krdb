@@ -585,6 +585,12 @@ jobs:
         with:
           version: ${{ vars.VERSION_NINJA  }}
 
+      - name: Link Ninja for AGP 8.13
+        run: |
+          CMAKE_BIN_DIR=$(dirname $(which cmake))
+          mkdir -p "$CMAKE_BIN_DIR/ninja_bin"
+          ln -s $(which ninja) "$CMAKE_BIN_DIR/ninja_bin/ninja"
+
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1.2.13
         with:
