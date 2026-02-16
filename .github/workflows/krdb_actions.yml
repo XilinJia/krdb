@@ -585,11 +585,21 @@ jobs:
         with:
           version: ${{ vars.VERSION_NINJA  }}
 
-      - name: Link Ninja for AGP 8.13
+      - name: Fix Ninja Path for Android AGP
         run: |
+          # 1. Locate where your custom CMake is installed
+          # Based on your log, it's in /opt/hostedtoolcache/cmake/...
           CMAKE_BIN_DIR=$(dirname $(which cmake))
-          mkdir -p "$CMAKE_BIN_DIR/ninja_bin"
-          ln -s $(which ninja) "$CMAKE_BIN_DIR/ninja_bin/ninja"
+
+          # 2. Create the 'ninja_bin' directory inside that folder
+          sudo mkdir -p "$CMAKE_BIN_DIR/ninja_bin"
+
+          # 3. Create a symbolic link from the system ninja to the location AGP expects
+          sudo ln -s $(which ninja) "$CMAKE_BIN_DIR/ninja_bin/ninja"
+
+          # 4. Verify the fix
+          echo "Ninja is linked at: $CMAKE_BIN_DIR/ninja_bin/ninja"
+          "$CMAKE_BIN_DIR/ninja_bin/ninja" --version
 
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1.2.13
