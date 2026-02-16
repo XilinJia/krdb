@@ -379,6 +379,12 @@ android {
         // Out externalNativeBuild (outside defaultConfig) does not seem to have correct type for setting cmake arguments
         externalNativeBuild {
             cmake {
+                val ninjaPath = try {
+                    providers.exec { commandLine("which", "ninja") }.standardOutput.asText.get().trim()
+                } catch (e: Exception) {
+                    "ninja" // Fallback to system default if 'which' fails
+                }
+                arguments("-DCMAKE_MAKE_PROGRAM=$ninjaPath")
                 if (!HOST_OS.isWindows()) {
                     // CCache is not officially supported on Windows and there are problems
                     // using it with the Android NDK. So disable for now.

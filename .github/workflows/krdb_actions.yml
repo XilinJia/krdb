@@ -591,30 +591,6 @@ jobs:
           ninja --version
           which ninja
 
-      - name: Fix Ninja Path for Android AGP
-        run: |
-          # 1. Find the REAL absolute path of ninja
-          # We use 'command -v' and then 'readlink' to ensure we aren't linking to a link
-          REAL_NINJA=$(readlink -f $(which ninja))
-          CMAKE_PATH=$(which cmake)
-
-          echo "Real Ninja binary found at: $REAL_NINJA"
-
-          # 2. Get the directory of CMake
-          CMAKE_BIN_DIR=$(dirname "$CMAKE_PATH")
-          TARGET_DIR="$CMAKE_BIN_DIR/ninja_bin"
-
-          # 3. Create the folder and use the ABSOLUTE path for the link
-          sudo mkdir -p "$TARGET_DIR"
-          sudo ln -sf "$REAL_NINJA" "$TARGET_DIR/ninja"
-
-          # 4. Verification
-          echo "Link created at: $TARGET_DIR/ninja"
-          ls -l "$TARGET_DIR/ninja"
-
-          # 5. Test it
-          "$TARGET_DIR/ninja" --version
-
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1.2.13
         with:

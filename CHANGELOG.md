@@ -1,7 +1,7 @@
 ## 3.3.2
 
 * Kotlin upped to 2.3.10
-* updated the core 14.14.2 to address Android build failure with AGP 8.13+
+* gradle upped to 9.3.1, AGP to 8.13.2
 * various dependencies updates
 
 ## 3.3.1
