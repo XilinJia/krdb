@@ -43,10 +43,10 @@ jobs:
           path: ./packages/jni-swig-stub/build/generated/sources/jni
           key: jni-swig-stubs-${{ needs.check-cache.outputs.packages-sha }}
 
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v2.0.2
-        with:
-          cmake-version: ${{ vars.VERSION_CMAKE }}
+      # - name: Setup cmake
+      #   uses: jwlawson/actions-setup-cmake@v2.0.2
+      #   with:
+      #     cmake-version: ${{ vars.VERSION_CMAKE }}
 
       - name: Install SWIG
         run: |
@@ -61,7 +61,7 @@ jobs:
         if: always() # Run even if the build fails
         uses: actions/upload-artifact@v4
         with:
-          name: gradle-problems-report
+          name: jni-swig-stub-gradle-problems-report
           path: build/reports/problems/
           retention-days: 1
           overwrite: true
@@ -123,10 +123,10 @@ jobs:
           echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang 
           echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
 
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v2.0.2
-        with:
-          cmake-version: ${{ vars.VERSION_CMAKE }}
+      # - name: Setup cmake
+      #   uses: jwlawson/actions-setup-cmake@v2.0.2
+      #   with:
+      #     cmake-version: ${{ vars.VERSION_CMAKE }}
 
       - name: Restore JNI Swig Stubs
         uses: actions/download-artifact@v4
@@ -137,6 +137,15 @@ jobs:
       - name: Build packages
         working-directory: ./
         run: ./gradlew buildJVMSharedLibs -Prealm.kotlin.mainHost=false
+
+      - name: Upload Gradle Problems Report
+        if: always() # Run even if the build fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: jvm-linux-native-gradle-problems-report
+          path: build/reports/problems/
+          retention-days: 1
+          overwrite: true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -178,10 +187,10 @@ jobs:
           key: jni-windows-lib-${{ needs.check-cache.outputs.packages-sha }}
           enableCrossOsArchive: true
 
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v2.0.2
-        with:
-          cmake-version: ${{ vars.VERSION_CMAKE }}
+      # - name: Setup cmake
+      #   uses: jwlawson/actions-setup-cmake@v2.0.2
+      #   with:
+      #     cmake-version: ${{ vars.VERSION_CMAKE }}
 
       - name: Restore JNI Swig Stubs
         uses: actions/download-artifact@v4
@@ -193,6 +202,14 @@ jobs:
         working-directory: ./
         run: ./gradlew buildJVMSharedLibs
 
+      - name: Upload Gradle Problems Report
+        if: always() # Run even if the build fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: jvm-windows-native-gradle-problems-report
+          path: build/reports/problems/
+          retention-days: 1
+          overwrite: true
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -228,15 +245,15 @@ jobs:
         with:
           cache-read-only: false
 
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v2.0.2
-        with:
-          cmake-version: ${{ vars.VERSION_CMAKE }}
+      # - name: Setup cmake
+      #   uses: jwlawson/actions-setup-cmake@v2.0.2
+      #   with:
+      #     cmake-version: ${{ vars.VERSION_CMAKE }}
 
-      - name: Setup ninja
-        uses: clementetb/setup-ninja@master
-        with:
-          version: ${{ vars.VERSION_NINJA  }}
+      # - name: Setup ninja
+      #   uses: clementetb/setup-ninja@master
+      #   with:
+      #     version: ${{ vars.VERSION_NINJA  }}
 
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1.2.13
@@ -284,7 +301,7 @@ jobs:
         if: always() # Run even if the build fails
         uses: actions/upload-artifact@v4
         with:
-          name: gradle-problems-report
+          name: jvm-macos-native-gradle-problems-report
           path: build/reports/problems/
           retention-days: 1
           overwrite: true
@@ -334,15 +351,15 @@ jobs:
         with:
           cache-read-only: false
 
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v2.0.2
-        with:
-          cmake-version: ${{ vars.VERSION_CMAKE }}
+      # - name: Setup cmake
+      #   uses: jwlawson/actions-setup-cmake@v2.0.2
+      #   with:
+      #     cmake-version: ${{ vars.VERSION_CMAKE }}
 
-      - name: Setup ninja
-        uses: clementetb/setup-ninja@master
-        with:
-          version: ${{ vars.VERSION_NINJA  }}
+      # - name: Setup ninja
+      #   uses: clementetb/setup-ninja@master
+      #   with:
+      #     version: ${{ vars.VERSION_NINJA  }}
 
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1.2.13
@@ -381,7 +398,7 @@ jobs:
         if: always() # Run even if the build fails
         uses: actions/upload-artifact@v4
         with:
-          name: gradle-problems-report
+          name: kotlin-metadata-gradle-problems-report
           path: build/reports/problems/
           retention-days: 1
           overwrite: true
@@ -438,15 +455,15 @@ jobs:
         with:
           cache-read-only: false
 
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v2.0.2
-        with:
-          cmake-version: ${{ vars.VERSION_CMAKE }}
+      # - name: Setup cmake
+      #   uses: jwlawson/actions-setup-cmake@v2.0.2
+      #   with:
+      #     cmake-version: ${{ vars.VERSION_CMAKE }}
 
-      - name: Setup ninja
-        uses: clementetb/setup-ninja@master
-        with:
-          version: ${{ vars.VERSION_NINJA  }}
+      # - name: Setup ninja
+      #   uses: clementetb/setup-ninja@master
+      #   with:
+      #     version: ${{ vars.VERSION_NINJA  }}
 
       - name: Install SWIG
         run: brew install swig
@@ -510,7 +527,7 @@ jobs:
         if: always() # Run even if the build fails
         uses: actions/upload-artifact@v4
         with:
-          name: gradle-problems-report
+          name: jvm-gradle-problems-report
           path: build/reports/problems/
           retention-days: 1
           overwrite: true
@@ -573,10 +590,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq
 
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v2.0.2
-        with:
-          cmake-version: ${{ vars.VERSION_CMAKE }}
+      # - name: Setup cmake
+      #   uses: jwlawson/actions-setup-cmake@v2.0.2
+      #   with:
+      #     cmake-version: ${{ vars.VERSION_CMAKE }}
 
       # - name: Setup ninja
       #   uses: clementetb/setup-ninja@master
@@ -624,7 +641,7 @@ jobs:
         if: always() # Run even if the build fails
         uses: actions/upload-artifact@v4
         with:
-          name: gradle-problems-report
+          name: android-test-gradle-problems-report
           path: build/reports/problems/
           retention-days: 1
           overwrite: true
@@ -637,7 +654,7 @@ jobs:
         if: always() # Run even if the build fails
         uses: actions/upload-artifact@v4
         with:
-          name: gradle-problems-report
+          name: android-gradle-problems-report
           path: build/reports/problems/
           retention-days: 1
           overwrite: true
@@ -693,15 +710,15 @@ jobs:
         with:
           cache-read-only: false
 
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v2.0.2
-        with:
-          cmake-version: ${{ vars.VERSION_CMAKE }}
+      # - name: Setup cmake
+      #   uses: jwlawson/actions-setup-cmake@v2.0.2
+      #   with:
+      #     cmake-version: ${{ vars.VERSION_CMAKE }}
 
-      - name: Setup ninja
-        uses: clementetb/setup-ninja@master
-        with:
-          version: ${{ vars.VERSION_NINJA  }}
+      # - name: Setup ninja
+      #   uses: clementetb/setup-ninja@master
+      #   with:
+      #     version: ${{ vars.VERSION_NINJA  }}
 
       - name: Install SWIG
         run: brew install swig
@@ -731,7 +748,7 @@ jobs:
         if: always() # Run even if the build fails
         uses: actions/upload-artifact@v4
         with:
-          name: gradle-problems-report
+          name: macos-gradle-problems-report
           path: build/reports/problems/
           retention-days: 1
           overwrite: true
@@ -773,15 +790,15 @@ jobs:
         with:
           cache-read-only: false
 
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v2.0.2
-        with:
-          cmake-version: ${{ vars.VERSION_CMAKE }}
+      # - name: Setup cmake
+      #   uses: jwlawson/actions-setup-cmake@v2.0.2
+      #   with:
+      #     cmake-version: ${{ vars.VERSION_CMAKE }}
 
-      - name: Setup ninja
-        uses: clementetb/setup-ninja@master
-        with:
-          version: ${{ vars.VERSION_NINJA  }}
+      # - name: Setup ninja
+      #   uses: clementetb/setup-ninja@master
+      #   with:
+      #     version: ${{ vars.VERSION_NINJA  }}
 
       - name: Install SWIG
         run: brew install swig
@@ -811,7 +828,7 @@ jobs:
         if: always() # Run even if the build fails
         uses: actions/upload-artifact@v4
         with:
-          name: gradle-problems-report
+          name: ios-gradle-problems-report
           path: build/reports/problems/
           retention-days: 1
           overwrite: true
@@ -940,6 +957,15 @@ jobs:
           -PincludeSdkModules=false 
           --info --no-daemon
 
+      - name: Upload Gradle Problems Report
+        if: always() # Run even if the build fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-jvm-gradle-problems-report
+          path: build/reports/problems/
+          retention-days: 1
+          overwrite: true
+
       - name: Publish Unit Test Results
         uses: dorny/test-reporter@v1
         if: always() || failure()
@@ -1036,6 +1062,15 @@ jobs:
           ./gradlew :packages:test-${{ matrix.type }}:macosTest
           -PincludeSdkModules=false 
           --info --no-daemon
+
+      - name: Upload Gradle Problems Report
+        if: always() # Run even if the build fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-macos-gradle-problems-report
+          path: build/reports/problems/
+          retention-days: 1
+          overwrite: true
 
       - name: Publish Unit Test Results
         uses: dorny/test-reporter@v1
@@ -1134,6 +1169,15 @@ jobs:
           ./gradlew :packages:test-${{ matrix.type }}:${{ matrix.test-task }}
           -PincludeSdkModules=false 
           --info --no-daemon
+
+      - name: Upload Gradle Problems Report
+        if: always() # Run even if the build fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-ios-gradle-problems-report
+          path: build/reports/problems/
+          retention-days: 1
+          overwrite: true
 
       - name: Publish Unit Test Results
         uses: dorny/test-reporter@v1
