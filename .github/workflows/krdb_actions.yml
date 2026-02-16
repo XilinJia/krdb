@@ -48,23 +48,6 @@ jobs:
         with:
           cmake-version: ${{ vars.VERSION_CMAKE }}
 
-      # Manually install SWIG 4.1.1 as only 4.0.2 is pre-installed
-      # 4.1.1 is not available in apt-get, so use brew instead
-      # We need to use the formulae directly from GitHub to pin the version as Homebrew does not have
-      # all versions available.
-      # https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md#ubuntu-22041-lts
-      # It seems to be required to manually add brew dirs to the PATH. This does not happen automatically.
-      # - name: Install SWIG
-      #   run: |
-      #     test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
-      #     test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-      #     test -r ~/.bash_profile && echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bash_profile
-      #     echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.profile
-      #     echo "/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
-      #     echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
-      #     cd ~
-      #     curl -L ${{ vars.VERSION_SWIG}} > swig.rb && HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=true brew install swig.rb
-
       - name: Install SWIG
         run: |
           sudo apt-get update
@@ -154,24 +137,6 @@ jobs:
         working-directory: ./
         run: ./gradlew buildJVMSharedLibs -Prealm.kotlin.mainHost=false
 
-      # - name: Build native lib
-      #   working-directory: ./packages/cinterop
-      #   run: |
-      #     mkdir build
-      #     cd build
-      #     rm -rf realmLinuxBuild
-      #     mkdir realmLinuxBuild
-      #     cd realmLinuxBuild
-      #     cmake -DCMAKE_BUILD_TYPE=Release \
-      #     -DREALM_ENABLE_SYNC=1 \
-      #     -DREALM_NO_TESTS=1 \
-      #     -DREALM_BUILD_LIB_ONLY=true \
-      #     -DCMAKE_CXX_VISIBILITY_PRESET=hidden \
-      #     -DCMAKE_TOOLCHAIN_FILE=../../../external/core/tools/cmake/x86_64-linux-gnu.toolchain.cmake \
-      #     -DJAVA_INCLUDE_PATH=${{ env.JAVA_HOME }}/include/ \
-      #     ../../src/jvm
-      #     make -j8
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -226,26 +191,6 @@ jobs:
       - name: Build packages
         working-directory: ./
         run: ./gradlew buildJVMSharedLibs
-
-      # - name: Build native lib
-      #   shell: powershell
-      #   working-directory: packages
-      #   run: |
-      #     cd cinterop
-      #     mkdir build
-      #     cd build
-      #     Remove-Item -Path realmWindowsBuild -Force -Recurse -ErrorAction Ignore
-      #     mkdir realmWindowsBuild
-      #     cd realmWindowsBuild
-      #     cmake `
-      #     ..\..\src\jvm `
-      #     -DCMAKE_GENERATOR_PLATFORM=x64 `
-      #     -DCMAKE_BUILD_TYPE=Release `
-      #     -DREALM_ENABLE_SYNC=ON `
-      #     -DREALM_NO_TESTS=1 `
-      #     -DCMAKE_CXX_VISIBILITY_PRESET=hidden `
-      #     -DVCPKG_TARGET_TRIPLET=x64-windows-static
-      #     cmake --build . --config Release
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -430,12 +375,6 @@ jobs:
       - name: Build Kotlin Metadata and Gradle and Compiler Plugin
         working-directory: ./
         run: ./gradlew publishCIPackages -Prealm.kotlin.targets=gradlePlugin,compilerPlugin -Prealm.kotlin.buildRealmCore=false -Prealm.kotlin.mainHost=true
-        # run: |
-        #   ./gradlew publishCIPackages \
-        #     -Prealm.kotlin.targets=gradlePlugin,compilerPlugin \
-        #     -Prealm.kotlin.buildRealmCore=false \
-        #     -Prealm.kotlin.mainHost=true \
-        #     -PsignBuild=false
 
       - name: Upload Gradle Problems Report
         if: always() # Run even if the build fails
@@ -453,8 +392,7 @@ jobs:
           path: ./build/m2-buildrepo/**/*
           retention-days: 1
 
-  # This task is also responsible for creating the Gradle and Compiler Plugin as well as
-  # all Kotlin Multiplatform Metadata
+  # This task is also responsible for creating the Gradle and Compiler Plugin as well as all Kotlin Multiplatform Metadata
   build-jvm-packages:
     runs-on: macos-14
     needs:
@@ -624,23 +562,6 @@ jobs:
         with:
           cache-read-only: false
 
-      # Manually install SWIG 4.1.1 as only 4.0.2 is pre-installed
-      # 4.1.1 is not available in apt-get, so use brew instead
-      # We need to use the formulae directly from GitHub to pin the version as Homebrew does not have
-      # all versions available.
-      # https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md#ubuntu-22041-lts
-      # It seems to be required to manually add brew dirs to the PATH. This does not happen automatically.
-      # - name: Install SWIG
-      #   run: |
-      #     test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
-      #     test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-      #     test -r ~/.bash_profile && echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bash_profile
-      #     echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.profile
-      #     echo "/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
-      #     echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
-      #     cd ~
-      #     curl -L ${{ vars.VERSION_SWIG}} > swig.rb && HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=true brew install swig.rb
-
       - name: Install SWIG
         run: |
           sudo apt-get update
@@ -727,7 +648,6 @@ jobs:
           key: android-base-test-apk-key-${{ needs.check-cache.outputs.packages-sha }}
 
       # Must match naming found in include-check-cache.yml
-      # Must match naming found in include-check-cache.yml
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -746,7 +666,6 @@ jobs:
   build-macos-arm64-packages:
     runs-on: macos-14
     needs: check-cache
-    # needs: static-analysis
     if: always() && !cancelled() && needs.check-cache.outputs.packages-macos-arm64-cache-hit != 'true'
 
     steps:
@@ -826,7 +745,6 @@ jobs:
   build-ios-arm64-packages:
     runs-on: macos-14
     needs: check-cache
-    # needs: static-analysis
     if: always() && !cancelled() && needs.check-cache.outputs.packages-ios-arm64-cache-hit != 'true'
 
     steps:

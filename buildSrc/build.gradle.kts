@@ -65,7 +65,7 @@ dependencies {
     implementation("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${Versions.detektPlugin}")
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}")
     implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:${Versions.kotlin}")
-    implementation("org.gradle.kotlin:gradle-kotlin-dsl-plugins:5.2.0")
+    implementation("org.gradle.kotlin:gradle-kotlin-dsl-plugins:${Versions.kotlinDSLPluging}")
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:${Versions.dokka}")
     implementation("com.android.tools:r8:${Versions.Android.r8}")
     implementation("com.android.tools.build:gradle:${Versions.Android.buildTools}")

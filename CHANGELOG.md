@@ -1,3 +1,8 @@
+## 3.3.2
+
+* Kotlin upped to 2.3.10
+* various dependencies updates
+
 ## 3.3.1
 
 * all platforms are tested and published to maven
