@@ -12,9 +12,11 @@ Testing are performed on the dev versions. Maven artifacts can be published (tes
 
 ### Since 3.3.0, Realm entities are **no longer** allowed to be serializable. 
 
-### Since 3.3.1, all platforms run through tests and are published to Maven
+### Since 3.3.1, all platforms run through tests and are published to Maven Central
 
 ### Version compatibility
+
+krdb 3.3.2 <==> Kotlin 2.3.10
 
 krdb 3.3.0/1 <==> Kotlin 2.3.0
 
@@ -27,8 +29,6 @@ krdb 3.2.6/7 <==> Kotlin 2.1.20
 krdb 3.2.5 <==> Kotlin 2.1.10
 
 ### Published to Maven Central, how to use:
-
-#### Note, the maven artifacts are built on Linux and lack support for iOS and MacOS, hopefully a github actions can resolve this later
 
 * in project build.gradle, add:
 ```
