@@ -380,18 +380,24 @@ android {
         externalNativeBuild {
             cmake {
                 // val ninjaPath = try {
-                //     providers.exec { commandLine("which", "ninja") }.standardOutput.asText.get().trim()
+                //     val isWindows = System.getProperty("os.name").contains("Windows", ignoreCase = true)
+                //     val command = if (isWindows) "where" else "which"
+                //     providers.exec { 
+                //         commandLine(command, "ninja") 
+                //     }.standardOutput.asText.get().trim().split("\n").first()
                 // } catch (e: Exception) {
-                //     "ninja"
+                //     "ninja" // Fallback to system path if detection fails
                 // }
                 val ninjaPath = try {
                     val isWindows = System.getProperty("os.name").contains("Windows", ignoreCase = true)
                     val command = if (isWindows) "where" else "which"
-                    providers.exec { 
-                        commandLine(command, "ninja") 
-                    }.standardOutput.asText.get().trim().split("\n").first()
+                    providers.exec { commandLine(command, "ninja") }
+                        .standardOutput.asText.get()
+                        .trim()
+                        .split(System.lineSeparator())
+                        .first()
                 } catch (e: Exception) {
-                    "ninja" // Fallback to system path if detection fails
+                    "ninja" // Final fallback
                 }
                 arguments("-DCMAKE_MAKE_PROGRAM=$ninjaPath")
                 if (!HOST_OS.isWindows()) {
