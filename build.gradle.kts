@@ -1,9 +1,6 @@
+//import sun.jvmstat.monitor.MonitoredVmUtil.commandLine
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget.Companion.fromTarget
 import org.jetbrains.kotlin.konan.target.HostManager
-//import sun.jvmstat.monitor.MonitoredVmUtil.commandLine
-import org.gradle.process.ExecSpec
-import org.gradle.api.tasks.Exec
-import org.gradle.api.GradleException
 
 /*
  * Copyright 2020 Realm Inc.

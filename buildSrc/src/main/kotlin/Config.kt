@@ -116,7 +116,7 @@ object Versions {
     const val latestKotlin = "2.3.10" // https://kotlinlang.org/docs/eap.html#build-details
     const val kotlinCompileTesting = "0.12.1" // https://github.com/zacsweers/kotlin-compile-testing
     const val kotlinDSLPluging = "6.5.2"    // https://plugins.gradle.org/plugin/org.gradle.kotlin.kotlin-dsl
-    const val serialization = "1.10.0-RC" // https://github.com/Kotlin/kotlinx.serialization
+    const val serialization = "1.10.0" // https://github.com/Kotlin/kotlinx.serialization
     const val atomicfu = "0.31.0" // https://github.com/Kotlin/kotlinx.atomicfu
     const val atomicfuPlugin = "0.31.0" // https://github.com/Kotlin/kotlinx.atomicfu
     const val ktlint = "1.8.0" // https://github.com/pinterest/ktlint
@@ -135,7 +135,7 @@ object Versions {
     const val ktor = "3.4.0" // https://github.com/ktorio/ktor
     const val multidex = "2.0.1" // https://developer.android.com/jetpack/androidx/releases/multidex    this is very old
     const val nexusPublishPlugin = "1.3.0" // https://github.com/gradle-nexus/publish-plugin
-    const val okio = "3.16.2" // https://square.github.io/okio/#releases
+    const val okio = "3.16.4" // https://square.github.io/okio/#releases
     const val relinker = "1.4.5" // https://github.com/KeepSafe/ReLinker    this is pretty old
     const val shadowJar =  "9.3.1" // https://github.com/GradleUp/shadow?tab=readme-ov-file
     const val snakeYaml = "2.5" // https://github.com/snakeyaml/snakeyaml

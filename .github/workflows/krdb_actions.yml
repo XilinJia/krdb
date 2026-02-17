@@ -229,22 +229,6 @@ jobs:
         with:
           cache-read-only: false
 
-      # - name: Install ccache
-      #   uses: hendrikmuhs/ccache-action@v1.2.13
-      #   with:
-      #     key: "jvm-macos-native-lib"
-      #     max-size: "2.0G"
-
-      # - name: Prepend ccache executables to the PATH
-      #   run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-
-      # # See https://github.com/hendrikmuhs/ccache-action/issues/94
-      # - name: Configure ccache
-      #   run: |
-      #     ccache --set-config="compiler_check=content"
-      #     ccache --show-config
-      #     echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang
-      #     echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1.2.14
         with:
@@ -340,22 +324,6 @@ jobs:
         with:
           cache-read-only: false
 
-      # - name: Install ccache
-      #   uses: hendrikmuhs/ccache-action@v1.2.13
-      #   with:
-      #     key: "metadata-package"
-      #     max-size: "2.0G"
-
-      # - name: Prepend ccache executables to the PATH
-      #   run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-
-      # # See https://github.com/hendrikmuhs/ccache-action/issues/94
-      # - name: Configure ccache
-      #   run: |
-      #     ccache --set-config="compiler_check=content"
-      #     ccache --show-config
-      #     echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang
-      #     echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1.2.14
         with:
@@ -452,21 +420,6 @@ jobs:
       - name: Install SWIG
         run: brew install swig
 
-      # - name: Install ccache
-      #   uses: hendrikmuhs/ccache-action@v1.2.13
-      #   with:
-      #     key: "jvm-package"
-      #     max-size: "2.0G"
-      # - name: Prepend ccache executables to the PATH
-      #   run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-
-      # # See https://github.com/hendrikmuhs/ccache-action/issues/94
-      # - name: Configure ccache
-      #   run: |
-      #     ccache --set-config="compiler_check=content"
-      #     ccache --show-config
-      #     echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang
-      #     echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1.2.14
         with:
@@ -595,22 +548,6 @@ jobs:
           ninja --version
           which ninja
 
-      # - name: Install ccache
-      #   uses: hendrikmuhs/ccache-action@v1.2.13
-      #   with:
-      #     key: "android-package"
-      #     max-size: "2.0G"
-
-      # - name: Prepend ccache executables to the PATH
-      #   run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-
-      # # See https://github.com/hendrikmuhs/ccache-action/issues/94
-      # - name: Configure ccache
-      #   run: |
-      #     ccache --set-config="compiler_check=content"
-      #     ccache --show-config
-      #     echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang
-      #     echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1.2.14
         with:
@@ -717,22 +654,6 @@ jobs:
       - name: Install SWIG
         run: brew install swig
 
-      # - name: Install ccache
-      #   uses: hendrikmuhs/ccache-action@v1.2.13
-      #   with:
-      #     key: "macos-arm64-package"
-      #     max-size: "2.0G"
-
-      # - name: Prepend ccache executables to the PATH
-      #   run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-
-      # # See https://github.com/hendrikmuhs/ccache-action/issues/94
-      # - name: Configure ccache
-      #   run: |
-      #     ccache --set-config="compiler_check=content"
-      #     ccache --show-config
-      #     echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang
-      #     echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1.2.14
         with:
@@ -802,22 +723,6 @@ jobs:
       - name: Install SWIG
         run: brew install swig
 
-      # - name: Install ccache
-      #   uses: hendrikmuhs/ccache-action@v1.2.13
-      #   with:
-      #     key: "ios-arm64-package"
-      #     max-size: "2.0G"
-
-      # - name: Prepend ccache executables to the PATH
-      #   run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-
-      # # See https://github.com/hendrikmuhs/ccache-action/issues/94
-      # - name: Configure ccache
-      #   run: |
-      #     ccache --set-config="compiler_check=content"
-      #     ccache --show-config
-      #     echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang
-      #     echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1.2.14
         with:
@@ -932,46 +837,6 @@ jobs:
           fi
         shell: bash
 
-      # - name: Install ccache
-      #   uses: hendrikmuhs/ccache-action@v1.2.13
-      #   with:
-      #     key: "ccache-${{ runner.os }}-${{ matrix.type }}"
-      #     max-size: "2.0G"
-      #     variant: ccache
-
-      # - name: Configure ccache
-      #   shell: bash
-      #   run: |
-      #     ccache --set-config="compiler_check=content"
-      #     ccache --set-config="sloppiness=time_macros,include_file_mtime"
-
-      #     if [ "$RUNNER_OS" == "macOS" ]; then
-      #       echo "/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-      #     elif [ "$RUNNER_OS" == "Windows" ]; then
-      #       # Windows needs the .exe path from the action
-      #       echo "C:/ProgramData/chocolatey/bin" >> $GITHUB_PATH
-      #     else
-      #       echo "/usr/lib/ccache" >> $GITHUB_PATH
-      #     fi
-      #     ccache --show-config
-
-      # - name: Setup ccache
-      #   uses: hendrikmuhs/ccache-action@v1.2.14
-      #   with:
-      #     key: "test-jvm-${{ runner.os }}-${{ matrix.type }}-${{ github.ref_name }}"
-      #     restore-keys: |
-      #       test-jvm-${{ runner.os }}-${{ matrix.type }}-
-      #     max-size: "2G"
-      #     create-symlink: true
-      #     variant: ccache
-      # - name: Configure ccache
-      #   shell: bash
-      #   run: |
-      #     ccache --set-config="compiler_check=content"
-      #     ccache --set-config="sloppiness=time_macros,include_file_mtime,file_macro"
-      #     ccache --set-config="base_dir=${{ github.workspace }}"
-      #     ccache --show-config
-
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2.14
         with:
@@ -1059,43 +924,6 @@ jobs:
 
       - name: Install SWIG
         run: brew install swig
-
-      # - name: Install ccache
-      #   uses: hendrikmuhs/ccache-action@v1.2.13
-      #   with:
-      #     key: "test-macos-arm64-package"
-      #     restore-keys: |
-      #       test-macos-${{ runner.os }}-${{ matrix.type }}-
-      #     max-size: "2.0G"
-      # - name: Prepend ccache executables to the PATH
-      #   run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-      # # See https://github.com/hendrikmuhs/ccache-action/issues/94
-      # - name: Configure ccache
-      #   run: |
-      #     ccache --set-config="compiler_check=content"
-      #     ccache --show-config
-      #     echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang
-      #     echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
-
-      # - name: Setup ccache
-      #   uses: hendrikmuhs/ccache-action@v1.2.14
-      #   with:
-      #     key: "test-macos-${{ runner.os }}-${{ matrix.type }}-${{ github.ref_name }}"
-      #     restore-keys: |
-      #       test-macos-${{ runner.os }}-${{ matrix.type }}-
-      #     max-size: "2G"
-      #     create-symlink: true
-      #     variant: ccache
-      # - name: Configure ccache
-      #   shell: bash
-      #   run: |
-      #     ccache --set-config="compiler_check=content"
-      #     ccache --set-config="sloppiness=time_macros,include_file_mtime,file_macro"
-      #     ccache --set-config="base_dir=${{ github.workspace }}"
-      # ccache --set-config="compiler_check=content"
-      # ccache --set-config="base_dir=${{ github.workspace }}"
-      # ccache --set-config="sloppiness=time_macros,include_file_mtime"
-      #     ccache --show-config
 
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2.14
@@ -1207,22 +1035,6 @@ jobs:
       - name: Install SWIG
         run: brew install swig
 
-      # - name: Install ccache
-      #   uses: hendrikmuhs/ccache-action@v1.2.13
-      #   with:
-      #     key: "ios-arm64-package"
-      #     max-size: "2.0G"
-
-      # - name: Prepend ccache executables to the PATH
-      #   run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-
-      # # See https://github.com/hendrikmuhs/ccache-action/issues/94
-      # - name: Configure ccache
-      #   run: |
-      #     ccache --set-config="compiler_check=content"
-      #     ccache --show-config
-      #     echo '#!/bin/bash\nccache clang "$@"%"' > /usr/local/bin/ccache-clang
-      #     echo '#!/bin/bash\nccache clang++ "$@"%"' > /usr/local/bin/ccache-clang++
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2.14
         with:
@@ -1320,17 +1132,6 @@ jobs:
         with:
           submodules: "recursive"
 
-      # - name: Install ccache
-      #   if: runner.os == 'Linux'
-      #   run: sudo apt-get install -y ccache
-
-      # - name: ccache Cache
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: ~/.cache/ccache
-      #     key: ${{ runner.os }}-ccache-${{ github.sha }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-ccache-
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2.14
         with:
