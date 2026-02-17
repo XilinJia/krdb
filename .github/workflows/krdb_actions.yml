@@ -891,7 +891,7 @@ jobs:
       contents: read # Permissions to read the code
     env:
       CCACHE_COMPILERCHECK: content
-      CCACHE_SLOPPINESS: time_macros,include_file_mtime,file_macro
+      # CCACHE_SLOPPINESS: time_macros,include_file_mtime,file_macro
       CCACHE_BASEDIR: ${{ github.workspace }}
       SCCACHE_DIR: ${{ github.workspace }}\.sccache
 
@@ -981,7 +981,6 @@ jobs:
             test-jvm-${{ runner.os }}-${{ matrix.type }}-
           max-size: "3G"
           create-symlink: true
-
       - name: Restore Kotlin metadata artifacts
         uses: actions/download-artifact@v4
         with:
@@ -1141,6 +1140,7 @@ jobs:
           ./gradlew :packages:test-${{ matrix.type }}:macosTest
           -PincludeSdkModules=false 
           --info --no-daemon
+          --stacktrace --warning-mode all
 
       - name: Upload Gradle Problems Report
         if: always() # Run even if the build fails
@@ -1264,6 +1264,7 @@ jobs:
           ./gradlew :packages:test-${{ matrix.type }}:${{ matrix.test-task }}
           -PincludeSdkModules=false 
           --info --no-daemon
+          --stacktrace --warning-mode all
 
       - name: Upload Gradle Problems Report
         if: always() # Run even if the build fails
