@@ -62,7 +62,7 @@ val HOST_OS: OperatingSystem = findHostOs()
 
 object Realm {
     val ciBuild = (System.getenv("CI") != null)
-    const val version = "3.3.2"
+    const val version = "3.3.3-0"
     const val group = "io.github.xilinjia.krdb"
     const val projectUrl = "https://realm.io"
     const val pluginPortalId = "io.github.xilinjia.krdb"
@@ -112,17 +112,17 @@ object Versions {
 
     // When updating the Kotlin version, also remember to update /examples/min-android-sample/build.gradle.kts
     // these need to be compatible with Kotlin version: atomicfu, atomicfuPlugin, serialization, kotlinCompileTesting, ktlint
-    const val kotlin = "2.3.10" // https://github.com/JetBrains/kotlin and https://kotlinlang.org/docs/releases.html#release-details
-    const val latestKotlin = "2.3.10" // https://kotlinlang.org/docs/eap.html#build-details
+    const val kotlin = "2.3.20" // https://github.com/JetBrains/kotlin and https://kotlinlang.org/docs/releases.html#release-details
+    const val latestKotlin = "2.3.20" // https://kotlinlang.org/docs/eap.html#build-details
     const val kotlinCompileTesting = "0.12.1" // https://github.com/zacsweers/kotlin-compile-testing
-    const val kotlinDSLPluging = "6.5.2"    // https://plugins.gradle.org/plugin/org.gradle.kotlin.kotlin-dsl
+    const val kotlinDSLPluging = "6.5.6"    // https://plugins.gradle.org/plugin/org.gradle.kotlin.kotlin-dsl
     const val serialization = "1.10.0" // https://github.com/Kotlin/kotlinx.serialization
-    const val atomicfu = "0.31.0" // https://github.com/Kotlin/kotlinx.atomicfu
-    const val atomicfuPlugin = "0.31.0" // https://github.com/Kotlin/kotlinx.atomicfu
+    const val atomicfu = "0.32.1" // https://github.com/Kotlin/kotlinx.atomicfu
+    const val atomicfuPlugin = "0.32.1" // https://github.com/Kotlin/kotlinx.atomicfu
     const val ktlint = "1.8.0" // https://github.com/pinterest/ktlint
 
     const val autoService = "1.1.1" // https://mvnrepository.com/artifact/com.google.auto.service/auto-service
-    const val buildkonfig = "0.17.1" // https://github.com/yshrsmz/BuildKonfig
+//    const val buildkonfig = "0.17.1" // https://github.com/yshrsmz/BuildKonfig
     const val coroutines = "1.10.2" // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     const val datetime = "0.7.1" // https://github.com/Kotlin/kotlinx-datetime
     const val detektPlugin = "1.23.8" // https://github.com/detekt/detekt
@@ -132,13 +132,13 @@ object Versions {
     const val jmhPlugin = "0.7.3" // https://github.com/melix/jmh-gradle-plugin
     const val junit = "4.13.2" // https://mvnrepository.com/artifact/junit/junit    this is very old
     const val kbson = "0.4.0" // https://github.com/mongodb/kbson
-    const val ktor = "3.4.0" // https://github.com/ktorio/ktor
-    const val multidex = "2.0.1" // https://developer.android.com/jetpack/androidx/releases/multidex    this is very old
+//    const val ktor = "3.4.0" // https://github.com/ktorio/ktor
+//    const val multidex = "2.0.1" // https://developer.android.com/jetpack/androidx/releases/multidex    this is very old
     const val nexusPublishPlugin = "1.3.0" // https://github.com/gradle-nexus/publish-plugin
-    const val okio = "3.16.4" // https://square.github.io/okio/#releases
+    const val okio = "3.17.0" // https://square.github.io/okio/#releases    https://github.com/square/okio/tags     https://mvnrepository.com/artifact/com.squareup.okio/okio
     const val relinker = "1.4.5" // https://github.com/KeepSafe/ReLinker    this is pretty old
     const val shadowJar =  "9.3.1" // https://github.com/GradleUp/shadow?tab=readme-ov-file
-    const val snakeYaml = "2.5" // https://github.com/snakeyaml/snakeyaml
+//    const val snakeYaml = "2.5" // https://github.com/snakeyaml/snakeyaml
 
     const val kotlinJvmTarget = "17" // Which JVM bytecode version is kotlin compiled to.
     val sourceCompatibilityVersion = JavaVersion.VERSION_17 // Language level of any Java source code.

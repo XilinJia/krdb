@@ -1,3 +1,8 @@
+## 3.3.3.0
+
+* Kotlin upped to 2.3.20
+* some minor updates of dependencies
+
 ## 3.3.2
 
 * Kotlin upped to 2.3.10
