@@ -33,7 +33,6 @@ import io.github.xilinjia.krdb.types.BaseRealmObject
 import io.github.xilinjia.krdb.types.EmbeddedRealmObject
 import io.github.xilinjia.krdb.types.RealmObject
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 
 /**

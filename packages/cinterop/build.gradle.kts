@@ -40,6 +40,7 @@ project.extensions.configure(kotlinx.atomicfu.plugin.gradle.AtomicFUPluginExtens
 
 // Directory for generated Version.kt holding VERSION constant
 val versionDirectory = "$buildDir/generated/source/version/"
+//val versionDirectory = layout.buildDirectory.dir("generated/source/version").get().asFile.absolutePath
 
 // Types of builds supported
 enum class BuildType(val type: String, val buildDirSuffix: String) {
@@ -360,7 +361,7 @@ android {
 
     defaultConfig {
         minSdk = Versions.Android.minSdk
-        targetSdk = Versions.Android.targetSdk
+//        targetSdk = Versions.Android.targetSdk
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         sourceSets {

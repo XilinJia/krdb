@@ -25,20 +25,18 @@ import org.jetbrains.kotlin.backend.common.ClassLoweringPass
 import org.jetbrains.kotlin.backend.common.CompilationException
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
+import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.backend.common.runOnFilePostfix
-import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
+import org.jetbrains.kotlin.ir.builders.irAnnotation
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.expressions.impl.IrClassReferenceImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrConstructorCallImpl
-import org.jetbrains.kotlin.ir.expressions.impl.fromSymbolOwner
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
-import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
+import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.types.starProjectedType
-import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.util.companionObject
 import org.jetbrains.kotlin.ir.util.defaultType
 import org.jetbrains.kotlin.ir.util.isAnonymousObject
@@ -48,7 +46,6 @@ import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.ir.util.primaryConstructor
 import org.jetbrains.kotlin.platform.konan.isNative
-import org.jetbrains.kotlin.utils.KotlinExceptionWithAttachments
 
 class RealmModelLoweringExtension : IrGenerationExtension {
 //    override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
@@ -107,13 +104,9 @@ private class RealmModelLowering(private val pluginContext: IrPluginContext) : C
             if (pluginContext.platform.isNative()) {
                 val type = modelObjectAnnotationClass.defaultType as? IrType ?: throw IllegalStateException("defaultType is not an IrType")
                 val primaryConstructor = modelObjectAnnotationClass.primaryConstructor ?: throw IllegalStateException("primaryConstructor is null")
-                val constructorSymbol = primaryConstructor.symbol as? IrConstructorSymbol ?: throw IllegalStateException("symbol is not an IrConstructorSymbol")
-                val modelObjectAnnotation = IrConstructorCallImpl.fromSymbolOwner(
-                    startOffset = UNDEFINED_OFFSET,
-                    endOffset = UNDEFINED_OFFSET,
-                    type = type,
-                    constructorSymbol = constructorSymbol
-                ).apply {
+                val constructorSymbol = primaryConstructor.symbol
+                val irBuilder = DeclarationIrBuilder(pluginContext, symbol = irClass.symbol)
+                val modelObjectAnnotation = irBuilder.irAnnotation(callee = constructorSymbol, typeArguments = emptyList()).apply {
                     arguments[0] = IrClassReferenceImpl(
                         startOffset, endOffset,
                         pluginContext.irBuiltIns.kClassClass.starProjectedType,

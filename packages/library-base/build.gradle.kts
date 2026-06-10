@@ -149,7 +149,7 @@ android {
 
     defaultConfig {
         minSdk = Versions.Android.minSdk
-        targetSdk = Versions.Android.targetSdk
+//        targetSdk = Versions.Android.targetSdk
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         sourceSets {
