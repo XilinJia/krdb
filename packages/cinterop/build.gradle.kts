@@ -155,13 +155,13 @@ kotlin {
 //                BuildType.DEBUG -> nativeLibraryIncludesIosSimulatorX86Debug
 //                BuildType.RELEASE -> nativeLibraryIncludesIosSimulatorX86Release
 //            }
-            compilerOptions.configure {
-                freeCompilerArgs.addAll(
-                    when (buildType) {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    freeCompilerArgs.addAll(when (buildType) {
                         BuildType.DEBUG -> nativeLibraryIncludesIosSimulatorX86Debug
                         BuildType.RELEASE -> nativeLibraryIncludesIosSimulatorX86Release
-                    }
-                )
+                    })
+                }
             }
         }
     }
@@ -176,13 +176,13 @@ kotlin {
 //                BuildType.DEBUG -> nativeLibraryIncludesIosSimulatorArm64Debug
 //                BuildType.RELEASE -> nativeLibraryIncludesIosSimulatorArm64Release
 //            }
-            compilerOptions.configure {
-                freeCompilerArgs.addAll(
-                    when (buildType) {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    freeCompilerArgs.addAll(when (buildType) {
                         BuildType.DEBUG -> nativeLibraryIncludesIosSimulatorArm64Debug
                         BuildType.RELEASE -> nativeLibraryIncludesIosSimulatorArm64Release
-                    }
-                )
+                    })
+                }
             }
         }
     }
@@ -204,13 +204,13 @@ kotlin {
 //                BuildType.DEBUG -> nativeLibraryIncludesIosArm64Debug
 //                BuildType.RELEASE -> nativeLibraryIncludesIosArm64Release
 //            }
-            compilerOptions.configure {
-                freeCompilerArgs.addAll(
-                    when (buildType) {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    freeCompilerArgs.addAll(when (buildType) {
                         BuildType.DEBUG -> nativeLibraryIncludesIosArm64Debug
                         BuildType.RELEASE -> nativeLibraryIncludesIosArm64Release
-                    }
-                )
+                    })
+                }
             }
         }
     }
@@ -232,13 +232,14 @@ kotlin {
 //                BuildType.DEBUG -> nativeLibraryIncludesMacosUniversalDebug
 //                BuildType.RELEASE -> nativeLibraryIncludesMacosUniversalRelease
 //            }
-            compilerOptions.configure {
-                freeCompilerArgs.addAll(
-                    when (buildType) {
-                        BuildType.DEBUG -> nativeLibraryIncludesMacosUniversalDebug
-                        BuildType.RELEASE -> nativeLibraryIncludesMacosUniversalRelease
-                    }
-                )
+            compileTaskProvider.configure {
+                compilerOptions {
+                    freeCompilerArgs.addAll(
+                        when (buildType) {
+                            BuildType.DEBUG -> nativeLibraryIncludesMacosUniversalDebug
+                            BuildType.RELEASE -> nativeLibraryIncludesMacosUniversalRelease
+                        })
+                }
             }
         }
     }
@@ -253,13 +254,13 @@ kotlin {
 //                BuildType.DEBUG -> nativeLibraryIncludesMacosUniversalDebug
 //                BuildType.RELEASE -> nativeLibraryIncludesMacosUniversalRelease
 //            }
-            compilerOptions.configure {
-                freeCompilerArgs.addAll(
-                    when (buildType) {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    freeCompilerArgs.addAll(when (buildType) {
                         BuildType.DEBUG -> nativeLibraryIncludesMacosUniversalDebug
                         BuildType.RELEASE -> nativeLibraryIncludesMacosUniversalRelease
-                    }
-                )
+                    })
+                }
             }
         }
     }

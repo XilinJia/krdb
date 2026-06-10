@@ -16,7 +16,7 @@
 
 package io.github.xilinjia.krdb.gradle
 
-import com.android.build.gradle.BaseExtension
+import com.android.build.api.dsl.CommonExtension
 import io.github.xilinjia.krdb.gradle.analytics.AnalyticsErrorCatcher
 import io.github.xilinjia.krdb.gradle.analytics.AnalyticsService
 import io.github.xilinjia.krdb.gradle.analytics.AnalyticsService.Companion.UNKNOWN
@@ -29,7 +29,6 @@ import io.github.xilinjia.krdb.gradle.analytics.ProjectConfiguration
 import io.github.xilinjia.krdb.gradle.analytics.TargetInfo
 import io.github.xilinjia.krdb.gradle.analytics.hexStringify
 import io.github.xilinjia.krdb.gradle.analytics.sha256Hash
-import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Provider
@@ -53,6 +52,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinWithJavaCompilation
 import org.jetbrains.kotlin.konan.target.Architecture
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
+import java.io.File
 
 internal val gradleVersion: GradleVersion = GradleVersion.current().baseVersion
 internal val gradle70: GradleVersion = GradleVersion.version("7.0")
@@ -193,10 +193,10 @@ class RealmCompilerSubplugin : KotlinCompilerPluginSupportPlugin, AnalyticsError
         return SubpluginArtifact(groupId, artifactId, version)
     }
 
-    @Deprecated("This function is no longer used as only the embeddable compiler is supported. The 'kotlin.native.useEmbeddableCompilerJar' property has been removed and getPluginArtifact() is always used instead.", replaceWith = ReplaceWith("getPluginArtifact()"), level = DeprecationLevel.WARNING)
-    override fun getPluginArtifactForNative(): SubpluginArtifact {
-        return SubpluginArtifact(groupId, artifactId, version)
-    }
+//    @Deprecated("This function is no longer used as only the embeddable compiler is supported. The 'kotlin.native.useEmbeddableCompilerJar' property has been removed and getPluginArtifact() is always used instead.", replaceWith = ReplaceWith("getPluginArtifact()"), level = DeprecationLevel.WARNING)
+//    override fun getPluginArtifactForNative(): SubpluginArtifact {
+//        return SubpluginArtifact(groupId, artifactId, version)
+//    }
 
     override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
         val project = kotlinCompilation.target.project
@@ -294,14 +294,16 @@ private fun gatherTargetInfo(kotlinCompilation: KotlinCompilation<*>): TargetInf
 
         is KotlinJvmAndroidCompilation -> {
             val androidExtension =
-                project.extensions.findByName("android") as BaseExtension?
+                project.extensions.findByName("android") as CommonExtension?
             val defaultConfig = androidExtension?.defaultConfig
-            val minSDK = defaultConfig?.minSdkVersion?.apiString
-            val targetSDK = defaultConfig?.targetSdkVersion?.apiString
+//            val minSDK = defaultConfig?.minSdkVersion?.apiString
+//            val targetSDK = defaultConfig?.targetSdkVersion?.apiString
+            val minSDK = defaultConfig?.minSdk?.toString()
+//            val targetSDK = defaultConfig?.targetSdk?.toString()
             val targetCpuArch: String =
                 defaultConfig?.ndk?.abiFilters?.singleOrNull()?.let { androidArch(it) }
                     ?: "Universal"
-            TargetInfo("Android", targetCpuArch, targetSDK, minSDK)
+            TargetInfo("Android", targetCpuArch, null, minSDK)
         }
 
         is KotlinJvmCompilation -> {

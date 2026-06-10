@@ -99,8 +99,8 @@ object Versions {
     object Android {
         const val minSdk = 21
         const val targetSdk = 36
-        const val compileSdkVersion = 36
-        const val buildToolsVersion = "36.1.0"
+        const val compileSdkVersion = 37
+        const val buildToolsVersion = "37.0.0"
         const val buildTools = "9.1.0" // https://maven.google.com/web/index.html?q=gradle#com.android.tools.build:gradle
         const val ndkVersion = "29.0.14206865"
         const val r8 = "9.1.31" // See https://developer.android.com/build/kotlin-support
