@@ -566,44 +566,6 @@ fun getSharedCMakeFlags(buildType: BuildType, ccache: Boolean = true): Array<Str
     return args.toTypedArray()
 }
 
-// JVM native libs are currently always built in Release mode.
-//fun Task.buildSharedLibrariesForJVMMacOs() {
-//    group = "Build"
-//    description = "Compile dynamic libraries loaded by the JVM fat jar for supported platforms."
-//    val directory = "$buildDir/realmMacOsBuild"
-//
-//    doLast {
-//        exec {
-//            commandLine("mkdir", "-p", directory)
-//        }
-//        exec {
-//            workingDir(project.file(directory))
-//            commandLine(
-//                "cmake",
-//                *getSharedCMakeFlags(BuildType.RELEASE),
-//                "-DCPACK_PACKAGE_DIRECTORY=..",
-//                "-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64",
-//                project.file("src/jvm/")
-//            )
-//        }
-//        exec {
-//            workingDir(project.file(directory))
-//            commandLine("cmake", "--build", ".", "-j8")
-//        }
-//
-//        // copy files (macos)
-//        exec {
-//            commandLine("mkdir", "-p", project.file("$jvmJniPath/macos"))
-//        }
-//        File("$directory/librealmc.dylib")
-//            .copyTo(project.file("$jvmJniPath/macos/librealmc.dylib"), overwrite = true)
-//    }
-//
-//    inputs.dir(project.file("src/jvm"))
-//    inputs.dir(project.file("$absoluteCorePath/src"))
-//    outputs.file(project.file("$jvmJniPath/macos/librealmc.dylib"))
-//}
-
 fun Task.buildSharedLibrariesForJVMMacOs() {
     group = "Build"
     description = "Compile dynamic libraries loaded by the JVM fat jar for supported platforms."
@@ -928,13 +890,22 @@ tasks.matching { it.name.endsWith("PublicationToMavenLocal") }.configureEach {
 }
 
 // CHANGED: Removed afterEvaluate block, replaced with configureEach for specific tasks
-tasks.named("publishKotlinMultiplatformPublicationToMavenLocal") {
+// tasks.named("publishKotlinMultiplatformPublicationToMavenLocal") {
+//     val signJvm = project.tasks.findByName("signJvmPublication")
+//     if (signJvm != null) {
+//         dependsOn(signJvm)
+//         doFirst {
+//             logger.info("Explicitly ensured :publishKotlinMultiplatformPublicationToMavenLocal depends on :signJvmPublication")
+//         }
+//     }
+// }
+// TODO: not sure if this is needed
+tasks.matching {
+    it.name == "publishKotlinMultiplatformPublicationToMavenLocal"
+}.configureEach {
     val signJvm = project.tasks.findByName("signJvmPublication")
     if (signJvm != null) {
         dependsOn(signJvm)
-        doFirst {
-            logger.info("Explicitly ensured :publishKotlinMultiplatformPublicationToMavenLocal depends on :signJvmPublication")
-        }
     }
 }
 

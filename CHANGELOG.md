@@ -1,3 +1,8 @@
+## 3.3.5
+
+* in github actions, build kotlin metadata package on macOS to ensure macos/ios native libs are included
+* Android target sdk is upped to 37
+
 ## 3.3.4
 
 * Kotlin upped to 2.4.0

@@ -73,9 +73,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [check-cache, build-jni-swig-stub]
     if: |
-      always() && 
-      !cancelled() && 
-      !contains(needs.*.result, 'failure') && 
+      always() &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled') &&
       needs.check-cache.outputs.jni-linux-lib-cache-hit != 'true'
 
@@ -148,9 +148,9 @@ jobs:
     runs-on: windows-latest
     needs: [check-cache, build-jni-swig-stub]
     if: |
-      always() && 
-      !cancelled() && 
-      !contains(needs.*.result, 'failure') && 
+      always() &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled') &&
       needs.check-cache.outputs.jni-windows-lib-cache-hit != 'true'
 
@@ -292,14 +292,14 @@ jobs:
           overwrite: true
 
   build-kotlin-metadata-package:
-    runs-on: ubuntu-latest
+    runs-on: macos-14
     needs: [check-cache]
     env:
       NDK_VERSION: 29.0.14206865
     if: |
-      always() && 
-      !cancelled() && 
-      !contains(needs.*.result, 'failure') && 
+      always() &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled') &&
       needs.check-cache.outputs.packages-metadata-cache-hit != 'true'
 
@@ -386,9 +386,9 @@ jobs:
     env:
       NDK_VERSION: 29.0.14206865
     if: |
-      always() && 
-      !cancelled() && 
-      !contains(needs.*.result, 'failure') && 
+      always() &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled') &&
       needs.check-cache.outputs.packages-jvm-cache-hit != 'true'
 
@@ -802,9 +802,9 @@ jobs:
 
     needs: [check-cache, build-jvm-packages, build-kotlin-metadata-package]
     if: |
-      always() && 
-      !cancelled() && 
-      !contains(needs.*.result, 'failure') && 
+      always() &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled')
 
     steps:
@@ -863,7 +863,7 @@ jobs:
         working-directory: ./
         run: >
           ./gradlew :packages:test-${{ matrix.type }}:jvmTest
-          -PincludeSdkModules=false 
+          -PincludeSdkModules=false
           --info --no-daemon
 
       - name: Upload Gradle Problems Report
@@ -911,9 +911,9 @@ jobs:
     needs:
       [check-cache, build-kotlin-metadata-package, build-macos-arm64-packages]
     if: |
-      always() && 
-      !cancelled() && 
-      !contains(needs.*.result, 'failure') && 
+      always() &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled')
 
     steps:
@@ -966,7 +966,7 @@ jobs:
         working-directory: ./
         run: >
           ./gradlew :packages:test-${{ matrix.type }}:macosTest
-          -PincludeSdkModules=false 
+          -PincludeSdkModules=false
           --info --no-daemon
           --stacktrace --warning-mode all
 
@@ -1015,9 +1015,9 @@ jobs:
     needs:
       [check-cache, build-kotlin-metadata-package, build-ios-arm64-packages]
     if: |
-      always() && 
-      !cancelled() && 
-      !contains(needs.*.result, 'failure') && 
+      always() &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled')
 
     steps:
@@ -1074,7 +1074,7 @@ jobs:
         working-directory: ./
         run: >
           ./gradlew :packages:test-${{ matrix.type }}:${{ matrix.test-task }}
-          -PincludeSdkModules=false 
+          -PincludeSdkModules=false
           --info --no-daemon
           --stacktrace --warning-mode all
 
@@ -1121,9 +1121,9 @@ jobs:
         build-kotlin-metadata-package,
       ]
     if: |
-      always() && 
-      !cancelled() && 
-      !contains(needs.*.result, 'failure') && 
+      always() &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled')
 
     steps:
@@ -1229,9 +1229,9 @@ jobs:
         build-kotlin-metadata-package,
       ]
     if: |
-      always() && 
-      !cancelled() && 
-      !contains(needs.*.result, 'failure') && 
+      always() &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled')
 
     steps:
@@ -1284,9 +1284,9 @@ jobs:
     uses: ./.github/workflows/include-integration-tests.yml
     needs: [check-cache, package-all-artifacts]
     if: |
-      always() && 
-      !cancelled() && 
-      !contains(needs.*.result, 'failure') && 
+      always() &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled')
     with:
       version-label: ${{ needs.check-cache.outputs.version-label }}
@@ -1304,9 +1304,9 @@ jobs:
       ]
     # Maintains your logic: Run only if preceding jobs succeeded and on specific branches
     if: |
-      always() && 
-      !cancelled() && 
-      !contains(needs.*.result, 'failure') && 
+      always() &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled') &&
       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/releases' || github.ref == 'refs/heads/release/k2')
 

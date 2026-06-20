@@ -149,7 +149,6 @@ android {
 
     defaultConfig {
         minSdk = Versions.Android.minSdk
-//        targetSdk = Versions.Android.targetSdk
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         sourceSets {
@@ -239,22 +238,25 @@ tasks.matching { it.name.endsWith("PublicationToMavenLocal") }.configureEach {
 }
 
 // CHANGED: Removed afterEvaluate block, replaced with configureEach for specific tasks
-tasks.named("publishKotlinMultiplatformPublicationToMavenLocal") {
+// tasks.named("publishKotlinMultiplatformPublicationToMavenLocal") {
+//     val signJvm = project.tasks.findByName("signJvmPublication")
+//     if (signJvm != null) {
+//         dependsOn(signJvm)
+//         doFirst {
+//             logger.info("Explicitly ensured :publishKotlinMultiplatformPublicationToMavenLocal depends on :signJvmPublication")
+//         }
+//     }
+// }
+
+// TODO: not sure if this is needed
+tasks.matching {
+    it.name == "publishKotlinMultiplatformPublicationToMavenLocal"
+}.configureEach {
     val signJvm = project.tasks.findByName("signJvmPublication")
     if (signJvm != null) {
         dependsOn(signJvm)
-        doFirst {
-            logger.info("Explicitly ensured :publishKotlinMultiplatformPublicationToMavenLocal depends on :signJvmPublication")
-        }
     }
 }
-
-//tasks.register("dokkaJar", Jar::class) {
-//    val dokkaTask = "dokkaHtmlPartial"
-//    dependsOn(dokkaTask)
-//    archiveClassifier.set("dokka")
-//    from(tasks.named(dokkaTask).get().outputs)
-//}
 
 tasks.register<Jar>("dokkaJar") {
     val dokkaTask = tasks.named("dokkaGeneratePublicationHtml") // or dokkaGenerateHtml
@@ -269,15 +271,25 @@ val javadocJar by tasks.registering(Jar::class) {
 
 // Make sure that docs are published for the Metadata publication as well. This is required
 // by Maven Central
-publishing {
-    // See https://dev.to/kotlin/how-to-build-and-publish-a-kotlin-multiplatform-library-going-public-4a8k
-    publications.withType<MavenPublication> {
-        // Stub javadoc.jar artifact
-        artifact(javadocJar.get())
-    }
+// publishing {
+//     // See https://dev.to/kotlin/how-to-build-and-publish-a-kotlin-multiplatform-library-going-public-4a8k
+//     publications.withType<MavenPublication> {
+//         // Stub javadoc.jar artifact
+//         artifact(javadocJar.get())
+//     }
+//
+//     val common = publications.getByName("kotlinMultiplatform") as MavenPublication
+//     // Configuration through examples/kmm-sample does not work if we do not resolve the tasks
+//     // completely, hence the .get() below.
+//     common.artifact(tasks.named("dokkaJar").get())
+// }
 
-    val common = publications.getByName("kotlinMultiplatform") as MavenPublication
-    // Configuration through examples/kmm-sample does not work if we do not resolve the tasks
-    // completely, hence the .get() below.
-    common.artifact(tasks.named("dokkaJar").get())
+publishing {
+    publications.withType<MavenPublication>().configureEach {
+        artifact(javadocJar.get())
+
+        if (name == "kotlinMultiplatform" || name == "kotlin") {
+            artifact(tasks.named("dokkaJar").get())
+        }
+    }
 }

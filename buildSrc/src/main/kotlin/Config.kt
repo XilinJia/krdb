@@ -62,7 +62,7 @@ val HOST_OS: OperatingSystem = findHostOs()
 
 object Realm {
     val ciBuild = (System.getenv("CI") != null)
-    const val version = "3.3.4"
+    const val version = "3.3.5"
     const val group = "io.github.xilinjia.krdb"
     const val projectUrl = "https://realm.io"
     const val pluginPortalId = "io.github.xilinjia.krdb"
@@ -98,7 +98,7 @@ object Realm {
 object Versions {
     object Android {
         const val minSdk = 21
-        const val targetSdk = 36
+        const val targetSdk = 37
         const val compileSdkVersion = 37
         const val buildToolsVersion = "37.0.0"
         const val buildTools = "9.1.0" // https://maven.google.com/web/index.html?q=gradle#com.android.tools.build:gradle
