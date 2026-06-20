@@ -324,6 +324,9 @@ jobs:
         with:
           cache-read-only: false
 
+      - name: Install SWIG
+        run: brew install swig
+
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1.2.14
         with:
