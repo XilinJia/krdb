@@ -10,6 +10,8 @@ Project structure is changed to make Intellij IDE work.  gradlew needs to be run
 
 ### Since 3.3.1, all platforms run through tests and are published to Maven Central
 
+### Since 3.3.5, MacOS/iOS native libs are included in metadata package
+
 ### Version compatibility
 
 krdb 3.3.4/5 <==> Kotlin 2.4.0
