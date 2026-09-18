@@ -764,7 +764,7 @@ class RealmModelSyntheticPropertiesGeneration(private val pluginContext: IrPlugi
             }
         }
         function.body = pluginContext.blockBody(function.symbol) {
-            val firstZeroArgCtor: Any = irClass.constructors.filter {
+            val firstZeroArgCtor: Any? = irClass.constructors.filter {
                 val params = it.parameters.filter { p -> p.kind == IrParameterKind.Regular || p.kind == IrParameterKind.Context }
                 params.isEmpty() }.firstOrNull()
                 ?: logError("Cannot find primary zero arg constructor", irClass.locationOf())

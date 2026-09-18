@@ -1,3 +1,9 @@
+## 3.3.6
+
+* merged PR fix: Incorrect RealmInstantImpl construction on Android API < 26, thank you @xhiv07
+* kotlin upped to 2.4.20
+* various dependencies updates
+
 ## 3.3.5
 
 * in github actions, build kotlin metadata package on macOS to ensure macos/ios native libs are included

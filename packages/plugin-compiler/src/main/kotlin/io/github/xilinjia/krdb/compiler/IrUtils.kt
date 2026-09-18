@@ -28,16 +28,11 @@ import io.github.xilinjia.krdb.compiler.FqNames.PACKAGE_TYPES
 import io.github.xilinjia.krdb.compiler.Names.ASYMMETRIC_REALM_OBJECT
 import io.github.xilinjia.krdb.compiler.Names.EMBEDDED_REALM_OBJECT
 import io.github.xilinjia.krdb.compiler.Names.REALM_OBJECT
-import java.lang.reflect.Field
-import java.util.function.Predicate
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocationWithRange
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSourceLocation
 import org.jetbrains.kotlin.com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.kotlin.com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.com.intellij.psi.PsiElementVisitor
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.descriptors.Modality
@@ -113,29 +108,15 @@ import org.jetbrains.kotlin.ir.util.isVararg
 import org.jetbrains.kotlin.ir.util.properties
 import org.jetbrains.kotlin.ir.util.render
 import org.jetbrains.kotlin.ir.util.superTypes
-import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
-import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes.SUPER_TYPE_LIST
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.types.KotlinType
-
-// Somehow addSetter was removed from the IrProperty in https://github.com/JetBrains/kotlin/commit/d1dc938a5d7331ba43fcbb8ce53c3e17ef76a22a#diff-2726c3747ace0a1c93ad82365cf3ff18L114
-// Remove this extension when this will be re-introduced? see https://kotlinlang.slack.com/archives/C7L3JB43G/p1600888883006300
-//inline fun IrProperty.addSetter(builder: IrFunctionBuilder.() -> Unit = {}): IrSimpleFunction =
-//    IrFunctionBuilder().run {
-//        factory.buildFun {
-//            this.name = Name.special("<set-${this@addSetter.name}>")
-//            builder()
-//        }.also { setter ->
-//            this@addSetter.setter = setter
-//            setter.correspondingPropertySymbol = this@addSetter.symbol
-//            setter.parent = this@addSetter.parent
-//        }
-//    }
+import java.lang.reflect.Field
+import java.util.function.Predicate
 
 // xlj
 fun IrProperty.addSetter(
@@ -169,8 +150,8 @@ fun IrPluginContext.blockBody(
 ): IrBlockBody =
     DeclarationIrBuilder(this, symbol).irBlockBody { block() }
 
-val ClassDescriptor.isRealmObjectCompanion
-    get() = isCompanionObject && (containingDeclaration as ClassDescriptor).isBaseRealmObject
+//val ClassDescriptor.isRealmObjectCompanion
+//    get() = isCompanionObject && (containingDeclaration as ClassDescriptor).isBaseRealmObject
 
 val realmObjectInterfaceFqNames = setOf(REALM_OBJECT_INTERFACE)
 val realmEmbeddedObjectInterfaceFqNames = setOf(EMBEDDED_OBJECT_INTERFACE)
@@ -178,57 +159,6 @@ val realmAsymmetricObjectInterfaceFqNames = setOf(ASYMMETRIC_OBJECT_INTERFACE)
 val anyRealmObjectInterfacesFqNames = realmObjectInterfaceFqNames + realmEmbeddedObjectInterfaceFqNames + realmAsymmetricObjectInterfaceFqNames
 
 fun IrType.classIdOrFail(): ClassId = getClass()?.classId ?: error("Can't get classId of ${render()}")
-
-@Suppress("NOTHING_TO_INLINE")
-inline fun PsiElement.hasInterface(interfaces: Set<String>): Boolean {
-    var hasRealmObjectAsSuperType = false
-    this.acceptChildren(object : PsiElementVisitor() {
-        override fun visitElement(element: PsiElement) {
-            if (element.node.elementType == SUPER_TYPE_LIST) {
-                // Check supertypes for classes with Embbeded/RealmObject as generics and remove
-                // them from the string so as to avoid erroneously processing said classes which
-                // implement these types as implementing Embedded/RealmObject. Doing so would
-                // add our companion interface causing compilation errors.
-                val elementNodeText = element.node.text
-                    .replace(" ", "") // Sanitize removing spaces
-                    .split(",") // Split by commas
-                    .filter {
-                        !(
-                            it.contains("<RealmObject>") ||
-                                it.contains("<io.github.xilinjia.krdb.types.RealmObject>") ||
-                                it.contains("<EmbeddedRealmObject>") ||
-                                it.contains("<io.github.xilinjia.krdb.types.EmbeddedRealmObject>")
-                            )
-                    }.joinToString(",") // Re-sanitize again
-                hasRealmObjectAsSuperType = elementNodeText.findAnyOf(interfaces) != null
-            }
-        }
-    })
-
-    return hasRealmObjectAsSuperType
-}
-
-@Suppress("NOTHING_TO_INLINE")
-inline fun ClassDescriptor.hasInterfacePsi(interfaces: Set<String>): Boolean {
-    // Using PSI to find super types to avoid cyclic reference (see https://github.com/realm/realm-kotlin/issues/339)
-    return this.findPsi()?.hasInterface(interfaces) ?: false
-}
-
-// Do to the way PSI works, it can be a bit tricky to uniquely identify when the Realm Kotlin
-// RealmObject interface is used. For that reason, once we have determined a match for RealmObject,
-// We also need to ensure we didn't accidentally matched on the Realm Java RealmObject abstract
-// type. Fortunately that is visible in the PSI as `RealmObject()` (Java, abstract class) vs.
-// `RealmObject` (Kotlin, interface).
-val realmObjectPsiNames = setOf("RealmObject", "io.github.xilinjia.krdb.types.RealmObject")
-val embeddedRealmObjectPsiNames = setOf("EmbeddedRealmObject", "io.github.xilinjia.krdb.types.EmbeddedRealmObject")
-val asymmetricRealmObjectPsiNames = setOf("AsymmetricRealmObject", "io.github.xilinjia.krdb.types.AsymmetricRealmObject")
-val realmJavaObjectPsiNames = setOf("io.realm.RealmObject()", "RealmObject()")
-val ClassDescriptor.isRealmObject: Boolean
-    get() = this.hasInterfacePsi(realmObjectPsiNames) && !this.hasInterfacePsi(realmJavaObjectPsiNames)
-val ClassDescriptor.isEmbeddedRealmObject: Boolean
-    get() = this.hasInterfacePsi(embeddedRealmObjectPsiNames)
-val ClassDescriptor.isBaseRealmObject: Boolean
-    get() = this.hasInterfacePsi(realmObjectPsiNames + embeddedRealmObjectPsiNames + asymmetricRealmObjectPsiNames) && !this.hasInterfacePsi(realmJavaObjectPsiNames)
 
 val realmObjectTypes: Set<Name> = setOf(REALM_OBJECT, EMBEDDED_REALM_OBJECT, ASYMMETRIC_REALM_OBJECT)
 val realmObjectClassIds = realmObjectTypes.map { name -> ClassId(PACKAGE_TYPES, name) }
@@ -247,7 +177,7 @@ val FirClassSymbol<*>.isBaseRealmObject: Boolean
                     typeRef.qualifier.last().name in realmObjectTypes &&
                         // Disregard constructor invocations as that means that it is a Realm Java class
                         !(
-                            typeRef.source?.run { treeStructure.getParent(lighterASTNode) }
+                            typeRef.source.run { treeStructure.getParent(lighterASTNode) }
                                 ?.tokenType?.let { it == KtStubElementTypes.CONSTRUCTOR_CALLEE }
                                 ?: false
                             )

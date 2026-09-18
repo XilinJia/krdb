@@ -18,17 +18,23 @@ package io.github.xilinjia.krdb.compiler
 
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSourceLocation
-import org.jetbrains.kotlin.cli.common.messages.MessageCollector
+import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.config.MessageCollectorAccess
+import org.jetbrains.kotlin.config.messageCollector
 
-// TODO: global variable appears causing issues with serialization, disable for now
 // Logging to console/IDE (Build Output)
-var messageCollector: MessageCollector = MessageCollector.NONE
-private fun logger(message: String, severity: CompilerMessageSeverity = CompilerMessageSeverity.WARNING, location: CompilerMessageSourceLocation? = null) {
+var compilerConfig: CompilerConfiguration? = null
+
+@OptIn(MessageCollectorAccess::class)
+fun CompilerConfiguration.logger(message: String, severity: CompilerMessageSeverity = CompilerMessageSeverity.WARNING, location: CompilerMessageSourceLocation? = null) {
     val formattedMessage by lazy { "[Realm] $message" }
     messageCollector.report(severity, formattedMessage, location)
 }
 
-fun logInfo(message: String) = logger(message, severity = CompilerMessageSeverity.INFO)
-fun logDebug(message: String) = logger(message, severity = CompilerMessageSeverity.LOGGING)
-fun logWarn(message: String, location: CompilerMessageSourceLocation? = null) = logger(message, severity = CompilerMessageSeverity.WARNING, location = location)
-fun logError(message: String, location: CompilerMessageSourceLocation? = null) = logger(message, severity = CompilerMessageSeverity.ERROR, location = location) // /!\ This will log and fail the compilation /!\
+fun logInfo(message: String) = compilerConfig?.logger(message, severity = CompilerMessageSeverity.INFO)
+
+fun logDebug(message: String) = compilerConfig?.logger(message, severity = CompilerMessageSeverity.LOGGING)
+
+fun logWarn(message: String, location: CompilerMessageSourceLocation? = null) = compilerConfig?.logger(message, severity = CompilerMessageSeverity.WARNING, location = location)
+
+fun logError(message: String, location: CompilerMessageSourceLocation? = null) = compilerConfig?.logger(message, severity = CompilerMessageSeverity.ERROR, location = location)

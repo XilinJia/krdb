@@ -19,13 +19,10 @@ package io.github.xilinjia.krdb.compiler
 import com.google.auto.service.AutoService
 import io.github.xilinjia.krdb.compiler.fir.model.RealmModelRegistrar
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
-import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
-import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrarAdapter
-import org.jetbrains.kotlin.resolve.extensions.SyntheticResolveExtension
 
 /**
  * Registrar for the Realm compiler plugin.
@@ -56,19 +53,15 @@ class Registrar : CompilerPluginRegistrar() {
 
     @OptIn(ExperimentalCompilerApi::class)
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
-        messageCollector = configuration.get(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
+        compilerConfig = configuration
         SchemaCollector.properties.clear()
 
         FirExtensionRegistrarAdapter.registerExtension(RealmModelRegistrar())
 
         IrGenerationExtension.registerExtension(RealmModelLoweringExtension())
 
-
         configuration.get(bundleIdConfigurationKey)?.let { bundleId ->
             IrGenerationExtension.registerExtension(SyncLoweringExtension(bundleId))
         }
-
-        SyntheticResolveExtension.registerExtension(RealmModelSyntheticCompanionExtension())
-        SyntheticResolveExtension.registerExtension(RealmModelSyntheticMethodsExtension())
     }
 }
