@@ -443,6 +443,8 @@ jobs:
         env:
           JAVA_HOME: ${{ env.JAVA_HOME_17_ARM64 }}
         uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
 
       - name: Install NDK
         run: sdkmanager --install "ndk;${{ env.NDK_VERSION }}"
@@ -571,6 +573,8 @@ jobs:
         uses: android-actions/setup-android@v3
         env:
           JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
+        with:
+          packages: 'platform-tools'
 
       - name: Install NDK
         env:
