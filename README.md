@@ -14,6 +14,8 @@ Project structure is changed to make Intellij IDE work.  gradlew needs to be run
 
 ### Version compatibility
 
+krdb 3.3.6 <==> Kotlin 2.4.20
+
 krdb 3.3.4/5 <==> Kotlin 2.4.0
 
 krdb 3.3.3 <==> Kotlin 2.3.20
