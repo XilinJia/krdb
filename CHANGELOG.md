@@ -1,3 +1,8 @@
+## 3.3.7
+
+* NDK upped to 30
+* some minor dependencies updates
+
 ## 3.3.6
 
 * merged PR fix: Incorrect RealmInstantImpl construction on Android API < 26, thank you @xhiv07

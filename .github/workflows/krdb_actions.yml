@@ -295,7 +295,7 @@ jobs:
     runs-on: macos-14
     needs: [check-cache]
     env:
-      NDK_VERSION: 29.0.14206865
+      NDK_VERSION: 30.0.16248370
     if: |
       always() &&
       !cancelled() &&
@@ -343,12 +343,6 @@ jobs:
           ccache -p
           ccache -s
 
-      # This matches 23.2.8568313, but what happens if we a define specific ndk version in our build?
-      - name: Setup NDK
-        uses: nttld/setup-ndk@v1
-        with:
-          ndk-version: r29
-
       - name: Setup build cache
         uses: actions/cache@v4
         with:
@@ -387,7 +381,7 @@ jobs:
         build-jvm-macos-native-lib,
       ]
     env:
-      NDK_VERSION: 29.0.14206865
+      NDK_VERSION: 30.0.16248370
     if: |
       always() &&
       !cancelled() &&
@@ -505,7 +499,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: check-cache
     env:
-      NDK_VERSION: 29.0.14206865
+      NDK_VERSION: 30.0.16248370
     if: |
       always() && !cancelled() &&
       (needs.check-cache.outputs.packages-android-cache-hit != 'true' ||
