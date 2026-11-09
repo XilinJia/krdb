@@ -86,7 +86,7 @@ internal abstract class LiveRealm(
      * (which can be newer, but never older).
      */
     internal val snapshotVersion: VersionId
-        get() = _snapshot.value.uncheckedVersion()
+        get() = snapshotLock.withLock { _snapshot.value.uncheckedVersion() }
 
     /**
      * Garbage collector tracked snapshot that can be used to issue other object, query, etc.
