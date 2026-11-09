@@ -726,7 +726,7 @@ class RealmAnyTests {
     companion object {
         internal val defaultValues: Map<KClassifier, Any> = TypeDescriptor.anyClassifiers.mapValues {
             when (it.key) {
-                Short::class -> -12.toShort()
+                Short::class -> (-12).toShort()
                 Int::class -> 13
                 Byte::class -> 14.toByte()
                 Char::class -> 15.toChar()
@@ -763,7 +763,7 @@ class RealmAnyTests {
             is ByteArray -> RealmAny.create(value)
             is RealmInstant -> RealmAny.create(value)
             is RealmUUID -> RealmAny.create(value)
-            is RealmObject -> RealmAny.create(value, value::class as KClass<out RealmObject>)
+            is RealmObject -> RealmAny.create(value, value::class)
             else -> {
                 fail("Cannot create a RealmValue for value: $value of type ${value?.let { value::class }}")
             }

@@ -99,5 +99,5 @@ public fun <T : BaseRealmObject> T.asFlow(keyPaths: List<String>? = null): Flow<
         Pair(this.metadata.classKey, keyPaths)
     }
 
-    return owner.owner.registerObserver(this, keyPathInfo) as Flow<ObjectChange<T>>
+    return owner.owner.registerObserver(this, keyPathInfo)
 } ?: throw IllegalStateException("Changes cannot be observed on unmanaged objects.")

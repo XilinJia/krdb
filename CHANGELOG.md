@@ -1,7 +1,9 @@
 ## 3.3.7
 
+* Kotlin upped to 2.4.21
+* migrated some deprecations and some code cleaning
 * NDK upped to 30
-* some minor dependencies updates
+* various dependencies updates
 
 ## 3.3.6
 

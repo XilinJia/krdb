@@ -122,7 +122,7 @@ object ClassIds {
     val EMBEDDED_OBJECT_INTERFACE = ClassId(FqNames.PACKAGE_TYPES, Name.identifier("EmbeddedRealmObject"))
     val ASYMMETRIC_OBJECT_INTERFACE = ClassId(FqNames.PACKAGE_TYPES, Name.identifier("AsymmetricRealmObject"))
 
-    val CLASS_APP_CONFIGURATION = ClassId(FqNames.PACKAGE_MONGODB, Name.identifier("AppConfiguration"))
+    val CLASS_APP_CONFIGURATION = ClassId(PACKAGE_MONGODB, Name.identifier("AppConfiguration"))
 
     // External visible interface of Realm objects
     val KOTLIN_COLLECTIONS_SET = ClassId(FqNames.PACKAGE_KOTLIN_COLLECTIONS, Name.identifier("Set"))

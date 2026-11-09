@@ -48,7 +48,7 @@ internal class ObjectBoundQuery<E : BaseRealmObject>(
         realmQuery.query(filter, *arguments)
     )
 
-    override fun asFlow(keyPaths: List<String>?): Flow<ResultsChange<E>> = realmQuery.asFlow(keyPaths).bind(
+    override fun asFlow(keyPath: List<String>?): Flow<ResultsChange<E>> = realmQuery.asFlow(keyPath).bind(
         targetObject
     )
 

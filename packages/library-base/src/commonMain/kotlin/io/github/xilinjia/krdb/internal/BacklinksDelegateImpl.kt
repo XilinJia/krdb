@@ -74,7 +74,7 @@ internal class BacklinksDelegateImpl<T : TypedRealmObject>(
         reference: EmbeddedRealmObject,
         targetProperty: KProperty<*>
     ): T = createBacklinks(reference, targetProperty).firstOrNull()
-        ?: throw IllegalStateException("Backlink '${targetProperty.name}' is not an instance of target property type '${sourceClass!!.simpleName}'.")
+        ?: throw IllegalStateException("Backlink '${targetProperty.name}' is not an instance of target property type '${sourceClass.simpleName}'.")
 
     override fun getValue(
         reference: RealmObject,

@@ -236,14 +236,14 @@ internal object RealmObjectHelper {
                             val nativePointer = RealmInterop.realm_set_list(obj.objectPointer, key)
                             RealmInterop.realm_list_clear(nativePointer)
                             val operator =
-                                realmAnyListOperator(obj.mediator, obj.owner, nativePointer, false, false)
+                                realmAnyListOperator(obj.mediator, obj.owner, nativePointer, issueDynamicObject = false, issueDynamicMutableObject = false)
                             operator.insertAll(0, value.asList(), updatePolicy, cache)
                         },
                         dictionaryAsRealmAnyHandler = { realmValue ->
                             val nativePointer = RealmInterop.realm_set_dictionary(obj.objectPointer, key)
                             RealmInterop.realm_dictionary_clear(nativePointer)
                             val operator =
-                                realmAnyMapOperator(obj.mediator, obj.owner, nativePointer, false, false)
+                                realmAnyMapOperator(obj.mediator, obj.owner, nativePointer, issueDynamicObject = false, issueDynamicMutableObject = false)
                             operator.putAll(value.asDictionary(), updatePolicy, cache)
                         }
                     )
@@ -315,10 +315,7 @@ internal object RealmObjectHelper {
         getRealmValueFromKey(obj, key)
             ?.let {
                 realmValueToRealmAny(
-                    it, obj, obj.mediator, obj.owner,
-                    false,
-                    false,
-                    { RealmInterop.realm_get_list(obj.objectPointer, key) }
+                    it, obj, obj.mediator, obj.owner, issueDynamicObject = false, issueDynamicMutableObject = false, getListFunction = { RealmInterop.realm_get_list(obj.objectPointer, key) }
                 ) { RealmInterop.realm_get_dictionary(obj.objectPointer, key) }
             }
     }
@@ -364,7 +361,7 @@ internal object RealmObjectHelper {
         obj: RealmObjectReference<out BaseRealmObject>,
         propertyName: String
     ): ManagedMutableRealmInt? {
-        val converter = converter<Long>(Long::class)
+        val converter = converter(Long::class)
         val propertyKey = obj.propertyInfoOrThrow(propertyName).key
 
         // In order to be able to use Kotlin's nullability handling baked into the accessor we need

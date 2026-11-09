@@ -53,8 +53,6 @@ import io.github.xilinjia.krdb.types.RealmObject
 import io.github.xilinjia.krdb.types.RealmSet
 import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.builtins.nullable
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -154,7 +152,7 @@ class SerializationTests {
             }
             RealmAny::class -> dataSet.map {
                 if ((it as? RealmAny)?.type == RealmAny.Type.TIMESTAMP) {
-                    RealmAny.create((it.asRealmInstant()!!.restrictToMillisPrecision()))as T
+                    RealmAny.create((it.asRealmInstant().restrictToMillisPrecision()))as T
                 } else { it }
             }
             else -> dataSet
@@ -198,7 +196,7 @@ class SerializationTests {
             RealmAny::class -> dataSet.map { entry ->
                 val (key, value) = entry
                 if ((value as? RealmAny)?.type == RealmAny.Type.TIMESTAMP) {
-                    key to RealmAny.create((value.asRealmInstant()!!.restrictToMillisPrecision()))as T
+                    key to RealmAny.create((value.asRealmInstant().restrictToMillisPrecision()))as T
                 } else { entry }
             }
             else -> dataSet
@@ -291,7 +289,7 @@ class SerializationTests {
     @Ignore
     @Test
     fun exhaustiveRealmAnyTester() {
-        RealmAny.Type.values()
+        RealmAny.Type.entries
             .map { type: RealmAny.Type ->
                 type to when (type) {
                     RealmAny.Type.INT -> SerializableSample().apply {

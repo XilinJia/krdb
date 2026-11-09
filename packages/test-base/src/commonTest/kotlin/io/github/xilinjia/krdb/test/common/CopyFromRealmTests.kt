@@ -129,7 +129,7 @@ class CopyFromRealmTests {
                     val copiedValue = accessor.get(unmanagedCopy) as ByteArray?
                     assertContentEquals(value as ByteArray?, copiedValue, "${prop.name} failed")
                 } else {
-                    val copiedValue = accessor.get(unmanagedCopy) as Any?
+                    val copiedValue = accessor.get(unmanagedCopy)
                     assertEquals(value, copiedValue, "${prop.name} failed")
                 }
             }

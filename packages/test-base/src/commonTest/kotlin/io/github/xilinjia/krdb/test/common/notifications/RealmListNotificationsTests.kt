@@ -156,8 +156,7 @@ class RealmListNotificationsTests : RealmEntityNotificationTests {
                     assertNotNull(listChange.list)
                     assertEquals(dataset.size, listChange.list.size)
 
-                    assertIsChangeSet(
-                        (listChange as UpdatedList<*>),
+                    assertIsChangeSet(listChange,
                         insertRanges = arrayOf(
                             Range(0, 2)
                         )
@@ -180,8 +179,7 @@ class RealmListNotificationsTests : RealmEntityNotificationTests {
                 assertNotNull(listChange.list)
                 assertEquals(dataset.size + dataset2.size + dataset3.size, listChange.list.size)
 
-                assertIsChangeSet(
-                    (listChange as UpdatedList<*>),
+                assertIsChangeSet(listChange,
                     insertRanges = arrayOf(
                         Range(0, 4),
                         Range(6, 2)
@@ -206,8 +204,7 @@ class RealmListNotificationsTests : RealmEntityNotificationTests {
                 assertNotNull(listChange.list)
                 assertEquals(dataset.size, listChange.list.size)
 
-                assertIsChangeSet(
-                    (listChange as UpdatedList<*>),
+                assertIsChangeSet(listChange,
                     deletionRanges = arrayOf(
                         Range(0, 4),
                         Range(6, 2)
@@ -230,8 +227,7 @@ class RealmListNotificationsTests : RealmEntityNotificationTests {
                 assertNotNull(listChange.list)
                 assertTrue(listChange.list.isEmpty())
 
-                assertIsChangeSet(
-                    (listChange as UpdatedList<*>),
+                assertIsChangeSet(listChange,
                     deletionRanges = arrayOf(
                         Range(0, 2)
                     )
@@ -270,8 +266,7 @@ class RealmListNotificationsTests : RealmEntityNotificationTests {
                 assertNotNull(listChange.list)
                 assertEquals(dataset2.size, listChange.list.size)
 
-                assertIsChangeSet(
-                    (listChange as UpdatedList<*>),
+                assertIsChangeSet(listChange,
                     changesRanges = arrayOf(
                         Range(0, 2),
                         Range(3, 1),
@@ -294,8 +289,7 @@ class RealmListNotificationsTests : RealmEntityNotificationTests {
                 assertNotNull(listChange.list)
                 assertEquals(dataset2.size, listChange.list.size)
 
-                assertIsChangeSet(
-                    (listChange as UpdatedList<*>),
+                assertIsChangeSet(listChange,
                     changesRanges = arrayOf(
                         Range(0, 4)
                     )
@@ -699,7 +693,7 @@ class RealmListNotificationsTests : RealmEntityNotificationTests {
     @Test
     override fun keyPath_unknownTopLevelProperty() = runBlocking<Unit> {
         val list = realm.write { copyToRealm(RealmListContainer()) }.objectListField
-        assertFailsWith<IllegalArgumentException>() {
+        assertFailsWith<IllegalArgumentException> {
             list.asFlow(listOf("foo"))
         }
     }
@@ -707,7 +701,7 @@ class RealmListNotificationsTests : RealmEntityNotificationTests {
     @Test
     override fun keyPath_unknownNestedProperty() = runBlocking<Unit> {
         val list = realm.write { copyToRealm(RealmListContainer()) }.objectListField
-        assertFailsWith<IllegalArgumentException>() {
+        assertFailsWith<IllegalArgumentException> {
             list.asFlow(listOf("objectListField.foo"))
         }
     }

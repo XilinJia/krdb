@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irGetObject
 import org.jetbrains.kotlin.ir.builders.irReturn
 import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
@@ -30,9 +31,9 @@ import org.jetbrains.kotlin.name.Name
  * This should only impact us as SDK developers though, but it does mean that changes to
  * RealmObjectHelper methods will require a clean build to take effect.
  */
-class RealmModelDefaultMethodGeneration(private val pluginContext: IrPluginContext) {
+class RealmModelDefaultMethodGeneration(private val pluginContext: IrPluginContext, private val irFile: IrFile) {
 
-    private val realmObjectHelper: IrClass = pluginContext.lookupClassOrThrow(ClassIds.REALM_OBJECT_HELPER)
+    private val realmObjectHelper: IrClass = pluginContext.lookupClassOrThrow(ClassIds.REALM_OBJECT_HELPER, irFile)
     private val realmToString: IrSimpleFunction = realmObjectHelper.lookupFunction(Name.identifier("realmToString"))
     private val realmEquals: IrSimpleFunction = realmObjectHelper.lookupFunction(Name.identifier("realmEquals"))
     private val realmHashCode: IrSimpleFunction = realmObjectHelper.lookupFunction(Name.identifier("realmHashCode"))

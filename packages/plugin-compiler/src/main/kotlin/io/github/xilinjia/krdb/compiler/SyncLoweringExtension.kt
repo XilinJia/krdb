@@ -52,20 +52,12 @@ import org.jetbrains.kotlin.utils.KotlinExceptionWithAttachments
  * - AppConfiguration.Builder().build() -> AppConfigurationImpl.Builder.build(bundleId)
  */
 class SyncLoweringExtension(private val bundleId: String) : IrGenerationExtension {
-//    override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-//        // Safe guard that we don't process anything unless we can actually look up a library-sync
-//        // symbol
-//        val syncSymbol = pluginContext.referenceClass(ClassIds.APP)?.owner
-//        if (syncSymbol != null) {
-//            SyncLowering(pluginContext, bundleId).lowerFromModuleFragment(moduleFragment)
-//        }
-//    }
-
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
         try {
-            val syncSymbol = pluginContext.referenceClass(ClassIds.APP)?.owner
+            val irFile = moduleFragment.files.firstOrNull() ?: throw Exception("KRDB moduleFragment files is empty")
+            val syncSymbol = pluginContext.finderForSource(irFile).findClass(ClassIds.APP)?.owner
             if (syncSymbol != null) {
-                SyncLowering(pluginContext, bundleId).lowerFromModuleFragment(moduleFragment)
+                SyncLowering(pluginContext, bundleId, irFile).lowerFromModuleFragment(moduleFragment)
             }
         } catch (t: Throwable) {
             error("KRDB crash in SyncLoweringExtension\n" + t.stackTraceToString())
@@ -73,37 +65,37 @@ class SyncLoweringExtension(private val bundleId: String) : IrGenerationExtensio
     }
 }
 
-private class SyncLowering(private val pluginContext: IrPluginContext, private val bundleId: String) : ClassLoweringPass, DeclarationContainerLoweringPass {
-    private val appImplCompanionSymbol = pluginContext.lookupClassOrThrow(ClassIds.APP_IMPL).companionObject()!!.symbol
+private class SyncLowering(private val pluginContext: IrPluginContext, private val bundleId: String, private val irFile: IrFile) : ClassLoweringPass, DeclarationContainerLoweringPass {
+    private val appImplCompanionSymbol = pluginContext.lookupClassOrThrow(ClassIds.APP_IMPL, irFile).companionObject()!!.symbol
     private val appConfigurationImplCompanionSymbol =
-        pluginContext.lookupClassOrThrow(ClassIds.APP_CONFIGURATION_IMPL).companionObject()!!.symbol
+        pluginContext.lookupClassOrThrow(ClassIds.APP_CONFIGURATION_IMPL, irFile).companionObject()!!.symbol
     // App.create(appId)
     private val appCreateAppId: IrSimpleFunction =
-        pluginContext.lookupClassOrThrow(ClassIds.APP).companionObject()!!
+        pluginContext.lookupClassOrThrow(ClassIds.APP, irFile).companionObject()!!
             .lookupFunction(Names.APP_CREATE) {
                 val params = it.parameters.filter {p -> p.kind == IrParameterKind.Regular || p.kind == IrParameterKind.Context }
                 params.size == 1 && params[0].type == pluginContext.irBuiltIns.stringType
             }
     // AppImpl.create(appId, bundleId)
     private val appCreateAppIdBundleId: IrSimpleFunction =
-        pluginContext.lookupClassOrThrow(ClassIds.APP_IMPL).companionObject()!!.lookupFunction(Names.APP_CREATE) {
+        pluginContext.lookupClassOrThrow(ClassIds.APP_IMPL, irFile).companionObject()!!.lookupFunction(Names.APP_CREATE) {
             val params = it.parameters.filter {p -> p.kind == IrParameterKind.Regular || p.kind == IrParameterKind.Context }
             params.size == 2
         }
     // AppConfiguration.create(appId)
     private val appConfigurationCreateAppId: IrSimpleFunction =
-        pluginContext.lookupClassOrThrow(ClassIds.APP_CONFIGURATION).companionObject()!!
+        pluginContext.lookupClassOrThrow(ClassIds.APP_CONFIGURATION, irFile).companionObject()!!
             .lookupFunction(Names.APP_CONFIGURATION_CREATE) {
                 val params = it.parameters.filter {p -> p.kind == IrParameterKind.Regular || p.kind == IrParameterKind.Context }
                 params.size == 1 && params[0].type == pluginContext.irBuiltIns.stringType
             }
     // AppConfigurationImpl.create(appId, bundleId)
     private val appConfigurationImplCreateAppIdBungleId: IrSimpleFunction =
-        pluginContext.lookupClassOrThrow(ClassIds.APP_CONFIGURATION_IMPL).companionObject()!!.lookupFunction(Names.APP_CONFIGURATION_CREATE) {
+        pluginContext.lookupClassOrThrow(ClassIds.APP_CONFIGURATION_IMPL, irFile).companionObject()!!.lookupFunction(Names.APP_CONFIGURATION_CREATE) {
             val params = it.parameters.filter {p -> p.kind == IrParameterKind.Regular || p.kind == IrParameterKind.Context }
             params.size == 2
         }
-    private val appConfigurationBuilder: IrClass = pluginContext.lookupClassOrThrow(APP_CONFIGURATION_BUILDER)
+    private val appConfigurationBuilder: IrClass = pluginContext.lookupClassOrThrow(APP_CONFIGURATION_BUILDER, irFile)
     // AppConfiguration.Builder.build()
     private val appBuilderBuildNoArg: IrSimpleFunction =
         appConfigurationBuilder.lookupFunction(Names.APP_CONFIGURATION_BUILDER_BUILD) {

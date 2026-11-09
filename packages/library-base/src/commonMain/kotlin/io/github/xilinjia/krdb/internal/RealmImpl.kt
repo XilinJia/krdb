@@ -46,7 +46,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
@@ -103,7 +102,6 @@ public class RealmImpl private constructor(
 
     // Injection point for synchronized Realms. This property should only be used to hold state
     // required by synchronized realms. See `SyncedRealmContext` for more details.
-    @OptIn(ExperimentalStdlibApi::class)
     public var syncContext: AtomicRef<AutoCloseable?> = atomic(null)
 
     init {
@@ -219,11 +217,11 @@ public class RealmImpl private constructor(
             }
     }
 
-    override fun writeCopyTo(configuration: Configuration) {
-        if (fileExists(configuration.path)) {
-            throw IllegalArgumentException("File already exists at: ${configuration.path}. Realm can only write a copy to an empty path.")
+    override fun writeCopyTo(targetConfiguration: Configuration) {
+        if (fileExists(targetConfiguration.path)) {
+            throw IllegalArgumentException("File already exists at: ${targetConfiguration.path}. Realm can only write a copy to an empty path.")
         }
-        val internalConfig = (configuration as InternalConfiguration)
+        val internalConfig = (targetConfiguration as InternalConfiguration)
         val configPtr = internalConfig.createNativeConfiguration()
 
         RealmInterop.realm_convert_with_config(
@@ -266,7 +264,7 @@ public class RealmImpl private constructor(
     }
 
     public fun activeVersions(): VersionInfo {
-        val mainVersions: VersionData = VersionData(
+        val mainVersions = VersionData(
             current = initialRealmReference.value?.uncheckedVersion(),
             active = versionTracker.versions()
         )
@@ -294,7 +292,6 @@ public class RealmImpl private constructor(
                 realmScope.cancel()
                 notifier.close()
                 versionTracker.close()
-                @OptIn(ExperimentalStdlibApi::class)
                 syncContext.value?.close()
                 // The local realmReference is pointing to a realm reference managed by either the
                 // version tracker, writer or notifier, so it is already closed

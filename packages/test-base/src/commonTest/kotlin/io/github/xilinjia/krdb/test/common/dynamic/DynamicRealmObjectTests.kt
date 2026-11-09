@@ -1305,7 +1305,7 @@ class DynamicRealmObjectTests {
             // DynamicRealmObject
             if (actualReified?.type == RealmAny.Type.OBJECT) {
                 assertFailsWith<ClassCastException> {
-                    actualReified?.asRealmObject<Sample>()
+                    actualReified.asRealmObject<Sample>()
                 }
                 assertFailsWith<ClassCastException> {
                     actual?.asRealmObject(Sample::class)
@@ -1314,7 +1314,7 @@ class DynamicRealmObjectTests {
                 // Retrieve values now
                 assertEquals(
                     expected?.asRealmObject<Sample>()?.stringField,
-                    actualReified?.asRealmObject<DynamicRealmObject>()?.getValue("stringField")
+                    actualReified.asRealmObject<DynamicRealmObject>().getValue("stringField")
                 )
                 assertEquals(
                     expected?.asRealmObject<Sample>()?.stringField,
@@ -1407,10 +1407,10 @@ class DynamicRealmObjectTests {
                             actualReified?.asRealmObject(Sample::class)
                         }
                         assertFailsWith<ClassCastException> {
-                            actual?.asRealmObject<Sample>()
+                            actual.asRealmObject<Sample>()
                         }
                         assertFailsWith<ClassCastException> {
-                            actual?.asRealmObject(Sample::class)
+                            actual.asRealmObject(Sample::class)
                         }
 
                         // Retrieve values now
@@ -1420,7 +1420,7 @@ class DynamicRealmObjectTests {
                         )
                         assertEquals(
                             expected?.asRealmObject<Sample>()?.stringField,
-                            actual?.asRealmObject<DynamicRealmObject>()?.getValue("stringField")
+                            actual.asRealmObject<DynamicRealmObject>().getValue("stringField")
                         )
                     } else {
                         assertEquals(expected, actualReified)
@@ -1470,7 +1470,7 @@ class DynamicRealmObjectTests {
                 }
                 actualList[1]!!.let { innerDictionary ->
                     val actualSample =
-                        innerDictionary.asDictionary()!!["key"]!!.asRealmObject<DynamicRealmObject>()
+                        innerDictionary.asDictionary()["key"]!!.asRealmObject<DynamicRealmObject>()
                     assertIs<DynamicRealmObject>(actualSample)
                     assertEquals("INNER_DICT", actualSample.getValue("stringField"))
                 }
@@ -1564,10 +1564,10 @@ class DynamicRealmObjectTests {
                     Sample::nullableRealmAnyDictionaryField.name,
                     RealmAny::class
                 )
-                for (entry in realmAnyValues.entries) {
-                    val expected = realmAnyValues[entry.key]
-                    val actualReified = actualReifiedDictionary[entry.key]
-                    val actual = actualDictionary[entry.key]
+                for ((key) in realmAnyValues) {
+                    val expected = realmAnyValues[key]
+                    val actualReified = actualReifiedDictionary[key]
+                    val actual = actualDictionary[key]
                     if (actual?.type == RealmAny.Type.OBJECT) {
                         // Test we throw if trying to retrieve the object using its actual class instead of
                         // DynamicRealmObject
@@ -1591,7 +1591,7 @@ class DynamicRealmObjectTests {
                         )
                         assertEquals(
                             expected?.asRealmObject<Sample>()?.stringField,
-                            actual.asRealmObject<DynamicRealmObject>()?.getValue("stringField")
+                            actual.asRealmObject<DynamicRealmObject>().getValue("stringField")
                         )
                     } else {
                         assertEquals(expected, actualReified)
@@ -1645,7 +1645,7 @@ class DynamicRealmObjectTests {
                     }
                 }
                 actualDictionary["dict"]!!.let { innerDictionary ->
-                    val innerSample = innerDictionary.asDictionary()!!["key"]!!
+                    val innerSample = innerDictionary.asDictionary()["key"]!!
                     val actualSample =
                         innerSample.asRealmObject<DynamicRealmObject>()
                     assertIs<DynamicRealmObject>(actualSample)

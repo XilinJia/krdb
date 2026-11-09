@@ -39,6 +39,7 @@ import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.types.starProjectedType
 import org.jetbrains.kotlin.ir.util.companionObject
 import org.jetbrains.kotlin.ir.util.defaultType
+import org.jetbrains.kotlin.ir.util.file
 import org.jetbrains.kotlin.ir.util.isAnonymousObject
 import org.jetbrains.kotlin.ir.util.isEnumClass
 import org.jetbrains.kotlin.ir.util.isObject
@@ -48,24 +49,20 @@ import org.jetbrains.kotlin.ir.util.primaryConstructor
 import org.jetbrains.kotlin.platform.konan.isNative
 
 class RealmModelLoweringExtension : IrGenerationExtension {
-//    override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-//        RealmModelLowering(pluginContext).lowerFromModuleFragment(moduleFragment)
-//    }
-
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
         try {
-            RealmModelLowering(pluginContext).lowerFromModuleFragment(moduleFragment)
+            val irFile = moduleFragment.files.firstOrNull() ?: throw Exception("KRDB moduleFragment files is empty")
+            RealmModelLowering(pluginContext, irFile).lowerFromModuleFragment(moduleFragment)
         } catch (t: Throwable) {
             error("KRDB crash in RealmModelLowering\n" + t.stackTraceToString())
         }
     }
 }
 
-private class RealmModelLowering(private val pluginContext: IrPluginContext) : ClassLoweringPass {
-
+private class RealmModelLowering(private val pluginContext: IrPluginContext, private val irFile: IrFile) : ClassLoweringPass {
     // NOTE This is only available on Native platforms
     val modelObjectAnnotationClass by lazy {
-        pluginContext.lookupClassOrThrow(MODEL_OBJECT_ANNOTATION)
+        pluginContext.lookupClassOrThrow(MODEL_OBJECT_ANNOTATION, irFile)
     }
 
     fun lowerFromModuleFragment(moduleFragment: IrModuleFragment) {
@@ -117,18 +114,18 @@ private class RealmModelLowering(private val pluginContext: IrPluginContext) : C
                 irClass.annotations += modelObjectAnnotation
             }
             // add super type RealmObjectInternal and RealmObjectInterop
-            val realmObjectInternalInterface: IrClassSymbol = pluginContext.lookupClassOrThrow(REALM_OBJECT_INTERNAL_INTERFACE).symbol
+            val realmObjectInternalInterface: IrClassSymbol = pluginContext.lookupClassOrThrow(REALM_OBJECT_INTERNAL_INTERFACE, irClass.file).symbol
             irClass.superTypes += realmObjectInternalInterface.defaultType
 
             // Generate RealmObjectInternal properties overrides
-            val generator = RealmModelSyntheticPropertiesGeneration(pluginContext)
+            val generator = RealmModelSyntheticPropertiesGeneration(pluginContext, irClass.file)
             generator.addRealmObjectInternalProperties(irClass)
 
             // Modify properties accessor to generate custom getter/setter
-            AccessorModifierIrGeneration(pluginContext).modifyPropertiesAndCollectSchema(irClass)
+            AccessorModifierIrGeneration(pluginContext, irClass.file).modifyPropertiesAndCollectSchema(irClass)
 
             // Add custom toString, equals and hashCode methods
-            val methodGenerator = RealmModelDefaultMethodGeneration(pluginContext)
+            val methodGenerator = RealmModelDefaultMethodGeneration(pluginContext, irClass.file)
             methodGenerator.addDefaultMethods(irClass)
 
             // Add body for synthetic companion methods
@@ -138,7 +135,7 @@ private class RealmModelLowering(private val pluginContext: IrPluginContext) : C
             generator.addNewInstanceMethodBody(irClass)
         } else {
             if (irClass.isCompanion && irClass.parentAsClass.isBaseRealmObject) {
-                val realmModelCompanion: IrClassSymbol = pluginContext.lookupClassOrThrow(REALM_MODEL_COMPANION).symbol
+                val realmModelCompanion: IrClassSymbol = pluginContext.lookupClassOrThrow(REALM_MODEL_COMPANION, irClass.file).symbol
                 irClass.superTypes += realmModelCompanion.defaultType
             }
         }

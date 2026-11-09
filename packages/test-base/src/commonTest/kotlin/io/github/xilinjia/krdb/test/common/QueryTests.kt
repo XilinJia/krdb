@@ -82,6 +82,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
+import kotlin.time.Duration.Companion.milliseconds
 
 @Suppress("LargeClass")
 class QueryTests {
@@ -1345,7 +1346,7 @@ class QueryTests {
             .sum(QuerySample::shortField.name, Int::class)
             .find { sumValue ->
                 assertNotNull(sumValue)
-                assertEquals(validShortSum, sumValue.toInt())
+                assertEquals(validShortSum, sumValue)
             }
     }
 
@@ -1374,7 +1375,7 @@ class QueryTests {
             .sum(QuerySample::byteField.name, Int::class)
             .find { sumValue ->
                 assertNotNull(sumValue)
-                assertEquals(validByteSum, sumValue.toInt())
+                assertEquals(validByteSum, sumValue)
             }
     }
 
@@ -2302,13 +2303,13 @@ class QueryTests {
             val obs = async(scope) {
                 // Having built the query before, we reuse the query object from a different thread
                 // so that the results pointer is evaluated now
-                val results = query!!.find()
+                val results = query.find()
                 channel.send(results)
             }
             val results = channel.receiveOrFail()
             assertEquals(1, results.size)
 
-            query!!.find { res ->
+            query.find { res ->
                 assertEquals(1, res.size)
             }
 
@@ -2645,7 +2646,7 @@ class QueryTests {
             when (propertyDescriptor.clazz) {
                 RealmAny::class -> when (type) {
                     AggregatorQueryType.SUM -> assertFailsWith<TimeoutCancellationException> {
-                        withTimeout(100) { channel.receiveOrFail() }
+                        withTimeout(100.milliseconds) { channel.receiveOrFail() }
                     }
                     // MAX for RealmAny is RealmObject so emitted objects will not be the same
                     // even though they may the same at a structural level
@@ -2660,11 +2661,11 @@ class QueryTests {
                         assertEquals(expectedString, actualString)
                     }
                     AggregatorQueryType.MIN -> assertFailsWith<TimeoutCancellationException> {
-                        withTimeout(100) { channel.receiveOrFail() }
+                        withTimeout(100.milliseconds) { channel.receiveOrFail() }
                     }
                 }
                 else -> assertFailsWith<TimeoutCancellationException> {
-                    withTimeout(100) { channel.receiveOrFail() }
+                    withTimeout(100.milliseconds) { channel.receiveOrFail() }
                 }
             }
 

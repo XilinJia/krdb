@@ -26,10 +26,8 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ChannelResult
 import kotlinx.coroutines.withTimeout
-import kotlinx.datetime.Instant
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.ExperimentalTime
 
 // Platform independent helper methods
 object Utils {
@@ -78,8 +76,7 @@ suspend fun Realm.useInContext(action: suspend (Realm) -> Unit) {
 }
 
 // Convert Kotlinx-datatime Instant to RealmInstant
-@OptIn(ExperimentalTime::class)
-fun Instant.toRealmInstant(): RealmInstant {
+fun kotlin.time.Instant.toRealmInstant(): RealmInstant {
     val s: Long = this.epochSeconds
     val ns: Int = this.nanosecondsOfSecond
 

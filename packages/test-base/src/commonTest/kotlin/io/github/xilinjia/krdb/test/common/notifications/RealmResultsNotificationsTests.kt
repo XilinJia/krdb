@@ -22,7 +22,6 @@ import io.github.xilinjia.krdb.RealmConfiguration
 import io.github.xilinjia.krdb.entities.Sample
 import io.github.xilinjia.krdb.entities.list.RealmListContainer
 import io.github.xilinjia.krdb.entities.list.listTestSchema
-import io.github.xilinjia.krdb.ext.asFlow
 import io.github.xilinjia.krdb.ext.query
 import io.github.xilinjia.krdb.notifications.InitialResults
 import io.github.xilinjia.krdb.notifications.ListChangeSet.Range
@@ -140,8 +139,7 @@ class RealmResultsNotificationsTests : FlowableTests, KeyPathFlowableTests {
                 assertNotNull(resultsChange.list)
                 assertEquals(dataset2.size, resultsChange.list.size)
 
-                assertIsChangeSet(
-                    (resultsChange as UpdatedResults<*>),
+                assertIsChangeSet(resultsChange,
                     insertRanges = arrayOf(
                         Range(0, 4)
                     )
@@ -163,8 +161,7 @@ class RealmResultsNotificationsTests : FlowableTests, KeyPathFlowableTests {
                 assertNotNull(resultsChange.list)
                 assertEquals(dataset1.size + dataset2.size + dataset3.size, resultsChange.list.size)
 
-                assertIsChangeSet(
-                    (resultsChange as UpdatedResults<*>),
+                assertIsChangeSet(resultsChange,
                     insertRanges = arrayOf(
                         Range(0, 2),
                         Range(6, 2)
@@ -191,8 +188,7 @@ class RealmResultsNotificationsTests : FlowableTests, KeyPathFlowableTests {
                 assertNotNull(resultsChange.list)
                 assertEquals(dataset2.size, resultsChange.list.size)
 
-                assertIsChangeSet(
-                    (resultsChange as UpdatedResults<*>),
+                assertIsChangeSet(resultsChange,
                     deletionRanges = arrayOf(
                         Range(0, 2),
                         Range(6, 2)
@@ -219,8 +215,7 @@ class RealmResultsNotificationsTests : FlowableTests, KeyPathFlowableTests {
                 assertNotNull(resultsChange.list)
                 assertTrue(resultsChange.list.isEmpty())
 
-                assertIsChangeSet(
-                    (resultsChange as UpdatedResults<*>),
+                assertIsChangeSet(resultsChange,
                     deletionRanges = arrayOf(
                         Range(0, 4)
                     )
@@ -262,8 +257,7 @@ class RealmResultsNotificationsTests : FlowableTests, KeyPathFlowableTests {
                 assertNotNull(resultsChange.list)
                 assertEquals(dataset2.size, resultsChange.list.size)
 
-                assertIsChangeSet(
-                    (resultsChange as UpdatedResults<*>),
+                assertIsChangeSet(resultsChange,
                     changesRanges = arrayOf(
                         Range(0, 2),
                         Range(3, 1),
@@ -567,7 +561,7 @@ class RealmResultsNotificationsTests : FlowableTests, KeyPathFlowableTests {
     override fun keyPath_unknownTopLevelProperty() = runBlocking<Unit> {
         realm.write { copyToRealm(Sample()) }
         val results = realm.query<Sample>()
-        assertFailsWith<IllegalArgumentException>() {
+        assertFailsWith<IllegalArgumentException> {
             results.asFlow(listOf("foo"))
         }
     }
@@ -576,7 +570,7 @@ class RealmResultsNotificationsTests : FlowableTests, KeyPathFlowableTests {
     override fun keyPath_unknownNestedProperty() = runBlocking<Unit> {
         realm.write { copyToRealm(Sample()) }
         val results = realm.query<Sample>()
-        assertFailsWith<IllegalArgumentException>() {
+        assertFailsWith<IllegalArgumentException> {
             results.asFlow(listOf("nullableObject.foo"))
         }
     }

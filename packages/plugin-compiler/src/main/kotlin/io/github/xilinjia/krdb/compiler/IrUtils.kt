@@ -65,6 +65,7 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclaration
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationWithName
 import org.jetbrains.kotlin.ir.declarations.IrField
+import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrMutableAnnotationContainer
 import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.declarations.IrProperty
@@ -245,25 +246,25 @@ internal fun IrClass.lookupProperty(name: Name): IrProperty {
         ?: throw AssertionError("Property '$name' not found in class '${this.name}'")
 }
 
-internal fun IrPluginContext.lookupFunctionInClass(
-    clazz: ClassId,
-    function: String
-): IrSimpleFunction {
-    return lookupClassOrThrow(clazz).functions.first {
-        it.name == Name.identifier(function)
-    }
-}
+//internal fun IrPluginContext.lookupFunctionInClass(
+//    clazz: ClassId,
+//    function: String
+//): IrSimpleFunction {
+//    return lookupClassOrThrow(clazz).functions.first {
+//        it.name == Name.identifier(function)
+//    }
+//}
 
-internal fun IrPluginContext.lookupClassOrThrow(name: ClassId): IrClass {
-    return referenceClass(name)?.owner
-        ?: fatalError("Cannot find ${name.asString()} on platform $platform.")
+internal fun IrPluginContext.lookupClassOrThrow(name: ClassId, irFile: IrFile): IrClass {
+    return finderForSource(irFile).findClass(name)?.owner ?: fatalError("Cannot find ${name.asString()} on platform $platform.")
 }
 
 internal fun IrPluginContext.lookupConstructorInClass(
     clazz: ClassId,
+    irFile: IrFile,
     filter: (ctor: IrConstructorSymbol) -> Boolean = { true }
 ): IrConstructorSymbol {
-    return referenceConstructors(clazz).first {
+    return finderForSource(irFile).findConstructors(clazz).first {
         filter(it)
     }
 }
@@ -289,7 +290,7 @@ internal fun KotlinType.getKotlinTypeFqNameCompat(printTypeArguments: Boolean): 
     }
 
     val typeArguments = arguments
-    val typeArgumentsAsString = if (printTypeArguments && !typeArguments.isEmpty()) {
+    val typeArgumentsAsString = if (printTypeArguments && typeArguments.isNotEmpty()) {
         val joinedTypeArguments = StringUtil.join(typeArguments, { projection -> projection.type.getKotlinTypeFqNameCompat(false) }, ", ")
 
         "<$joinedTypeArguments>"
@@ -420,33 +421,35 @@ internal fun <T : IrExpression> buildOf(
 
 internal fun <T : IrExpression> buildSetOf(
     context: IrPluginContext,
+    irFile: IrFile,
     startOffset: Int,
     endOffset: Int,
     elementType: IrType,
     args: List<T>
 ): IrExpression {
-    val setOf = context.referenceFunctions(CallableId(FqName("kotlin.collections"), Name.identifier("setOf")))
+    val setOf = context.finderForSource(irFile).findFunctions(CallableId(FqName("kotlin.collections"), Name.identifier("setOf")))
         .first {
             val params = it.owner.parameters.filter { p -> p.kind == IrParameterKind.Regular || p.kind == IrParameterKind.Context }
             params.size == 1 && params.first().isVararg
         }
-    val setIrClass: IrClass = context.lookupClassOrThrow(ClassIds.KOTLIN_COLLECTIONS_SET)
+    val setIrClass: IrClass = context.lookupClassOrThrow(ClassIds.KOTLIN_COLLECTIONS_SET, irFile)
     return buildOf(context, startOffset, endOffset, setOf, setIrClass, elementType, args)
 }
 
 internal fun <T : IrExpression> buildListOf(
     context: IrPluginContext,
+    irFile: IrFile,
     startOffset: Int,
     endOffset: Int,
     elementType: IrType,
     args: List<T>
 ): IrExpression {
-    val listOf = context.referenceFunctions(KOTLIN_COLLECTIONS_LISTOF)
+    val listOf = context.finderForSource(irFile).findFunctions(KOTLIN_COLLECTIONS_LISTOF)
         .first {
             val params = it.owner.parameters.filter { p -> p.kind == IrParameterKind.Regular || p.kind == IrParameterKind.Context }
             params.size == 1 && params.first().isVararg
         }
-    val listIrClass: IrClass = context.lookupClassOrThrow(ClassIds.KOTLIN_COLLECTIONS_LIST)
+    val listIrClass: IrClass = context.lookupClassOrThrow(ClassIds.KOTLIN_COLLECTIONS_LIST, irFile)
     return buildOf(context, startOffset, endOffset, listOf, listIrClass, elementType, args)
 }
 
@@ -516,8 +519,7 @@ internal fun IrClass.addFakeOverrides(
     receiver: IrClassSymbol,
     functions: Set<Name>,
 ) {
-    val overrides = receiver.owner.declarations.filterIsInstance<IrSimpleFunction>()
-        .filter { it.name in functions }
+    val overrides = receiver.owner.declarations.filterIsInstance<IrSimpleFunction>().filter { it.name in functions }
     for (override in overrides) {
         addFunction {
             updateFrom(override)
@@ -641,7 +643,7 @@ fun getLinkingObjectPropertyName(backingField: IrField): String {
 fun getSchemaClassName(clazz: IrClass): String {
     return if (clazz.hasAnnotation(PERSISTED_NAME_ANNOTATION)) {
         @Suppress("UNCHECKED_CAST")
-        return (clazz.getAnnotation(PERSISTED_NAME_ANNOTATION.asSingleFqName()).arguments[0] as IrConstImpl).value?.toString() ?: ""
+        (clazz.getAnnotation(PERSISTED_NAME_ANNOTATION.asSingleFqName()).arguments[0] as IrConstImpl).value?.toString() ?: ""
     } else {
         clazz.name.identifier
     }

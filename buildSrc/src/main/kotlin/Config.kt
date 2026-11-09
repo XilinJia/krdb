@@ -101,9 +101,9 @@ object Versions {
         const val targetSdk = 37
         const val compileSdkVersion = 37
         const val buildToolsVersion = "37.0.0"
-        const val buildTools = "9.4.1" // https://maven.google.com/web/index.html?q=gradle#com.android.tools.build:gradle
+        const val buildTools = "9.5.1" // https://maven.google.com/web/index.html?q=gradle#com.android.tools.build:gradle
         const val ndkVersion = "30.0.16248370"
-        const val r8 = "9.1.31" // See https://developer.android.com/build/kotlin-support
+        const val r8 = "9.5.29" // See https://developer.android.com/build/kotlin-support   https://mvnrepository.com/artifact/com.android.tools/r8
     }
     const val androidxBenchmarkPlugin = "1.4.1" // https://maven.google.com/web/index.html#androidx.benchmark:androidx.benchmark.gradle.plugin  not quite needed
     const val androidxStartup = "1.2.0" // https://maven.google.com/web/index.html?q=startup#androidx.startup:startup-runtime   2024
@@ -112,11 +112,11 @@ object Versions {
 
     // When updating the Kotlin version, also remember to update /examples/min-android-sample/build.gradle.kts
     // these need to be compatible with Kotlin version: atomicfu, atomicfuPlugin, serialization, kotlinCompileTesting, ktlint
-    const val kotlin = "2.4.20" // https://github.com/JetBrains/kotlin and https://kotlinlang.org/docs/releases.html#release-details
-    const val latestKotlin = "2.4.20" // https://kotlinlang.org/docs/eap.html#build-details
+    const val kotlin = "2.4.21" // https://github.com/JetBrains/kotlin and https://kotlinlang.org/docs/releases.html#release-details
+    const val latestKotlin = "2.4.21" // https://kotlinlang.org/docs/eap.html#build-details
     const val kotlinCompileTesting = "0.14.0" // https://github.com/zacsweers/kotlin-compile-testing
-    const val kotlinDSLPluging = "6.7.11"    // https://plugins.gradle.org/plugin/org.gradle.kotlin.kotlin-dsl
-    const val serialization = "1.11.0" // https://github.com/Kotlin/kotlinx.serialization
+    const val kotlinDSLPluging = "6.7.13"    // https://plugins.gradle.org/plugin/org.gradle.kotlin.kotlin-dsl
+    const val serialization = "1.12.0" // https://github.com/Kotlin/kotlinx.serialization
     const val atomicfu = "0.33.0" // https://github.com/Kotlin/kotlinx.atomicfu
     const val atomicfuPlugin = "0.33.0" // https://github.com/Kotlin/kotlinx.atomicfu
     const val ktlint = "1.8.0" // https://github.com/pinterest/ktlint
@@ -136,7 +136,7 @@ object Versions {
 //    const val ktor = "3.4.0" // https://github.com/ktorio/ktor
 //    const val multidex = "2.0.1" // https://developer.android.com/jetpack/androidx/releases/multidex    this is very old
     const val nexusPublishPlugin = "1.3.0" // https://github.com/gradle-nexus/publish-plugin
-    const val okio = "3.18.2" // https://square.github.io/okio/#releases    https://github.com/square/okio/tags     https://mvnrepository.com/artifact/com.squareup.okio/okio
+    const val okio = "3.18.2" // https://github.com/square/okio/tags     https://mvnrepository.com/artifact/com.squareup.okio/okio
     const val relinker = "1.4.5" // https://github.com/KeepSafe/ReLinker    this is pretty old
     const val shadowJar =  "9.6.1" // https://github.com/GradleUp/shadow?tab=readme-ov-file
 //    const val snakeYaml = "2.5" // https://github.com/snakeyaml/snakeyaml

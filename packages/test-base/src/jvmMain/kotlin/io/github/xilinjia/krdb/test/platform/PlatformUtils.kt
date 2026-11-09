@@ -80,7 +80,7 @@ actual object PlatformUtils {
         Thread.sleep(duration.inWholeMilliseconds)
     }
 
-    actual fun threadId(): ULong = Thread.currentThread().id.toULong()
+    actual fun threadId(): ULong = Thread.currentThread().threadId().toULong()
 
     @Suppress("ExplicitGarbageCollectionCall")
     actual fun triggerGC() {

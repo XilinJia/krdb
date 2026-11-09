@@ -40,7 +40,7 @@ internal interface InternalMutableRealm : MutableRealm {
                     // up to date, just return input
                     obj
                 } else {
-                    return thaw(realmReference)?.toRealmObject() as T?
+                    return thaw(realmReference)?.toRealmObject()
                 }
             } ?: throw IllegalArgumentException(
                 "Unmanaged objects must be part of the Realm, before " +

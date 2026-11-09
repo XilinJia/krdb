@@ -80,6 +80,7 @@ import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrEnumEntry
 import org.jetbrains.kotlin.ir.declarations.IrField
+import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
@@ -101,7 +102,6 @@ import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.types.getClass
-//import org.jetbrains.kotlin.ir.types.isNullable
 import org.jetbrains.kotlin.ir.types.makeNullable
 import org.jetbrains.kotlin.ir.types.starProjectedType
 import org.jetbrains.kotlin.ir.types.typeOrNull
@@ -113,11 +113,11 @@ import org.jetbrains.kotlin.ir.util.defaultType
 import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.getPropertyGetter
 import org.jetbrains.kotlin.ir.util.getPropertySetter
+import org.jetbrains.kotlin.ir.util.isNullable
 import org.jetbrains.kotlin.ir.util.isVararg
 import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
-import org.jetbrains.kotlin.ir.util.isNullable
 
 
 /**
@@ -127,47 +127,39 @@ import org.jetbrains.kotlin.ir.util.isNullable
  * - Adding the internal properties and methods of [RealmObjectCompanion] to the associated companion.
  */
 @Suppress("LargeClass")
-class RealmModelSyntheticPropertiesGeneration(private val pluginContext: IrPluginContext) {
+class RealmModelSyntheticPropertiesGeneration(private val pluginContext: IrPluginContext, private val irFile: IrFile) {
 
-    private val realmObjectInterface: IrClass =
-        pluginContext.lookupClassOrThrow(REALM_OBJECT_INTERFACE)
-    private val typedRealmObjectInterface: IrClass =
-        pluginContext.lookupClassOrThrow(TYPED_REALM_OBJECT_INTERFACE)
-    private val realmModelInternalInterface: IrClass =
-        pluginContext.lookupClassOrThrow(REALM_OBJECT_INTERNAL_INTERFACE)
-    private val realmObjectCompanionInterface =
-        pluginContext.lookupClassOrThrow(REALM_MODEL_COMPANION)
+    private val realmObjectInterface: IrClass = pluginContext.lookupClassOrThrow(REALM_OBJECT_INTERFACE, irFile)
+    private val typedRealmObjectInterface: IrClass = pluginContext.lookupClassOrThrow(TYPED_REALM_OBJECT_INTERFACE, irFile)
+    private val realmModelInternalInterface: IrClass = pluginContext.lookupClassOrThrow(REALM_OBJECT_INTERNAL_INTERFACE, irFile)
+    private val realmObjectCompanionInterface = pluginContext.lookupClassOrThrow(REALM_MODEL_COMPANION, irFile)
 
-    private val classInfoClass = pluginContext.lookupClassOrThrow(CLASS_INFO)
+    private val classInfoClass = pluginContext.lookupClassOrThrow(CLASS_INFO, irFile)
     private val classInfoCreateMethod = classInfoClass.lookupCompanionDeclaration<IrSimpleFunction>(CLASS_INFO_CREATE)
 
-    private val propertyClass = pluginContext.lookupClassOrThrow(PROPERTY_INFO)
-    private val propertyCreateMethod = pluginContext.referenceFunctions(PROPERTY_INFO_CREATE).first()
+    private val propertyClass = pluginContext.lookupClassOrThrow(PROPERTY_INFO, irFile)
+    private val propertyCreateMethod = pluginContext.finderForSource(irFile).findFunctions(PROPERTY_INFO_CREATE).first()
 
-    private val propertyType: IrClass = pluginContext.lookupClassOrThrow(PROPERTY_TYPE)
-    private val propertyTypes =
-        propertyType.declarations.filterIsInstance<IrEnumEntry>()
-    private val collectionType: IrClass = pluginContext.lookupClassOrThrow(COLLECTION_TYPE)
-    private val collectionTypes =
-        collectionType.declarations.filterIsInstance<IrEnumEntry>()
-    private val classKindType: IrClass = pluginContext.lookupClassOrThrow(CLASS_KIND_TYPE)
+    private val propertyType: IrClass = pluginContext.lookupClassOrThrow(PROPERTY_TYPE, irFile)
+    private val propertyTypes = propertyType.declarations.filterIsInstance<IrEnumEntry>()
+    private val collectionType: IrClass = pluginContext.lookupClassOrThrow(COLLECTION_TYPE, irFile)
+    private val collectionTypes = collectionType.declarations.filterIsInstance<IrEnumEntry>()
+    private val classKindType: IrClass = pluginContext.lookupClassOrThrow(CLASS_KIND_TYPE, irFile)
     private val classKindTypes = classKindType.declarations.filterIsInstance<IrEnumEntry>()
 
-    private val objectReferenceClass = pluginContext.lookupClassOrThrow(OBJECT_REFERENCE_CLASS)
-    private val realmInstantType: IrType = pluginContext.lookupClassOrThrow(REALM_INSTANT).defaultType
-    private val objectIdType: IrType = pluginContext.lookupClassOrThrow(KBSON_OBJECT_ID).defaultType
-    private val realmUUIDType: IrType = pluginContext.lookupClassOrThrow(REALM_UUID).defaultType
-    private val realmAnyType: IrType = pluginContext.lookupClassOrThrow(REALM_ANY).defaultType
+    private val objectReferenceClass = pluginContext.lookupClassOrThrow(OBJECT_REFERENCE_CLASS, irFile)
+    private val realmInstantType: IrType = pluginContext.lookupClassOrThrow(REALM_INSTANT, irFile).defaultType
+    private val objectIdType: IrType = pluginContext.lookupClassOrThrow(KBSON_OBJECT_ID, irFile).defaultType
+    private val realmUUIDType: IrType = pluginContext.lookupClassOrThrow(REALM_UUID, irFile).defaultType
+    private val realmAnyType: IrType = pluginContext.lookupClassOrThrow(REALM_ANY, irFile).defaultType
 
-    private val kMutableProperty1Class: IrClass =
-        pluginContext.lookupClassOrThrow(ClassIds.KOTLIN_REFLECT_KMUTABLEPROPERTY1)
+    private val kMutableProperty1Class: IrClass = pluginContext.lookupClassOrThrow(ClassIds.KOTLIN_REFLECT_KMUTABLEPROPERTY1, irFile)
 
-    private val kProperty1Class: IrClass =
-        pluginContext.lookupClassOrThrow(ClassIds.KOTLIN_REFLECT_KPROPERTY1)
+    private val kProperty1Class: IrClass = pluginContext.lookupClassOrThrow(ClassIds.KOTLIN_REFLECT_KPROPERTY1, irFile)
 
-    private val mapClass: IrClass = pluginContext.lookupClassOrThrow(KOTLIN_COLLECTIONS_MAP)
-    private val pairClass: IrClass = pluginContext.lookupClassOrThrow(KOTLIN_PAIR)
-    private val pairCtor = pluginContext.lookupConstructorInClass(KOTLIN_PAIR)
+    private val mapClass: IrClass = pluginContext.lookupClassOrThrow(KOTLIN_COLLECTIONS_MAP, irFile)
+    private val pairClass: IrClass = pluginContext.lookupClassOrThrow(KOTLIN_PAIR, irFile)
+    private val pairCtor = pluginContext.lookupConstructorInClass(KOTLIN_PAIR, irFile)
     private val realmObjectMutablePropertyType = kMutableProperty1Class.typeWith(
         realmObjectInterface.defaultType,
         pluginContext.irBuiltIns.anyNType.makeNullable()
@@ -181,7 +173,7 @@ class RealmModelSyntheticPropertiesGeneration(private val pluginContext: IrPlugi
         pluginContext.irBuiltIns.kClassClass.starProjectedType,
         realmObjectMutablePropertyType
     )
-    private val mapOf = pluginContext.referenceFunctions(KOTLIN_COLLECTIONS_MAPOF)
+    private val mapOf = pluginContext.finderForSource(irFile).findFunctions(KOTLIN_COLLECTIONS_MAPOF)
         .first {
             val params = it.owner.parameters.filter { p -> p.kind == IrParameterKind.Regular || p.kind == IrParameterKind.Context }
             params.size == 1 && params.first().isVararg
@@ -195,8 +187,8 @@ class RealmModelSyntheticPropertiesGeneration(private val pluginContext: IrPlugi
         fieldTypeAndProperty
     )
 
-    val realmClassImpl = pluginContext.lookupClassOrThrow(ClassIds.REALM_CLASS_IMPL)
-    private val realmClassCtor = pluginContext.lookupConstructorInClass(ClassIds.REALM_CLASS_IMPL) {
+    val realmClassImpl = pluginContext.lookupClassOrThrow(ClassIds.REALM_CLASS_IMPL, irFile)
+    private val realmClassCtor = pluginContext.lookupConstructorInClass(ClassIds.REALM_CLASS_IMPL, irFile) {
         val params = it.owner.parameters.filter { p -> p.kind == IrParameterKind.Regular || p.kind == IrParameterKind.Context }
         params.size == 2
     }
@@ -443,8 +435,7 @@ class RealmModelSyntheticPropertiesGeneration(private val pluginContext: IrPlugi
     // TODO OPTIMIZE should be a one time only constructed object
     @Suppress("LongMethod", "ComplexMethod")
     fun addSchemaMethodBody(irClass: IrClass) {
-        val companionObject = irClass.companionObject() as? IrClass
-            ?: fatalError("Companion object not available")
+        val companionObject = irClass.companionObject() ?: fatalError("Companion object not available")
 
         val className = getSchemaClassName(irClass)
 
@@ -515,8 +506,7 @@ class RealmModelSyntheticPropertiesGeneration(private val pluginContext: IrPlugi
                         arguments[arg++] = irBoolean(asymmetric)
                     }
                     arguments[1] =
-                        buildListOf(
-                            pluginContext, startOffset, endOffset, propertyClass.defaultType,
+                        buildListOf(pluginContext, irFile, startOffset, endOffset, propertyClass.defaultType,
                             fields.map { entry ->
                                 val value = entry.value
 
@@ -753,8 +743,7 @@ class RealmModelSyntheticPropertiesGeneration(private val pluginContext: IrPlugi
 
     // Generate body for the synthetic new instance method defined inside the Companion instance previously declared via `RealmModelSyntheticCompanionExtension`
     fun addNewInstanceMethodBody(irClass: IrClass) {
-        val companionObject = irClass.companionObject() as? IrClass
-            ?: fatalError("Companion object not available")
+        val companionObject = irClass.companionObject() ?: fatalError("Companion object not available")
 
         val function = companionObject.functions.first { it.name == REALM_OBJECT_COMPANION_NEW_INSTANCE_METHOD }
 //        function.dispatchReceiverParameter = companionObject.thisReceiver?.copyTo(function)
@@ -764,10 +753,10 @@ class RealmModelSyntheticPropertiesGeneration(private val pluginContext: IrPlugi
             }
         }
         function.body = pluginContext.blockBody(function.symbol) {
-            val firstZeroArgCtor: Any? = irClass.constructors.filter {
+            val firstZeroArgCtor: Any? = irClass.constructors.firstOrNull {
                 val params = it.parameters.filter { p -> p.kind == IrParameterKind.Regular || p.kind == IrParameterKind.Context }
-                params.isEmpty() }.firstOrNull()
-                ?: logError("Cannot find primary zero arg constructor", irClass.locationOf())
+                params.isEmpty()
+            } ?: logError("Cannot find primary zero arg constructor", irClass.locationOf())
             if (firstZeroArgCtor is IrConstructor) {
                 +irReturn(
                     IrConstructorCallImpl.fromSymbolOwner(

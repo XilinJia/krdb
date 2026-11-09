@@ -77,6 +77,7 @@ import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.builders.irTemporary
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
+import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
@@ -125,103 +126,77 @@ import org.jetbrains.kotlin.ir.util.isSubtypeOfClass
  * Modifies the IR tree to transform getter/setter to call the C-Interop layer to retrieve read the managed values from the Realm
  * It also collect the schema information while processing the class properties.
  */
-class AccessorModifierIrGeneration(private val pluginContext: IrPluginContext) {
+class AccessorModifierIrGeneration(private val pluginContext: IrPluginContext, private val irFile: IrFile) {
 
-    private val realmObjectHelper: IrClass = pluginContext.lookupClassOrThrow(REALM_OBJECT_HELPER)
-    private val realmListClass: IrClass = pluginContext.lookupClassOrThrow(REALM_LIST)
-    private val realmSetClass: IrClass = pluginContext.lookupClassOrThrow(REALM_SET)
-    private val realmDictionaryClass: IrClass = pluginContext.lookupClassOrThrow(REALM_DICTIONARY)
-    private val realmInstantClass: IrClass = pluginContext.lookupClassOrThrow(REALM_INSTANT)
-    private val realmBacklinksClass: IrClass = pluginContext.lookupClassOrThrow(REALM_BACKLINKS)
-    private val realmEmbeddedBacklinksClass: IrClass = pluginContext.lookupClassOrThrow(REALM_EMBEDDED_BACKLINKS)
-    private val realmObjectInterface = pluginContext.lookupClassOrThrow(REALM_OBJECT_INTERFACE).symbol
-    private val embeddedRealmObjectInterface = pluginContext.lookupClassOrThrow(EMBEDDED_OBJECT_INTERFACE).symbol
+    private val realmObjectHelper: IrClass = pluginContext.lookupClassOrThrow(REALM_OBJECT_HELPER, irFile)
+    private val realmListClass: IrClass = pluginContext.lookupClassOrThrow(REALM_LIST, irFile)
+    private val realmSetClass: IrClass = pluginContext.lookupClassOrThrow(REALM_SET, irFile)
+    private val realmDictionaryClass: IrClass = pluginContext.lookupClassOrThrow(REALM_DICTIONARY, irFile)
+    private val realmInstantClass: IrClass = pluginContext.lookupClassOrThrow(REALM_INSTANT, irFile)
+    private val realmBacklinksClass: IrClass = pluginContext.lookupClassOrThrow(REALM_BACKLINKS, irFile)
+    private val realmEmbeddedBacklinksClass: IrClass = pluginContext.lookupClassOrThrow(REALM_EMBEDDED_BACKLINKS, irFile)
+    private val realmObjectInterface = pluginContext.lookupClassOrThrow(REALM_OBJECT_INTERFACE, irFile).symbol
+    private val embeddedRealmObjectInterface = pluginContext.lookupClassOrThrow(EMBEDDED_OBJECT_INTERFACE, irFile).symbol
 
-    private val objectIdClass: IrClass = pluginContext.lookupClassOrThrow(KBSON_OBJECT_ID)
-    private val decimal128Class: IrClass = pluginContext.lookupClassOrThrow(KBSON_DECIMAL128)
-    private val realmUUIDClass: IrClass = pluginContext.lookupClassOrThrow(REALM_UUID)
-    private val mutableRealmIntegerClass: IrClass = pluginContext.lookupClassOrThrow(REALM_MUTABLE_INTEGER)
-    private val realmAnyClass: IrClass = pluginContext.lookupClassOrThrow(REALM_ANY)
+    private val objectIdClass: IrClass = pluginContext.lookupClassOrThrow(KBSON_OBJECT_ID, irFile)
+    private val decimal128Class: IrClass = pluginContext.lookupClassOrThrow(KBSON_DECIMAL128, irFile)
+    private val realmUUIDClass: IrClass = pluginContext.lookupClassOrThrow(REALM_UUID, irFile)
+    private val mutableRealmIntegerClass: IrClass = pluginContext.lookupClassOrThrow(REALM_MUTABLE_INTEGER, irFile)
+    private val realmAnyClass: IrClass = pluginContext.lookupClassOrThrow(REALM_ANY, irFile)
 
     // Primitive (Core) type getters
-    private val getString: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_STRING)
-    private val getLong: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_LONG)
-    private val getBoolean: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_BOOLEAN)
-    private val getFloat: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_FLOAT)
-    private val getDouble: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_DOUBLE)
-    private val getDecimal128: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_DECIMAL128)
-    private val getInstant: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_INSTANT)
-    private val getObjectId: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_OBJECT_ID)
-    private val getUUID: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_UUID)
-    private val getByteArray: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_BYTE_ARRAY)
-    private val getMutableInt: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_GET_MUTABLE_INT)
-    private val getRealmAny: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_REALM_ANY)
-    private val getObject: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_GET_OBJECT)
+    private val getString: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_STRING)
+    private val getLong: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_LONG)
+    private val getBoolean: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_BOOLEAN)
+    private val getFloat: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_FLOAT)
+    private val getDouble: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_DOUBLE)
+    private val getDecimal128: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_DECIMAL128)
+    private val getInstant: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_INSTANT)
+    private val getObjectId: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_OBJECT_ID)
+    private val getUUID: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_UUID)
+    private val getByteArray: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_BYTE_ARRAY)
+    private val getMutableInt: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_GET_MUTABLE_INT)
+    private val getRealmAny: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_GET_REALM_ANY)
+    private val getObject: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_GET_OBJECT)
 
     // Primitive (Core) type setters
-    private val setValue: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_SET_VALUE)
-    private val setObject: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_SET_OBJECT)
-    private val setEmbeddedRealmObject: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_SET_EMBEDDED_REALM_OBJECT)
+    private val setValue: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_ACCESSOR_HELPER_SET_VALUE)
+    private val setObject: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_SET_OBJECT)
+    private val setEmbeddedRealmObject: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_SET_EMBEDDED_REALM_OBJECT)
 
     // Getters and setters for collections
-    private val getList: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_GET_LIST)
-    private val setList: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_SET_LIST)
-    private val getSet: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_GET_SET)
-    private val setSet: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_SET_SET)
-    private val getDictionary: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_GET_DICTIONARY)
-    private val setDictionary: IrSimpleFunction =
-        realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_SET_DICTIONARY)
+    private val getList: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_GET_LIST)
+    private val setList: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_SET_LIST)
+    private val getSet: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_GET_SET)
+    private val setSet: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_SET_SET)
+    private val getDictionary: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_GET_DICTIONARY)
+    private val setDictionary: IrSimpleFunction = realmObjectHelper.lookupFunction(REALM_OBJECT_HELPER_SET_DICTIONARY)
 
     // Top level SDK->Core converters
     private val byteToLong: IrSimpleFunction =
-        pluginContext.referenceFunctions(CallableId(FqName("io.github.xilinjia.krdb.internal"), Name.identifier("byteToLong"))).first().owner
+        pluginContext.finderForSource(irFile).findFunctions(CallableId(FqName("io.github.xilinjia.krdb.internal"), Name.identifier("byteToLong"))).first().owner
     private val charToLong: IrSimpleFunction =
-        pluginContext.referenceFunctions(CallableId(FqName("io.github.xilinjia.krdb.internal"), Name.identifier("charToLong"))).first().owner
+        pluginContext.finderForSource(irFile).findFunctions(CallableId(FqName("io.github.xilinjia.krdb.internal"), Name.identifier("charToLong"))).first().owner
     private val shortToLong: IrSimpleFunction =
-        pluginContext.referenceFunctions(CallableId(FqName("io.github.xilinjia.krdb.internal"), Name.identifier("shortToLong"))).first().owner
+        pluginContext.finderForSource(irFile).findFunctions(CallableId(FqName("io.github.xilinjia.krdb.internal"), Name.identifier("shortToLong"))).first().owner
     private val intToLong: IrSimpleFunction =
-        pluginContext.referenceFunctions(CallableId(FqName("io.github.xilinjia.krdb.internal"), Name.identifier("intToLong"))).first().owner
-
+        pluginContext.finderForSource(irFile).findFunctions(CallableId(FqName("io.github.xilinjia.krdb.internal"), Name.identifier("intToLong"))).first().owner
     // Top level Core->SDK converters
     private val longToByte: IrSimpleFunction =
-        pluginContext.referenceFunctions(CallableId(FqName("io.github.xilinjia.krdb.internal"), Name.identifier("longToByte"))).first().owner
+        pluginContext.finderForSource(irFile).findFunctions(CallableId(FqName("io.github.xilinjia.krdb.internal"), Name.identifier("longToByte"))).first().owner
     private val longToChar: IrSimpleFunction =
-        pluginContext.referenceFunctions(CallableId(FqName("io.github.xilinjia.krdb.internal"), Name.identifier("longToChar"))).first().owner
+        pluginContext.finderForSource(irFile).findFunctions(CallableId(FqName("io.github.xilinjia.krdb.internal"), Name.identifier("longToChar"))).first().owner
     private val longToShort: IrSimpleFunction =
-        pluginContext.referenceFunctions(CallableId(FqName("io.github.xilinjia.krdb.internal"), Name.identifier("longToShort"))).first().owner
+        pluginContext.finderForSource(irFile).findFunctions(CallableId(FqName("io.github.xilinjia.krdb.internal"), Name.identifier("longToShort"))).first().owner
     private val longToInt: IrSimpleFunction =
-        pluginContext.referenceFunctions(CallableId(FqName("io.github.xilinjia.krdb.internal"), Name.identifier("longToInt"))).first().owner
+        pluginContext.finderForSource(irFile).findFunctions(CallableId(FqName("io.github.xilinjia.krdb.internal"), Name.identifier("longToInt"))).first().owner
 
     private lateinit var objectReferenceProperty: IrProperty
     private lateinit var objectReferenceType: IrType
 
     fun modifyPropertiesAndCollectSchema(irClass: IrClass) {
         logDebug("Processing class ${irClass.name}")
-        val fields = SchemaCollector.properties
-            .getOrPut(irClass) {
-                mutableMapOf()
-            }
+        val fields = SchemaCollector.properties.getOrPut(irClass) { mutableMapOf() }
 
         objectReferenceProperty = irClass.lookupProperty(OBJECT_REFERENCE)
         objectReferenceType = objectReferenceProperty.backingField!!.type
@@ -229,7 +204,7 @@ class AccessorModifierIrGeneration(private val pluginContext: IrPluginContext) {
         // Attempt to find the interface for asymmetric objects.
         // The class will normally only be on the classpath for library-sync builds, not
         // library-base builds.
-        val asymmetricRealmObjectInterface: IrClass? = pluginContext.referenceClass(ASYMMETRIC_OBJECT_INTERFACE)?.owner
+        val asymmetricRealmObjectInterface: IrClass? = pluginContext.finderForSource(irFile).findClass(ASYMMETRIC_OBJECT_INTERFACE)?.owner
 
         irClass.transformChildrenVoid(object : IrElementTransformerVoid() {
             @Suppress("LongMethod")
@@ -1073,25 +1048,18 @@ class AccessorModifierIrGeneration(private val pluginContext: IrPluginContext) {
         }
 
         // Otherwise just return the matching core type present in the declaration
-        val genericPropertyType: PropertyType? = getPropertyTypeFromKotlinType(collectionGenericType)
-        return if (genericPropertyType == null) {
-            logError(
-                "Unsupported type for ${collectionType.description}: '${collectionGenericType.getKotlinTypeFqNameCompat(true)
-                }'",
-                declaration.locationOf()
-            )
-            null
-        } else if (genericPropertyType == PropertyType.RLM_PROPERTY_TYPE_MIXED && !collectionGenericType.isNullable()) {
-            logError(
-                "Unsupported type for ${collectionType.description}: Only '${collectionType.description}<RealmAny?>' is supported.",
-                declaration.locationOf()
-            )
-            return null
-        } else {
-            CoreType(
-                propertyType = genericPropertyType,
-                nullable = collectionGenericType.isNullable()
-            )
+        return when (val genericPropertyType: PropertyType? = getPropertyTypeFromKotlinType(collectionGenericType)) {
+            null -> {
+                logError("Unsupported type for ${collectionType.description}: '${collectionGenericType.getKotlinTypeFqNameCompat(true)}'", declaration.locationOf())
+                null
+            }
+            PropertyType.RLM_PROPERTY_TYPE_MIXED if !collectionGenericType.isNullable() -> {
+                logError("Unsupported type for ${collectionType.description}: Only '${collectionType.description}<RealmAny?>' is supported.", declaration.locationOf())
+                null
+            }
+            else -> {
+                CoreType(propertyType = genericPropertyType, nullable = collectionGenericType.isNullable())
+            }
         }
     }
 
