@@ -56,7 +56,7 @@ on:
 
 jobs:
   checksum:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Cache SHA
     outputs:
       version-label: ${{ steps.find-library-version.outputs.label }}
@@ -105,7 +105,7 @@ jobs:
   # Kotlin Metadata and Gradle/Compiler Plugin
   #
   metadata-compiler-plugin:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Metadata & Compiler plugin
     needs: checksum
     outputs:
@@ -130,7 +130,7 @@ jobs:
   # JVM (All platforms)
   #
   jvm-all:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: checksum
     name: JVM (All platforms)
     outputs:
@@ -156,7 +156,7 @@ jobs:
   # JNI Stub (JVM)
   #
   jni-stub:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: checksum
     name: JNI Stub (JVM)
     outputs:
@@ -182,7 +182,7 @@ jobs:
   # JNI MacOS Lib
   #
   jni-macos-lib:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: checksum
     name: JNI MacOS Lib
     outputs:
@@ -207,7 +207,7 @@ jobs:
   # JNI Linux Lib
   #
   jni-linux-lib:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: checksum
     name: JNI Linux Lib
     outputs:
@@ -233,7 +233,7 @@ jobs:
   # JNI Windows Lib
   #
   jni-windows-lib:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: checksum
     name: JNI Windows Lib
     outputs:
@@ -258,7 +258,7 @@ jobs:
   # Android
   #
   android:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: checksum
     name: Android
     outputs:
@@ -284,7 +284,7 @@ jobs:
   # Android Base Test APK
   #
   android-test-base:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: checksum
     name: Android Base Test APK
     outputs:
@@ -309,7 +309,7 @@ jobs:
   # MacOS arm64
   #
   macos-arm:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: checksum
     name: MacOS arm64
     outputs:
@@ -335,7 +335,7 @@ jobs:
   # MacOS x64
   #
   macos-x64:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: checksum
     name: MacOS x64
     outputs:
@@ -361,7 +361,7 @@ jobs:
   # iOS arm64
   #
   ios-arm:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: checksum
     name: iOS arm64
     outputs:
@@ -387,7 +387,7 @@ jobs:
   # iOS x64
   #
   ios-x64:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: checksum
     name: iOS x64
     outputs:
