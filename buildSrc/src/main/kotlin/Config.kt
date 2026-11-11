@@ -100,7 +100,7 @@ object Versions {
         const val minSdk = 21
         const val targetSdk = 37
         const val compileSdkVersion = 37
-        const val buildToolsVersion = "37.2.0"
+        const val buildToolsVersion = "37.2.0"  // not used
         const val buildTools = "9.5.1" // https://maven.google.com/web/index.html?q=gradle#com.android.tools.build:gradle
         const val ndkVersion = "30.0.16248370"
         const val r8 = "9.5.29" // See https://developer.android.com/build/kotlin-support   https://mvnrepository.com/artifact/com.android.tools/r8
@@ -127,7 +127,7 @@ object Versions {
     const val autoService = "1.1.1" // https://mvnrepository.com/artifact/com.google.auto.service/auto-service      2023
 //    const val buildkonfig = "0.17.1" // https://github.com/yshrsmz/BuildKonfig
     const val detektPlugin = "1.23.8" // https://github.com/detekt/detekt
-    const val dokka = "2.2.0" // https://github.com/Kotlin/dokka
+    const val dokka = "2.3.0" // https://github.com/Kotlin/dokka
     const val gradlePluginPublishPlugin = "2.2.1" // https://plugins.gradle.org/plugin/com.gradle.plugin-publish
     const val jmh = "1.37" // https://github.com/openjdk/jmh    this is pretty old
     const val jmhPlugin = "0.7.3" // https://github.com/melix/jmh-gradle-plugin

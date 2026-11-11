@@ -145,7 +145,7 @@ tasks.withType<KotlinNativeCompile>().configureEach {
 android {
     namespace = "io.github.xilinjia.krdb"
     compileSdk = Versions.Android.compileSdkVersion
-    buildToolsVersion = Versions.Android.buildToolsVersion
+//    buildToolsVersion = Versions.Android.buildToolsVersion
 
     defaultConfig {
         minSdk = Versions.Android.minSdk

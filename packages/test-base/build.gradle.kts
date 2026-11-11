@@ -117,7 +117,7 @@ kotlin {
 android {
     namespace = "io.realm.testapp"
     compileSdk = Versions.Android.compileSdkVersion
-    buildToolsVersion = Versions.Android.buildToolsVersion
+//    buildToolsVersion = Versions.Android.buildToolsVersion
 
     defaultConfig {
         minSdk = Versions.Android.minSdk

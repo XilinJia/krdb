@@ -357,7 +357,7 @@ tasks.withType<KotlinNativeCompile>().configureEach {
 android {
     namespace = "io.github.xilinjia.krdb.internal.interop"
     compileSdk = Versions.Android.compileSdkVersion
-    buildToolsVersion = Versions.Android.buildToolsVersion
+//    buildToolsVersion = Versions.Android.buildToolsVersion
     ndkVersion = Versions.Android.ndkVersion
 
     defaultConfig {
