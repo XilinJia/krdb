@@ -2,7 +2,7 @@
 
 * Kotlin upped to 2.4.21
 * migrated some deprecations and some code cleaning
-* NDK upped to 30
+* NDK upped to 30, gradle upped to 9.9.1
 * merged PR: read LiveRealm.snapshotVersion under snapshotLock, thanks to @ntlv
 * various dependencies updates
 

@@ -100,7 +100,7 @@ object Versions {
         const val minSdk = 21
         const val targetSdk = 37
         const val compileSdkVersion = 37
-        const val buildToolsVersion = "37.0.0"
+        const val buildToolsVersion = "37.2.0"
         const val buildTools = "9.5.1" // https://maven.google.com/web/index.html?q=gradle#com.android.tools.build:gradle
         const val ndkVersion = "30.0.16248370"
         const val r8 = "9.5.29" // See https://developer.android.com/build/kotlin-support   https://mvnrepository.com/artifact/com.android.tools/r8
